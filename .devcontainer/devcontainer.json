@@ -1,0 +1,1 @@
+{"name":"FOR YOU — cloud studio","image":"mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm","forwardPorts":[5173],"portsAttributes":{"5173":{"label":"FOR YOU preview","onAutoForward":"openPreview"}},"postCreateCommand":"npm ci","customizations":{"vscode":{"extensions":["dbaeumer.vscode-eslint","esbenp.prettier-vscode"]}}}
