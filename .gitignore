@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+
+# Downloaded during npm ci; bundled into the static build
+public/vision/wasm/
+public/vision/face_landmarker.task
+# Original generated master not used by the app
+public/media/demo-portrait.png
+About Class Practice 2_(Assignment 2).pdf
