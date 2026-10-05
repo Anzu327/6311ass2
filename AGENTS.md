@@ -10,3 +10,6 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Product preference (2026-10-05)
 Keep only the TikTok-style app interface. Do not restore side navigation, editorial concept rails, or outside technical captions. Desktop uses a centered portrait stage; mobile fills the viewport with safe-area spacing.
+
+## Collaboration preference (2026-10-05)
+Do not assign fixed roles to the two collaborators. Both may edit content, UI, interactions, and effects according to the current request.

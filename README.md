@@ -23,11 +23,9 @@ npm run dev
 
 示例模式使用 AI 生成的虚构成年人物肖像，示例肖像不进行人脸跟踪。数字与评论是艺术中的虚构数据。样片和贴图在 `public/media`，模型在 `public/vision`。
 
-## 两人分工
+## 两人协作
 
-- 你：`feature/experience`，交互流程、摄像头、人脸特效。
-- 搭档：`feature/feed-content`，编辑 `src/content.ts` 的三种身份、每种六条帖子、评论与叙事。
-- 共同：字体、色彩、手机体验、WIP 展示。
+两人均可根据当前需求修改内容、界面、交互和特效，不设固定分工。每轮工作使用各自的功能分支；同时修改同一文件时先约定范围。
 
 仓库拥有者打开 **Settings → Collaborators → Add people**，输入搭档 GitHub 用户名，由搭档接受邀请。不要共享 GitHub 账号。两人各自的 Codespace、工作分支独立，提交后通过 Pull Request 合并，建议互相审阅。
 
@@ -41,7 +39,7 @@ git commit -m "Refine feed narrative"
 git push -u origin feature/feed-content
 ```
 
-详细协作步骤见 [协作说明](docs/COLLABORATION.md)。Codespaces 的使用额度由各自账户承担，结束后停止环境。
+详细协作步骤见 [协作说明](docs/COLLABORATION.md)。设计内容、本地客户端与云端编辑流程，以及可复制给搭档 GPT 的指令见 [设计与 Codex 交接](docs/DESIGN_AND_CODEX_HANDOFF.md)。Codespaces 的使用额度由各自账户承担，结束后停止环境。
 
 ## 检查与发布
 
