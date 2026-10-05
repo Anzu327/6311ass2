@@ -13,3 +13,7 @@ Keep only the TikTok-style app interface. Do not restore side navigation, editor
 
 ## Collaboration preference (2026-10-05)
 Do not assign fixed roles to the two collaborators. Both may edit content, UI, interactions, and effects according to the current request.
+
+## Cloud editing and delivery preference (2026-10-05)
+Prefer the local Codex desktop client connected to this repository's cloud workspace. Edit project files in the cloud; do not clone or edit a local computer copy. Explain the required account, repository authorization, and cloud environment selection steps to the collaborator when needed.
+After every completed edit, run checks appropriate to the change, fix failures, then proactively commit the relevant changes and push them to remote `main`. Do not wait for another reminder or leave a feature branch or unmerged PR as the final delivery. Read the latest remote `main` before editing and check again before publishing; preserve and integrate collaborators' changes, resolve conflicts, and rerun affected checks. Never force-push over others' work. Verify the remote update and report a real commit link. If permissions, networking, or branch protection block completion, report the actual blocker without claiming synchronization succeeded.

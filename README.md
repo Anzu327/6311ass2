@@ -6,14 +6,14 @@
 
 ## 快速开发
 
-推荐两人分别在本仓库点击 **Code → Codespaces → Create codespace on main**。
+优先使用本地 Codex 客户端连接本仓库的云端工作区，项目文件在云端编辑，不在电脑上克隆或编辑本地副本。下列命令由 GPT 在云端执行，启动后由 GPT 打开环境预览。Codespaces 可作为云端备选。
 
 ```bash
 npm ci
 npm run dev
 ```
 
-在 Ports 面板打开 5173 的 HTTPS 预览。摄像头需要 HTTPS 或 localhost，并由观众主动允许；不申请麦克风权限。摄像头帧和人脸关键点不上传、不保存。`npm ci` 的 postinstall 会从 Google 官方下载模型并从 npm 包复制 WASM；发布时随网站打包，运行时从本网站加载，首次初始化较慢。需要安装时网络能访问 Google 官方模型地址。
+使用云端环境提供的 HTTPS 预览；Codespaces 可在 Ports 面板打开 5173。摄像头需要 HTTPS 或 localhost，并由观众主动允许；不申请麦克风权限。摄像头帧和人脸关键点不上传、不保存。`npm ci` 的 postinstall 会从 Google 官方下载模型并从 npm 包复制 WASM；发布时随网站打包，运行时从本网站加载，首次初始化较慢。需要安装时网络能访问 Google 官方模型地址。
 
 ## 体验
 
@@ -25,19 +25,11 @@ npm run dev
 
 ## 两人协作
 
-两人均可根据当前需求修改内容、界面、交互和特效，不设固定分工。每轮工作使用各自的功能分支；同时修改同一文件时先约定范围。
+两人均可根据当前需求修改内容、界面、交互和特效，不设固定分工。每轮从最新 `main` 开始；同时修改同一文件时先约定范围。
 
-仓库拥有者打开 **Settings → Collaborators → Add people**，输入搭档 GitHub 用户名，由搭档接受邀请。不要共享 GitHub 账号。两人各自的 Codespace、工作分支独立，提交后通过 Pull Request 合并，建议互相审阅。
+仓库拥有者打开 **Settings → Collaborators → Add people**，输入搭档 GitHub 用户名，由搭档接受邀请。不要共享 GitHub 账号。两人各自使用云端环境。每次编辑完成并检查无误后，GPT 主动提交并推送到远程 `main`，不必再次提醒；推送前整合远程新提交，不强制覆盖。
 
-```bash
-git switch main
-git pull --ff-only
-git switch -c feature/feed-content
-# 编辑后
-git add src/content.ts
-git commit -m "Refine feed narrative"
-git push -u origin feature/feed-content
-```
+每轮同步顺序：读取最新 `main` → 云端编辑 → 检查通过 → 提交本轮文件 → 正常推送到 `main` → 读回远程确认。已有未提交工作先保护；权限或分支保护阻止推送时明确报告。
 
 详细协作步骤见 [协作说明](docs/COLLABORATION.md)。设计内容、本地客户端与云端编辑流程，以及可复制给搭档 GPT 的指令见 [设计与 Codex 交接](docs/DESIGN_AND_CODEX_HANDOFF.md)。Codespaces 的使用额度由各自账户承担，结束后停止环境。
 
@@ -52,7 +44,7 @@ npm run test:sites
 
 PR 自动检查。`main` 更新触发 Pages 构建和发布。仓库拥有者需在 **Settings → Pages → Source** 选择 **GitHub Actions**。静态发布目录为 `dist/client`，Vite base 为 `/6311ass2/`；预计地址 https://anzu327.github.io/6311ass2/ ，只有部署成功后才算上线。
 
-第一次部署若 Pages 未启用，启用后在 Actions 的 Publish artwork 工作流点击 Run workflow。不要把未通过检查的分支直接合并。
+第一次部署若 Pages 未启用，启用后在 Actions 的 Publish artwork 工作流点击 Run workflow。不要把未通过检查的修改推送到 `main`。
 
 ## WIP
 
