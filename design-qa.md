@@ -2,6 +2,10 @@
 
 final result: passed
 
+## Responsive revision — 2026-10-05
+
+User requested only the TikTok-style interface. Removed both desktop rails and outside technical captions, moving artwork information into the stage header. Updated identity renders at 1440 × 900 and 375 × 667 were inspected: bottom navigation and both CTAs remain visible. Short screens allow scrolling within copy panels and use safe-area spacing. Local typecheck, eleven flow/geometry tests and production build passed. Current screenshots: `/private/tmp/foryou-minimal-desktop.jpg`, `/private/tmp/foryou-minimal-mobile.jpg`. This revision supersedes the earlier desktop sidebar layout below.
+
 ## Source and evidence
 
 - Source visual truth: `/Users/fred/.codex/generated_images/01a10b43-d4aa-7a43-944e-502543a709f3/exec-d92d7aa5-cc33-4563-8f2e-e50c9968c4cd.png` (853 × 1844).

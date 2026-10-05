@@ -1,5 +1,17 @@
 # 两人云端协作
 
+## 在 Codex 中编辑
+
+本项目已通过 GitHub 连接器提交过 PR，当前聊天可以继续修改文件并创建 PR。GitHub Actions 负责检查和发布，不负责开启 Codex 编辑权限。
+
+朋友接受仓库 Collaborator 邀请后，用自己的 GitHub 账号连接 Codex 的 GitHub 插件并授权此仓库。桌面开发时先克隆仓库，再在 Codex 中打开克隆后的项目文件夹。可以直接说：“从最新 main 新建我的功能分支，修改帖子，运行检查并创建 PR。”
+
+每个人保留独立目录与分支。GitHub 不会实时同步正在输入的代码，每轮开始同步 main，再通过 PR 合并。命令行 git push 需要各自完成 GitHub 登录；连接器授权不代表本机 Git 自动登录。
+
+完全在浏览器中开发时，使用各自的 Codespaces；本地 Codex 与 Codespace 通过提交和拉取同步。官方工作流：https://learn.chatgpt.com/docs/environments/git-worktrees
+
+## 分工与同步
+
 1. 拥有者邀请搭档作为 Collaborator，搭档接受邀请。
 2. 两人各自在同一仓库创建自己的 Codespace；这是两个独立开发环境，不是同时编辑同一个文件。
 3. 创建功能分支：你用 `feature/experience`，朋友用 `feature/feed-content`。
