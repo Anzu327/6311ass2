@@ -6,7 +6,7 @@ const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','1
 let browser,page;
 try{
  const url='http://127.0.0.1:5173/6311ass2/';
- for(let i=0;i<470;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));if(i===79)throw new Error('Vite failed to start');}
+ for(let i=0;i<80;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));if(i===79)throw new Error('Vite failed to start');}
  browser=await chromium.launch({headless:true});
  page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -14,7 +14,7 @@ try{
  await page.goto(url);await page.getByRole('button',{name:'Try a sample'}).click();
  await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
  const names=new Set();
- for(let i=0;i<48;i++){await page.waitForTimeout(650);names.add(await page.locator('.meme-badge').innerText());if(i<8)await page.keyboard.press('ArrowDown');}
+ for(let i=0;i<48;i++){await page.waitForTimeout(650);names.add(await page.locator('.meme-badge').innerText());if(i<47)await page.keyboard.press('ArrowDown');}
  assert.equal(names.size,48,'First 48 posts must have 48 distinct clips');
  for(let i=0;i<5;i++){await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');}
  assert.match(await page.locator('.post-caption > .mono').innerText(),/#053/);
