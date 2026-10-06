@@ -11,8 +11,19 @@ try{
  page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const broken=[];page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
- await page.goto(url);await page.getByRole('button',{name:'Try a sample'}).click();
- await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
+ await page.addInitScript(()=>{
+  window.__qaCameraRequests=0;
+  const original=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+  navigator.mediaDevices.getUserMedia=(constraints)=>{window.__qaCameraRequests++;return original(constraints);};
+  window.__qaIntroTiming={};
+  new MutationObserver(()=>{const phase=document.querySelector('.stage')?.classList;const now=performance.now();if(phase?.contains('intro')&&!window.__qaIntroTiming.intro)window.__qaIntroTiming.intro=now;if(phase?.contains('feed')&&!window.__qaIntroTiming.feed)window.__qaIntroTiming.feed=now;}).observe(document,{childList:true,subtree:true,attributes:true});
+ });
+ await page.goto(url);
+ await page.locator('.stage.feed').waitFor({timeout:5000});
+ const timing=await page.evaluate(()=>window.__qaIntroTiming);
+ assert.ok(timing.feed-timing.intro>=900&&timing.feed-timing.intro<1800,'Intro must last about one second from React mount');
+ assert.equal(await page.evaluate(()=>window.__qaCameraRequests),0,'Entry must not request the camera');
+ assert.equal(await page.locator('.welcome-copy,.identity-copy,.scan-copy,.ending-copy').count(),0,'No intermediate onboarding screens');
 
  assert.equal(await page.locator('canvas.face-effects').count(),0,'No legacy effects canvas');
  assert.equal(await page.locator('.meme-headline,.meme-badge,.bootleg-popup,.interest-popup,.video-timeline').count(),0,'No effect UI remains');
@@ -24,9 +35,10 @@ try{
  for(const viewport of [{width:390,height:844},{width:320,height:568},{width:1366,height:768}]){await page.setViewportSize(viewport);await page.waitForTimeout(300);assert.ok(await page.locator('.bottom-nav').evaluate(e=>e.getBoundingClientRect().bottom<=window.innerHeight+1),'Navigation must fit');}
  console.log('QA_SCREENSHOT_CLEARED='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));
  const mediaRequests=[];page.on('request',r=>mediaRequests.push(r.url()));
- await page.reload();await page.getByRole('button',{name:'Try a sample'}).click();await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});await page.waitForTimeout(500);
+ await page.reload();await page.locator('.stage.feed').waitFor({timeout:5000});await page.waitForTimeout(500);
  assert.ok(!mediaRequests.some(url=>/meme-|remix-|cheek-effect/.test(url)),'Must not request any removed effect assets');
- await page.getByRole('button',{name:'Reset my feed'}).click();await page.getByRole('button',{name:'Start again',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Reset my feed'}).click();assert.ok(await page.locator('.stage.feed').count());assert.equal(await page.locator('.stage.intro').count(),0);assert.match(await page.locator('.post-caption > .mono').innerText(),/#001/);
+ const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await reduced.goto(url);await reduced.locator('.stage.feed').waitFor({timeout:5000});await reduced.close();
  const live=await browser.newPage({viewport:{width:390,height:844}});
  await live.addInitScript(()=>{
   window.__qaStopped=0;
@@ -39,10 +51,10 @@ try{
    return stream;
   };
  });
- live.on('pageerror',e=>errors.push(e.message));await live.goto(url);await live.getByRole('button',{name:'Enable camera'}).click();await live.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
+ live.on('pageerror',e=>errors.push(e.message));await live.goto(url);await live.locator('.stage.feed').waitFor({timeout:5000});await live.getByRole('button',{name:'Turn camera on'}).click();
  await live.getByText('LIVE · face tracked',{exact:true}).waitFor({timeout:60000});
  await live.waitForTimeout(1000);console.log('QA_SCREENSHOT_TRACKING='+(await live.screenshot({type:'jpeg',quality:60})).toString('base64'));
  await live.getByRole('button',{name:'Turn camera off'}).click();assert.ok(await live.evaluate(()=>window.__qaStopped)>0,'Camera tracks must stop');
  assert.deepEqual(errors,[],'No browser runtime errors');assert.deepEqual(broken,[],'No missing local assets');
- console.log('Camera shell checks passed: all effects removed, no deleted-asset requests, navigation, empty Explore, reset, three viewports, live landmark model on synthetic camera, camera cleanup.');
+ console.log('Direct entry checks passed: one-second intro, automatic feed, no welcome/scan/identity, no automatic camera request, all effects removed, no deleted-asset requests, navigation, empty Explore, reset, three viewports, live landmark model on synthetic camera, camera cleanup.');
 }catch(error){if(page){console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));}throw error;}finally{await browser?.close();server.kill('SIGTERM');}

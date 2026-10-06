@@ -22,3 +22,6 @@ After every completed edit, run checks appropriate to the change, fix failures, 
 
 ## Rejected effects / rebuild preference (2026-10-07)
 The user rejects ALL existing effect templates and the 48-clip collage extension. Delete their runtime catalog, renderers, audio and body/scene/animal assets; do not restore them from history or call variants separate new effects. Keep the app shell, local camera tracking and navigation. The user explicitly prefers new animated characters and scenes where each supplied meme is recognizable from its costume, signature action and setting. New effects need distinct animation, not the same photographic body with different text. Old Git history remains recoverable. Clearing the old library is not completion of the new animated effects.
+
+## Simple entry preference (2026-10-07)
+Opening the page shows a one-second typographic transition, then automatically enters the portrait short-video interface. Remove welcome/scan/identity/denial/outro screens; do not replace them with another onboarding sequence. Camera stays opt-in and must not be requested at entry. Feed reset is immediate and stays in the feed. This change does not restore the rejected effect library.
