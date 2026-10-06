@@ -39,7 +39,7 @@ try{
    return stream;
   };
  });
- live.on('pageerror',e=>errors.push(e.message));await live.goto(url);await live.getByRole('button',{name:'Open camera'}).click();await live.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
+ live.on('pageerror',e=>errors.push(e.message));await live.goto(url);await live.getByRole('button',{name:'Enable camera'}).click();await live.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
  await live.getByText('LIVE · face tracked',{exact:true}).waitFor({timeout:60000});
  await live.waitForTimeout(1000);console.log('QA_SCREENSHOT_TRACKING='+(await live.screenshot({type:'jpeg',quality:60})).toString('base64'));
  await live.getByRole('button',{name:'Turn camera off'}).click();assert.ok(await live.evaluate(()=>window.__qaStopped)>0,'Camera tracks must stop');
