@@ -1,35 +1,45 @@
 
 import type {IdentityId,Post} from './content';
-export type MemeEffect='shadow'|'dragon'|'cat'|'hood'|'dino'|'hybrid'|'duck'|'mahi'|'retreat';
-export interface MemePost extends Post {id:MemeEffect;category:IdentityId;name:string;instruction:string;year:string;voice:string;}
+export type MemeKind='shadow'|'dragon'|'dino'|'social'|'qinghai'|'mc'|'blue'|'pan'|'food'|'disney'|'ghost'|'disco'|'buy'|'caoxian'|'retreat'|'mahi';
+export type MemeEffect=string;
+export type FeedSkin='pirate'|'subtitles'|'infected';
+export interface MemePost extends Post {id:MemeEffect;kind:MemeKind;variant:number;skin:FeedSkin;category:IdentityId;name:string;instruction:string;year:string;voice:string;duration:number;}
 export type Interests=Record<IdentityId,number>;
 export const freshInterests=():Interests=>({soft:0,tech:0,culture:0});
-export const memes:MemePost[]=[
- {id:'shadow',category:'tech',name:'SHADOW CLONE',year:'2019',title:'One you was not enough.',subtitle:'影流之主',instruction:'Move your head. Your clones are late.',caption:'Three of me. Still zero coordination. #shadowclone #影流之主',motif:'CLONE',comments:['The third one missed the rehearsal.','Why do I recognize this immediately?','Bro multiplied the problem.'],voice:'分身，还是不会跳。'},
- {id:'cat',category:'soft',name:'CAT MEME',year:'2024',title:'You are the cat now.',subtitle:'猫 meme',instruction:'Open your mouth. Make it everybody’s problem.',caption:'My last two brain cells made this. #catmeme #meme',motif:'CAT',comments:['Huh?','This is my entire personality now.','The algorithm sent another cat.'],voice:'啊？怎么又是猫。'},
- {id:'dragon',category:'tech',name:'DRAGON LORD',year:'2020',title:'Your villain era.',subtitle:'歪嘴战神',instruction:'Smile. Let the corner of your mouth do the acting.',caption:'Three years of waiting. One extremely unnecessary reveal. #dragonlord #歪嘴战神',motif:'LORD',comments:['The mouth has its own storyline.','He owns this comment section.','Most normal short-drama advertisement.'],voice:'三年之期已到，龙王归来。'},
- {id:'hood',category:'soft',name:'HOODIE INCIDENT',year:'2024',title:'The hoodie chose you.',subtitle:'我有一个帽衫',instruction:'Lean closer. The hood has room for more ears.',caption:'Ordered a hoodie. Received a new species. #hoodie #帽衫',motif:'HOOD',comments:['Very loyal-looking.','Why is the hood taller than me?','The ears are a paid upgrade.'],voice:'我有一个帽衫。'},
- {id:'hybrid',category:'culture',name:'AI BESTIARY',year:'2025',title:'New species just dropped.',subtitle:'AI 山海经',instruction:'Tilt your head. Evolution is getting worse.',caption:'Shark. Shoes. You. Science has left the chat. #brainrot #AI山海经',motif:'SPECIES',comments:['Scientists have been real quiet.','What is the food chain here?','I regret asking for personalized content.'],voice:'新物种，正在离谱进化。'},
- {id:'mahi',category:'tech',name:'FACE KARAOKE',year:'2021',title:'Your face has a gig.',subtitle:'蚂蚁呀嘿式五官摇',instruction:'Your mouth is on tour. You are not invited.',caption:'No singing ability. Plenty of facial enthusiasm. #facekaraoke #鬼畜',motif:'SING',comments:['My mouth signed a solo contract.','The eyes are the backup dancers.','Why am I still watching this?'],voice:'你的嘴，有它自己的想法。'},
- {id:'duck',category:'culture',name:'DUCK REVENGE',year:'2026',title:'The duck remembers.',subtitle:'雪山救狐狸／酱板鸭',instruction:'Raise your eyebrows. Cue the dramatic reveal.',caption:'Thought I was the hero. Turns out I am the side dish. #plotTwist #酱板鸭',motif:'DUCK',comments:['That is the duck, not the fox.','Even the background prop has a revenge arc.','The plot is fully cooked.'],voice:'我不是狐狸，我是那只酱板鸭。'},
- {id:'dino',category:'soft',name:'YELLOW DINO',year:'2024',title:'No, I am the dinosaur.',subtitle:'奶龙式身份争夺',instruction:'Shake your head. A second you will disagree.',caption:'One face. Two suspiciously confident dinosaurs. #yellowdino #抽象',motif:'DINO',comments:['I am the dinosaur.','No. I am the dinosaur.','Who let both of them post?'],voice:'我是奶龙，我才是奶龙。'},
- {id:'retreat',category:'tech',name:'RETREAT MODE',year:'2022',title:'Personal space: activated.',subtitle:'退！退！退！',instruction:'Open your mouth to push the little you away.',caption:'A polite request, with absolutely no indoor voice. #retreat #退退退',motif:'BACK',comments:['The tiny me keeps coming back.','Professional boundary setting.','Volume was never the issue.'],voice:'退，退，退。'}
+interface Template {kind:MemeKind;category:IdentityId;name:string;subtitle:string;titles:[string,string,string];instructions:[string,string,string];captions:[string,string,string];voice:string;}
+export const templates:Template[]=[
+ {kind:'shadow',category:'tech',name:'SHADOW CLONE',subtitle:'影流之主',titles:['影流之主','分身也下班了','同步失败'],instructions:['Move your head. The other you is late.','Three copies. Zero coordination.','Your smile broke the synchronization.'],captions:['One face, three unpaid dancers.','The original was already a remix.','Copy / paste / lose the beat.'],voice:'分身，还是不会跳。'},
+ {kind:'dino',category:'soft',name:'DINO IDENTITY',subtitle:'奶龙身份争夺',titles:['谁才是奶龙','身份正在争夺','怎么又是我'],instructions:['Shake your head. Someone disagrees.','Open your mouth to grow the argument.','Same face. Another yellow body.'],captions:['No original footage. A counterfeit identity contest.','The algorithm has picked a side.','Even your clone wants the account.'],voice:'我是奶龙，我才是奶龙。'},
+ {kind:'social',category:'culture',name:'SOCIAL SHAKE',subtitle:'社会摇',titles:['社会摇','全员跟不上拍','摇到信号丢失'],instructions:['Tilt your head to steer the rhythm.','The backup dancers are half a beat late.','Smile. Even the frame starts dancing.'],captions:['A dance floor, photocopied badly.','Three bodies. One borrowed face.','The feed shakes harder than you do.'],voice:'摇起来，信号跟不上了。'},
+ {kind:'pan',category:'tech',name:'PAN ENTRANCE',subtitle:'有请潘周聃',titles:['有请潘周聃','侧身出场','出场比正片长'],instructions:['Turn your head to trigger the entrance.','The shoulder goes first. You follow.','Every version insists on arriving first.'],captions:['An entrance becomes an entire personality.','Borrowed pose. Your own face.','The system recommends your entrance again.'],voice:'有请，你本人。'},
+ {kind:'food',category:'soft',name:'SOUL SAUCE',subtitle:'灵魂汁子浇给',titles:['灵魂汁子','浇给！','汁子正在加载'],instructions:['Open your mouth. The sauce gets louder.','Smile for a dramatically unnecessary zoom.','More sauce. Less signal.'],captions:['The sauce has taken over the review.','A food clip, now starring your face.','Recipe: one face and too many reuploads.'],voice:'灵魂汁子，浇给。'},
+ {kind:'qinghai',category:'culture',name:'QINGHAI SHAKE',subtitle:'青海摇',titles:['青海摇','脚步比网速快','摇出第三个自己'],instructions:['Head tilt changes the step direction.','Watch the feet miss the next beat.','Your clones refuse to dance in sync.'],captions:['A footwork remix, not a regional portrait.','Low budget. Extremely high confidence.','You watched one. Here are two more.'],voice:'脚步跟上，网速没跟上。'},
+ {kind:'dragon',category:'tech',name:'DRAGON LORD',subtitle:'歪嘴战神',titles:['三年之期已到','嘴角先出场','龙王回归失败'],instructions:['Smile. The mouth does the acting.','One corner of your mouth gets promoted.','Your heroic reveal keeps buffering.'],captions:['A bootleg short drama with a familiar lead.','Originality not found. Confidence found.','The subtitle group stole the whole plot.'],voice:'三年之期已到，龙王归来。'},
+ {kind:'mc',category:'culture',name:'MIC OVERLOAD',subtitle:'东北喊麦',titles:['麦克风过载','全场跟着喊','一人喊出三个人'],instructions:['Open your mouth to amplify the screen.','Head tilt bends the fake audio meter.','The echo has its own face.'],captions:['A fictional stage, an extremely real mouth.','Original electronic beat. No cloned voices.','The microphone did not consent to this.'],voice:'全场，跟着节拍。'},
+ {kind:'blue',category:'tech',name:'BLUE ENCHANTRESS',subtitle:'蓝色妖姬',titles:['蓝色妖姬','切换战斗鞋','蓝色信号满格'],instructions:['Your head tilt drives the strut.','The shoes arrive before the face.','Smiling creates a second blue you.'],captions:['Blue shirt. Yellow shoes. Your face.','A costume becomes a copyable identity.','The original is already outnumbered.'],voice:'蓝色妖姬，登场。'},
+ {kind:'ghost',category:'soft',name:'TRUST ERROR',subtitle:'我信你个鬼',titles:['我信你个鬼','这个算法坏得很','信任正在断线'],instructions:['Raise your voice with an open mouth.','Shake your head to reject the system.','The little copies keep disagreeing.'],captions:['The platform heard your objection. Nothing changed.','A reaction remixed onto a fictional host.','Your rejection is another recommendation signal.'],voice:'我信你个鬼，你个糟老头子坏得很。'},
+ {kind:'disney',category:'culture',name:'MISHEARD RAP',subtitle:'我要迪士尼／我要 diss 你',titles:['我要迪士尼','DISS / DISNEY','歌词被字幕偷走'],instructions:['Open your mouth. The subtitles mishear you.','Tilt your head to switch the fake translation.','The fansub is confident and completely wrong.'],captions:['A homophone travels faster than its context.','A playground becomes a counterfeit stage.','Not the original track: an interactive mishearing.'],voice:'谢帝，谢帝，我要迪士尼。'},
+ {kind:'disco',category:'culture',name:'WOLF DISCO',subtitle:'野狼 Disco',titles:['左边画个龙','右边一道彩虹','左右又搞反了'],instructions:['Head tilt swaps the left and right copies.','The right copy never learns the left move.','Move your mouth. Your echoes join the disco.'],captions:['Left and right become the whole music video.','An original beat, a borrowed gesture.','Both sides are another you.'],voice:'左右都在跳。'},
+ {kind:'buy',category:'soft',name:'BUY NOW LOOP',subtitle:'OMG，买它！',titles:['OMG！买它！','买到浏览器卡死','不用也给你推'],instructions:['Open your mouth to multiply the sale popups.','Smile. Another fake discount appears.','No checkout. Only more recommendations.'],captions:['Your excitement is the product.','A fictional host, zero real purchases.','One click and the entire feed becomes a sale.'],voice:'欧买噶，买它。'},
+ {kind:'caoxian',category:'culture',name:'CAOXIAN SIGNAL',subtitle:'山东菏泽曹县',titles:['山东菏泽曹县','宇宙中心信号','地名也能无限复制'],instructions:['Tilt your head. The stage camera overreacts.','Open your mouth for the local-channel echo.','One location. Three competing broadcasts.'],captions:['A place name turns into a platform chant.','A fictional loudspeaker stage, not a claim about locals.','The signal is provincial. The remix is everywhere.'],voice:'山东菏泽曹县。'},
+ {kind:'retreat',category:'soft',name:'RETREAT MODE',subtitle:'退！退！退！',titles:['退！退！退！','退回上一条','怎么还在推我'],instructions:['Open your mouth to push the tiny you away.','The copies return every loop.','Reject the feed. The feed calls it engagement.'],captions:['The boundaries are very loud.','You cannot push the algorithm far enough.','Not interested? Interest recorded.'],voice:'退，退，退。'},
+ {kind:'mahi',category:'tech',name:'FACE KARAOKE',subtitle:'五官摇／鬼畜',titles:['五官各自上班','嘴巴单飞了','表情包在唱歌'],instructions:['Your mouth and eyes get separate contracts.','Tilt your head to upset the backing singers.','Smile. The entire face starts remixing itself.'],captions:['Face on tour. You were not invited.','No singing ability is needed.','The same pixels are becoming different people.'],voice:'你的嘴，有它自己的想法。'}
 ];
+export const memes:MemePost[]=[0,1,2].flatMap(variant=>templates.map((m,i)=>({
+ id:m.kind+'-'+variant,kind:m.kind,variant,skin:(['pirate','subtitles','infected'] as const)[(i+variant)%3],
+ category:m.category,name:m.name,year:'REMIX '+String(variant+1),title:m.titles[variant],subtitle:m.subtitle,
+ instruction:m.instructions[variant],caption:m.captions[variant]+' #'+m.kind+' #bootleg',
+ motif:m.kind.toUpperCase(),comments:['That is literally my face.','The copy is acting more confident than the original.','Not interested? The platform heard “more”.'],voice:m.voice,duration:10+(i%5)
+})));
 export const memeById=(id:string):MemePost=>memes.find(m=>m.id===id)||memes[0];
 export function nextMeme(identity:IdentityId,index:number,scores:Interests,history:string[]):MemeEffect{
  const offset={soft:1,tech:0,culture:4}[identity];
- if(index<memes.length)return memes[(index+offset)%memes.length].id;
- const categories:IdentityId[]=['soft','tech','culture'];
- const weights=categories.map(c=>1+scores[c]*2);
- const total=weights.reduce((a,b)=>a+b,0);
- let ticket=(((index+1)*0.61803398875+offset*.137)%1)*total;
- let category=categories[2];
+ if(index<memes.length){const page=Math.floor(index/templates.length),slot=index%templates.length;return memes[page*templates.length+(slot+offset)%templates.length].id;}
+ const categories:IdentityId[]=['soft','tech','culture'],weights=categories.map(c=>1+scores[c]*2),total=weights.reduce((a,b)=>a+b,0);
+ let ticket=(((index+1)*.61803398875+offset*.137)%1)*total,category=categories[2];
  for(let i=0;i<categories.length;i++){ticket-=weights[i];if(ticket<0){category=categories[i];break;}}
- let pool=memes.filter(m=>m.category===category&&!history.slice(-2).includes(m.id));
- if(!pool.length)pool=memes.filter(m=>m.category===category);
- return pool[(index+offset)%pool.length].id;
+ const recent=history.slice(-3).map(id=>memeById(id).kind);
+ const pool=memes.filter(m=>m.category===category&&!recent.includes(m.kind));
+ return (pool.length?pool:memes.filter(m=>m.category===category))[(index+offset)%Math.max(1,pool.length||memes.filter(m=>m.category===category).length)].id;
 }
-export function enclosure(scores:Interests):number{
- const values=Object.values(scores);const total=values.reduce((a,b)=>a+b,0);
- return total?Math.min(96,Math.round(Math.max(...values)/total*100)):0;
-}
+export function enclosure(scores:Interests):number{const values=Object.values(scores),total=values.reduce((a,b)=>a+b,0);return total?Math.min(96,Math.round(Math.max(...values)/total*100)):0;}

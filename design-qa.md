@@ -1,45 +1,36 @@
-# Design QA
-
+# Design QA — bootleg meme feed
+Date: 2026-10-07
 final result: passed
 
-## Responsive revision — 2026-10-05
-
-User requested only the TikTok-style interface. Removed both desktop rails and outside technical captions, moving artwork information into the stage header. Updated identity renders at 1440 × 900 and 375 × 667 were inspected: bottom navigation and both CTAs remain visible. Short screens allow scrolling within copy panels and use safe-area spacing. Local typecheck, eleven flow/geometry tests and production build passed. Current screenshots: `/private/tmp/foryou-minimal-desktop.jpg`, `/private/tmp/foryou-minimal-mobile.jpg`. This revision supersedes the earlier desktop sidebar layout below.
-
 ## Source and evidence
+Source visual truth: three approved ImageGen directions, content-only, each853×1844. The user explicitly accepts all three and requests new meme families; this is an approved mixed art-direction adaptation, not an exact actor, phrase or movie scene clone.
+Source references are retained in creator outputs/for-you-redesign-assets/reference-{pirate,subtitles,infected}.png.
+Implementation screenshots: docs/wip/remix-{shadow,dragon,mahi}.jpg, plus creator outputs/for-you-redesign-assets/final-screenshot_{small,desktop,tracking}.jpg.
+Full combined comparisons: docs/wip/remix-comparison-{pirate,subtitles,infected}.png. Source and rendered implementation occupy equal390×844 regions in each image.
+CSS viewport390×844, deviceScaleFactor1, capture390×844; source downsampled to390×844. Also checked320×568 and1366×768.
+State: fresh sample-mode feed, respectively SHADOW CLONE1 / DRAGON LORD2 / FACE KARAOKE3; dynamic content intentionally differs. The three reference layouts correspond to pirate / wild subtitle / infected-browser skins.
+Browser evidence: existing cloud Chromium QA run37499997576 on commit231975eb461a82ee7dac3f3dab29b47bc1381943. Native in-app browser timed out; physical device/camera validation is not claimed.
 
-- Source visual truth: `/Users/fred/.codex/generated_images/01a10b43-d4aa-7a43-944e-502543a709f3/exec-d92d7aa5-cc33-4563-8f2e-e50c9968c4cd.png` (853 × 1844).
-- Render: `docs/wip/02-identity.jpg` (390 × 844), Codex In-app Browser. Main comparison state: Soft Dreamer identity reveal.
-- Source resampled to 390 × 844 for density normalization; combined source/render comparison at `/private/tmp/foryou-comparison.jpg` (780 × 844), inspected with view_image. Same portrait-screen framing, no device bezel.
-- Additional renders: welcome, feed overload, ending at 390 × 844; desktop at 1440 × 1024. Tracking diagnostic uses only a fictional AI-generated adult at 1280 × 720.
+## Findings and comparison history
+1. P2 small-phone fake popup overlapped the real action rail. Moved popup70px from right at short heights; post-fix bounds assertion and actual close click pass. Final small capture shows no DOM popup over rail.
+2. P2 canvas comic subtitles collided with HTML title. Moved canvas subtitles from .69–.72h to .57–.59h. Combined final views show distinct subtitle, headline and caption baselines.
+3. P2 headline font was restrained and depended on external Chinese-font delivery. Added a self-hosted40KB ZCOOL KuaiLe subset under SIL OFL1.1 and enlarged headline. Final browser checks confirm font loaded; combined views show larger playful lettering. Microcopy remains a plain readable UI face.
+4. P2 duplicate canvas/HTML recommendation messages shared a region. Removed the canvas duplicate and placed the pirate interest popup below metadata. Capture uses a fresh session so the source initial-feed state is not compared against the intentionally narrowed late-feed state.
+No actionable P0/P1/P2 issues remain. Source grain/brush distress is stronger than the runtime's intentionally restrained intermittent signal tearing; this is P3 art-direction polish, not a broken interaction.
 
-## Iteration history
+## Five required fidelity surfaces
+- Typography: local playful Chinese display face; short meme titles, compact English control text. Typeface/copy are coherent with mixed bootleg intent; not an exact raster-lettering replica.
+- Spacing/layout: portrait composition, whole central bodies, persistent right rail and five-item bottom navigation. App fits at390×844,320×568 and centered desktop1366×768. Real controls have focus states and touch targets. Long captions wrap without hiding navigation.
+- Colors/tokens: cyan/pink pirate, warm amber/gold fansub, acidlime/blue/gray infected states. Core icons remain readable despite distortion; no full-screen strobe. Reduced motion freezes canvas warps/noise.
+- Image quality: genuine generated photographic backgrounds and transparent human bodies. WebP alpha preserved; no rejected animal-filter rendering path except the requested dino family. Webcam crops are deliberately visible collage masks, not advertised as seamless neural face swaps. Costumes/scenes differ by user-requested content.
+- Copy/content:48 distinguishable clips across16 families, with distinct titles/instructions/variants; fictional counts/popups and privacy explanation identified in About.
 
-1. P2: heading was oversized and started roughly 45 px above the reference. Reduced identity heading from 57 px to 43 px, preserving lower metadata and controls. Recaptured identity; heading now follows the reference's visual rhythm.
-2. P2: static face frame was an uninterrupted rectangle. Changed to sparse tracking corners; live frame comes from actual detected landmarks.
-3. P2: demo scan text incorrectly implied real tracking. Changed demo status to state that scanning is simulated; live mode separately reports detection status.
-4. Recaptured corrected state, compared together with normalized reference and inspected full-size assets. No actionable P0/P1/P2 remains within the user-requested product plan.
+Focused checks: header/nav icons and title/caption regions checked from the full390px combined comparison at readable scale; small-phone popup bounds and dismiss interaction checked separately. No unavailable icon substitutes or rasterized full-page UI.
 
-## Fidelity surfaces
+## Verification
+Typecheck, unit tests, production build and Sites-runtime test passed (run37499997371).
+Browser checks passed:48 unique clip names, continuous advance/back, mobile swipe, likes,48 Explore entries, seven selected animated canvases, real dismiss, reduced motion, small phone and desktop fit, restart/reset, synthetic camera through the real MediaPipe landmark model, camera track cleanup. No page errors or missing local assets.
+Residual limits: actual phones/laptops, Safari, hardware webcam and audible OS speech quality need user trial. Automated evidence is not a physical-camera certification.
 
-- Typography: two fonts, DM Sans for bold interface/display and Space Mono for system metadata. Source hierarchy preserved; headings remain editable code, not a screenshot. Identity uses monospace rather than generated decorative letter shapes.
-- Layout: full-screen portrait, top tabs, right action stack, lower identity, denial action and bottom navigation. Desktop adds the plan's sidebar and concept rail. Native-size mobile capture matches 390 × 844.
-- Color: black/white with cyan #53f5ed and red #fe2858; two other identities deliberately vary effect accents. No early full-screen glitch; repetition escalates in later posts.
-- Assets: dedicated generated photographic portrait and transparent cheek texture; no flattened UI image. Source/render focal point and dark lower torso were directly compared. Standard Phosphor icons substitute vector equivalents for the reference's TikTok icon silhouettes.
-- Copy: WE KNOW YOU, SOFT DREAMER, ALGORITHMIC IDENTITY, denial CTA and top feed tabs retained. Approved plan adds camera/demo controls, a feed-entry action and artwork explanation. Search renamed Explore to match the category browser. Generated pseudo-analysis labels replaced with honest demo/live statuses.
-
-## Intentional deviations
-
-- Larger denial target and extra feed-entry action support the full interaction flow.
-- Equivalent generated portrait rather than the mock's exact person, because the mock includes flattened UI.
-- Identity font and share icon are close equivalents, not pixel-identical TikTok branding.
-- Source's red heart depicts selected liking; initial application state is unliked, toggling makes it red.
-- Browser-responsive web implementation follows the explicit React/Vite/Pages plan, without a phone-shell runtime.
-
-## Focused comparison
-
-Heading, identity label, CTA, tracking corners and navigation are readable at native 390 × 844; inspected in the combined source/render input. Full-view layout and color were compared in the same input. Latest individual identity, feed and ending screenshots inspected with view_image.
-
-## Interaction checks and limits
-
-Browser-tested demo flow, denial, keyboard posts, comment dialog, like, share feedback, reset, same identity, restart. Real detector tested with a fictional portrait video, no-face and restoration plus all three effects. Main experience console errors: none. Physical webcam permission workflow and two real Codespaces remain user-device verification gaps, recorded in `docs/VALIDATION.md`; this report does not claim those passed.
+## Follow-up polish
+P3: optional rougher paper masks and raster brush typography, if the user wants closer-to-mock distressed lettering. Current adaptation keeps an actually usable feed and distinct meme content.
