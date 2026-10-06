@@ -2,13 +2,13 @@
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
-const server=spawn('npm',['run','dev','--','--host','127.0.0.1'],{stdio:'pipe'});
-let browser;
+const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
+let browser,page;
 try{
  const url='http://127.0.0.1:5173/6311ass2/';
  for(let i=0;i<80;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));if(i===79)throw new Error('Vite failed to start');}
  browser=await chromium.launch({headless:true});
- const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+ page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const broken=[];page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
  await page.goto(url);await page.getByRole('button',{name:'Try a sample'}).click();
@@ -53,4 +53,4 @@ try{
  await live.getByRole('button',{name:'Turn camera off'}).click();assert.ok(await live.evaluate(()=>window.__qaStopped)>0,'Camera tracks must stop');
  assert.deepEqual(errors,[],'No browser runtime errors');assert.deepEqual(broken,[],'No missing local assets');
  console.log('Meme browser checks passed: nine effects, endless feed, likes, Explore, reset, mobile, desktop, real landmark model on synthetic camera, camera cleanup.');
-}finally{await browser?.close();server.kill('SIGTERM');}
+}catch(error){if(page){console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));}throw error;}finally{await browser?.close();server.kill('SIGTERM');}
