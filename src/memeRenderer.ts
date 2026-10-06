@@ -56,7 +56,7 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
   const names=['SHARKALOO YOU-YOU','SNEAKERUS MAXIMUS','THREE-FOOTED YOU','BRO HAS EVOLVED'];
   word(names[index%names.length],w*.47,h*.72,25,'#bafff3',-.03);
  }else if(effect==='duck'){
-  sprite('duck',w*.48,h*.53-bounce,.94,sway,[.5,.18,.23,.17]);
+  sprite('duck',w*.48,h*.53-bounce,.84,sway,[.5,.18,.23,.17]);
   ctx.save();ctx.globalAlpha=.1;ctx.fillStyle='#ffe8ce';for(let i=0;i<20;i++)ctx.fillRect((i*83+Math.sin(t+i)*20)%w,(i*137+t*18)%h,2*s,4*s);ctx.restore();
   word('I WAS THE DUCK.',w*.47,h*.72,37,'#ffe1ac',-.04);
  }else if(effect==='mahi'){
@@ -69,5 +69,6 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
   for(let i=0;i<5;i++){const angle=i*Math.PI*2/5+t*.4,r=w*(.25+((t*.5+i*.23)%1)*force);faceAt(w*.49+Math.cos(angle)*r,h*.47+Math.sin(angle)*r,w*.12,h*.08,angle,.85);}
   word(face.mouth>.15?'退！退！退！':'OPEN YOUR MOUTH',w*.47,h*.71,face.mouth>.15?44:27,'#b7ff66',-.045);
  }
+ const shade=ctx.createLinearGradient(0,0,0,h);shade.addColorStop(0,'rgba(0,0,0,.65)');shade.addColorStop(.28,'rgba(0,0,0,0)');shade.addColorStop(.70,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,0,.72)');ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);
  if(index>8){ctx.save();ctx.globalAlpha=Math.min(.12,(index-8)*.006);ctx.fillStyle='#ff2860';for(let i=0;i<4;i++){const y=(i*193+Math.floor(t*3)*47)%h;ctx.fillRect(0,y,w,2*s);}ctx.restore();}
 }
