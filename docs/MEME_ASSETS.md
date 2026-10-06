@@ -15,3 +15,5 @@ Research:
 - https://xinwen.bjd.com.cn/content/s628cd4fce4b0453ece724130.html (interview on Pan entrance)
 - https://www.baike.com/wikiid/7353670653218078754 (diss/Disney homophone)
 - https://www.douyin.com/video/7453053400326884665 (dance-tag reference)
+
+Meme display lettering is a 40KB subset of ZCOOL KuaiLe (SIL OFL1.1), self-hosted to avoid a Google Fonts dependency for Chinese titles. Source: https://github.com/googlefonts/zcool-kuaile . License is bundled at public/media/OFL-ZCOOL.txt; full source font and glyph manifest are retained with workspace assets.

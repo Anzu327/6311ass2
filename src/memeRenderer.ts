@@ -3,7 +3,7 @@ import {memeById,type MemeEffect} from './memes';
 export interface FaceSignal {x:number;y:number;width:number;height:number;smile:number;mouth:number;tilt:number;}
 export type MemeImages=Partial<Record<'dance'|'host'|'food'|'room'|'street'|'stage'|'dino',HTMLImageElement>>;
 interface Input {ctx:CanvasRenderingContext2D;source:HTMLVideoElement|HTMLImageElement;face:FaceSignal;images:MemeImages;effect:MemeEffect;width:number;height:number;time:number;index:number;mirror:boolean;reduced:boolean;}
-export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,index,mirror,reduced}:Input){
+export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,mirror,reduced}:Input){
  const post=memeById(effect),v=post.variant,t=reduced?0:(time/1000)%post.duration,s=w/390;
  const sw=source instanceof HTMLVideoElement?source.videoWidth:source.naturalWidth,sh=source instanceof HTMLVideoElement?source.videoHeight:source.naturalHeight;
  if(!sw||!sh)return;
@@ -37,7 +37,7 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
   faceAt(-dw/2+dw*anchor[0],-dh/2+dh*anchor[1],dw*anchor[2],dh*anchor[3],face.tilt*.4,warp,opacity);ctx.restore();
  };
  const stamp=(text:string,x:number,y:number,size:number,color='#fff',angle=0)=>{
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.textAlign='center';ctx.font='900 '+size*s+'px sans-serif';ctx.lineJoin='round';ctx.lineWidth=5*s;ctx.strokeStyle='#080808';ctx.strokeText(text,0,0);ctx.fillStyle=color;ctx.fillText(text,0,0);ctx.restore();
+  ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.textAlign='center';ctx.font='400 '+size*s+'px "Meme Display",sans-serif';ctx.lineJoin='round';ctx.lineWidth=5*s;ctx.strokeStyle='#080808';ctx.strokeText(text,0,0);ctx.fillStyle=color;ctx.fillText(text,0,0);ctx.restore();
  };
  const sway=Math.sin(t*4)*.055+face.tilt*.28,bounce=reduced?0:Math.abs(Math.sin(t*5))*h*.008;
  const active=1+face.mouth*2,mainX=w*.48,mainY=h*.53;
@@ -102,10 +102,13 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
  }
  // Deterministic intermittent tape tearing, not full-screen strobing.
  if(!reduced){const pulse=Math.floor(t*8);
+  const rand=(n:number)=>{const k=Math.sin(n*12.9898+pulse*.11)*43758.5453;return k-Math.floor(k);};
+  ctx.save();ctx.globalAlpha=.22;for(let i=0;i<85;i++){const x=rand(i)*w,y=rand(i+91)*h;ctx.fillStyle=i%3===0?'#ff215c':i%3===1?'#36fce4':'#f1e8d8';ctx.fillRect(x,y,(i%9+1)*s,(i%2+1)*s);}ctx.restore();
+  if(pulse%5===0){ctx.save();ctx.globalAlpha=.35;for(let i=0;i<3;i++){const y=h*(.24+i*.24)+(pulse%4)*6*s;ctx.fillStyle=i%2?'#ff2458':'#31dedd';ctx.fillRect(0,y,w,1.4*s);}ctx.restore();}
   if(pulse%9===0||v===2&&pulse%7===0){const y=h*(.28+(pulse%5)*.10),d=ctx.canvas.width/w;ctx.drawImage(ctx.canvas,0,y*d,w*d,7*s*d,(pulse%2?12:-12)*s,y,w,7*s);}
   ctx.save();ctx.globalAlpha=.14;for(let i=0;i<6;i++){const y=(i*139+pulse*17)%h;ctx.fillStyle=i%2?'#fc2768':'#33ffde';ctx.fillRect((pulse*29+i*61)%w,y,25*s,2*s);}ctx.restore();
  }
  ctx.save();ctx.globalAlpha=.08;ctx.fillStyle='#fff';for(let y=0;y<h;y+=4*s)ctx.fillRect(0,y,w,.6*s);ctx.restore();
  ctx.fillStyle='#000a';ctx.fillRect(0,h*.82,w,h*.18);
- if(index>=48)stamp('RECOMMENDED: YOU AGAIN',mainX,h*.18,11,'#c5ff24');
+
 }
