@@ -8,3 +8,27 @@
 /* App-only responsive shell: no editorial rails or outside captions. */
 body{overflow:hidden}.stage-header{left:20px;right:12px;top:calc(16px + env(safe-area-inset-top));gap:6px}.feed-tabs{margin-right:auto;gap:18px}.camera-toggle,.about-toggle{min-height:44px;min-width:36px;display:flex;align-items:center;justify-content:center}.camera-toggle{gap:4px}.about-toggle{color:#eee}.scan-meta{top:calc(82px + env(safe-area-inset-top));font-size:8px;left:20px;right:20px}.scan-meta span:first-child{max-width:62%}.bottom-nav{height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}.bottom-nav button{min-width:48px;min-height:48px;font-size:10px}.bottom-nav .create-button{min-height:36px;min-width:40px}.welcome-copy,.identity-copy,.scan-copy,.ending-copy{bottom:calc(96px + env(safe-area-inset-bottom));max-height:calc(100% - 200px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;scrollbar-width:none;touch-action:pan-y}.welcome-copy small{font-size:10px}.identity-copy .identity-tags{font-size:9px;overflow-wrap:anywhere}.identity-copy h2{font-size:clamp(18px,5.6vw,23px);white-space:normal;overflow-wrap:anywhere}.identity-copy .text-button{font-size:12px;min-height:44px;padding:10px 0}.deny-button{min-height:48px}.action-rail{right:10px;width:48px}.action-rail button{min-height:44px;min-width:44px;justify-content:center}.action-rail .avatar{min-width:40px;min-height:40px;width:40px;height:40px}.post-caption{bottom:calc(92px + env(safe-area-inset-bottom))}.post-caption .reset-button{font-size:11px;min-height:36px}.toast{bottom:calc(82px + env(safe-area-inset-bottom))}.dialog{max-height:85dvh}.dialog-close{min-width:44px;min-height:44px;top:4px;right:4px}.post-headline h1{font-size:clamp(34px,12vw,52px)}.tracking-fallback{top:calc(112px + env(safe-area-inset-top))}
 @media(max-height:650px){.welcome-copy h1{font-size:58px}.welcome-copy p{margin:12px 0}.welcome-copy small{font-size:9px}.welcome-copy .tiny-rule{margin:8px 0}.identity-copy h1{font-size:37px}.identity-copy .tiny-rule{margin:8px 0}.identity-copy h2{font-size:19px;margin-bottom:6px}.identity-copy .identity-tags{font-size:8px;line-height:1.7}.identity-copy .deny-button{margin-top:8px;min-height:44px;padding:10px 14px}.scan-meta{font-size:7px}.action-rail{bottom:175px;gap:10px}.ending-copy h1{font-size:34px}.ending-copy>p:not(.same-result){font-size:10px}.ending-copy .ending-question{font-size:12px!important}.post-art{inset:110px 0 210px}.post-headline{bottom:0}.post-headline h1{font-size:34px}.post-headline>p{font-size:12px}.post-caption p{font-size:10px}}
+
+/* Meme feed: keep the app shell, give the moving face the center of the screen. */
+.feed .portrait-backdrop,.feed .portrait-shade,.feed .color-wash{opacity:0}
+.feed .face-effects{z-index:0}
+.stage-header,.scan-meta,.action-rail,.post-caption,.scroll-controls{z-index:4}
+.sound-toggle{display:flex;align-items:center;justify-content:center;gap:3px;min-width:34px;min-height:44px;color:#ddd}
+.sound-toggle span{font:7px 'Space Mono',monospace}
+.sound-toggle[aria-pressed=true]{color:var(--cyan)}
+.feed-tabs{gap:14px}.feed-tabs button{font-size:13px}
+.feed .scan-meta{color:#d0d0d0;text-shadow:0 1px 4px #000}
+.meme-headline{position:absolute;z-index:3;top:calc(122px + env(safe-area-inset-top));left:22px;right:65px;pointer-events:none;text-shadow:0 2px 10px #000}
+.meme-badge{display:inline-flex;align-items:center;gap:12px;font:8px 'Space Mono',monospace;letter-spacing:.7px;background:#090909b8;border:1px solid #ffffff44;padding:6px 9px;color:#fff}
+.meme-badge b{font-weight:400;color:#a3a3a3}
+.meme-headline h1{font-size:clamp(21px,6vw,24px);letter-spacing:-.8px;line-height:1.08;margin:10px 0 7px;font-weight:900}
+.meme-headline p{font-size:10px;line-height:1.5;color:#eee;margin:0;max-width:260px}
+.feed .post-caption{left:20px;right:65px;bottom:calc(90px + env(safe-area-inset-bottom));text-shadow:0 1px 5px #000}
+.feed .post-caption p{font-size:11px;line-height:1.45;margin:7px 0}
+.feed .post-caption small{font-size:8px;color:#ddd}
+.feed .action-rail{bottom:calc(214px + env(safe-area-inset-bottom));gap:17px}
+.loop-tag{position:absolute;z-index:3;top:calc(104px + env(safe-area-inset-top));right:20px;font:7px 'Space Mono',monospace;color:var(--identity);opacity:.8}
+.explore-meme{display:grid;grid-template-columns:1fr auto;gap:5px 12px;text-align:left;width:100%;padding:15px 0;border-bottom:1px solid #333;font-size:12px;font-weight:700}
+.explore-meme small{font-size:10px;color:#aaa;font-weight:400;grid-column:1}
+.explore-meme svg{grid-column:2;grid-row:1/3;align-self:center;color:var(--cyan)}
+@media(max-height:650px){.meme-headline{top:108px}.meme-headline h1{font-size:22px}.meme-headline p{font-size:9px}.feed .post-caption p{font-size:10px}.feed .action-rail{gap:9px;bottom:190px}}
