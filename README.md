@@ -56,3 +56,6 @@ PR 自动检查。Meme browser QA 另外检查九种特效、持续刷动、点�
 - [Vite GitHub Pages](https://vite.dev/guide/static-deploy.html#github-pages)
 
 本作品的看脸分类与反馈失效是艺术夸张，不是对 TikTok 实际人脸分析机制的事实描述。
+
+## Bootleg signal update
+48 local animated clips / 16 meme families / 3 variants and 3 per-post skins. These are interactive photographic collages, not original creator video downloads. On-device camera face remapping, no microphone. See docs/CONCEPT.md and docs/MEME_ASSETS.md.

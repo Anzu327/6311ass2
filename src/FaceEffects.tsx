@@ -12,8 +12,9 @@ export default function FaceEffects({video,active,identity,onStatus,effect=null,
   let cancelled=false,failed=false,frame=0,last=-1,lastRun=0,lastStatus='',tracker:import('@mediapipe/tasks-vision').FaceLandmarker|null=null,face:FaceSignal|null=null;
   const say=(s:string)=>{if(!cancelled&&s!==lastStatus){lastStatus=s;onStatus(s);}};
   const portrait=new Image();portrait.src=import.meta.env.BASE_URL+'media/demo-portrait.jpg';
-  const images:MemeImages={};for(const id of ['cat','hood','dino','hybrid','duck'] as const){const image=new Image();image.src=import.meta.env.BASE_URL+'media/meme-'+id+'.webp';images[id]=image;}
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const images:MemeImages={};for(const id of ['dance','host','food','room','street','stage','dino'] as const){const image=new Image();image.src=import.meta.env.BASE_URL+'media/'+(id==='dino'?'meme-dino.webp':'remix-'+id+'.webp');images[id]=image;}
+  let clipKey='',clipStart=0;
+  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');let reduced=motion.matches;const onMotion=()=>{reduced=motion.matches;};motion.addEventListener('change',onMotion);
   const tick=(time:number)=>{
    if(cancelled)return;frame=requestAnimationFrame(tick);
    const c=canvas.current,v=video.current,source=demo?portrait:v;if(!c||!source||(demo?!portrait.naturalWidth:!v||v.readyState<2))return;
@@ -30,9 +31,9 @@ export default function FaceEffects({video,active,identity,onStatus,effect=null,
      say('LIVE · face tracked');
     }else{face=null;say('Move your face into the frame');}}catch{face=null;say('Tracking paused · move back into view');}
    }
-   const mode=current.current;
+   const mode=current.current;const key=mode.effect+'-'+mode.index;if(clipKey!==key){clipKey=key;clipStart=time;}
    if(mode.effect){
-    if(face){paintMeme({ctx,source,face,images,effect:mode.effect,width:w,height:h,time,index:mode.index,mirror:!demo,reduced});}
+    if(face){paintMeme({ctx,source,face,images,effect:mode.effect,width:w,height:h,time:time-clipStart,index:mode.index,mirror:!demo,reduced});}
     else{ctx.fillStyle='#101013';ctx.fillRect(0,0,w,h);if(v?.videoWidth){const scale=Math.max(w/v.videoWidth,h/v.videoHeight);ctx.save();ctx.translate(w,0);ctx.scale(-1,1);ctx.globalAlpha=.7;ctx.drawImage(v,(w-v.videoWidth*scale)/2,(h-v.videoHeight*scale)/2,v.videoWidth*scale,v.videoHeight*scale);ctx.restore();}ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText(failed?'Tracking unavailable. Tap LIVE for sample mode.':tracker?'Move your face into view':'Face tracking is loading…',w/2,h*.55);}
    }else if(face&&!demo&&v){const a=coverPoint({x:face.x,y:face.y},v.videoWidth,v.videoHeight,w,h),b=coverPoint({x:face.x+face.width,y:face.y+face.height},v.videoWidth,v.videoHeight,w,h);ctx.strokeStyle='#53f5ed';ctx.lineWidth=1;ctx.strokeRect(Math.min(a.x,b.x),a.y,Math.abs(b.x-a.x),b.y-a.y);}
   };
@@ -43,7 +44,7 @@ export default function FaceEffects({video,active,identity,onStatus,effect=null,
    const model=await FaceLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:import.meta.env.BASE_URL+'vision/face_landmarker.task',delegate:'CPU'},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true});
    if(cancelled){model.close();return;}tracker=model;say('Move your face into the frame');
   }catch{failed=true;say('Tracking unavailable · switch to sample mode');}})();}
-  return()=>{cancelled=true;cancelAnimationFrame(frame);tracker?.close();};
+  return()=>{cancelled=true;cancelAnimationFrame(frame);motion.removeEventListener('change',onMotion);tracker?.close();};
  },[active,demo,video,onStatus]);
  return <canvas ref={canvas} className="face-effects" aria-hidden="true"/>;
 }

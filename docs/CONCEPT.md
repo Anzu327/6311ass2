@@ -1,18 +1,14 @@
+# FOR Y0U? — counterfeit signal / authentic face
+A fictional bootleg short-video platform for the course's discussion of shanzhai, copying and mediated identity. Rather than giving a right/wrong conclusion, it repeatedly casts the viewer as different online personalities. The copied interface is unstable: duplicate For You tabs, DVD captions and fake computer popups. Core navigation remains usable.
 
-# WIP：FOR YOU
+## Content
+16 families × 3 action/compositing variants = 48 initial clips. Each 10–14-second loop is rendered locally from the viewer's tracked face, three photographic scene plates, three transparent human body cutouts and one existing dinosaur costume. They are animated collages, not licensed original videos and not photoreal neural face swaps. Dance families use rhythmic phase differences and leg-strip motion; entrances ease into the frame; facial strips stretch at the mouth and eyes; sale windows multiply with jaw openness.
 
-## 平台与网络美学
-观察抖音的竖屏信息流、热梗模板与推荐反馈。采用山寨界面、低清拼贴和逐渐加强的 Glitch。界面保持英文，meme 可以保留中文名称和短句。
+Families: shadow clone; yellow dinosaur identity; social shake; Pan-style entrance; soul sauce; Qinghai shake; dragon-lord smirk; microphone overload; blue shirt/yellow shoes; trust error; diss/Disney homophone; wolf disco; shopping; Caoxian chant; retreat; facial karaoke.
+The three visual treatments are pirate-player cyan/pink, amber wild-fansub and acid-lime infected-browser. Variants change scene/body count/motion/warping and copy, not just titles.
 
-## 作品体验
-观众打开摄像头或使用示例肖像，随机得到一个虚构标签。进入后，同一张脸被装进影流分身、歪嘴龙王、猫 meme、巨大帽衫、黄色恐龙、运动鞋鲨鱼、酱板鸭等模板。微笑、张嘴和转头控制部分效果。
+## Recommendation experiment
+All 48 clip IDs appear before the weighted loop. Labels are assigned randomly, not inferred from face. A like adds 3 category points; dwelling 6.5 seconds adds 1 once per seen clip. Future recommendations become category-biased but avoid the last three families. Existing history is stable. Explore offers every clip and allows an intentional escape. Reset preserves the label and makes the narrowing visible; Start again clears it.
 
-前九条特效各不相同；随后点赞和停留逐渐提高相应类别的推荐比例。外观仍在变化，主题却可能变得越来越相似。历史帖子保持原样，观众可以返回，也能通过 Explore 主动选择其他模板。重置将观众带到反思结尾，Start again 开始新体验。
-
-## 批判概念
-“平台是在理解我们，还是在塑造我们？”用户既是观众，也是被模板化的内容。推荐反馈既提供乐趣，也可以收窄观看范围。随机身份标签和简单推荐规则是艺术模拟，不代表真实抖音根据人脸分析人格。
-
-## 技术与协作
-人脸关键点、表情和视频在浏览器本地处理；不上传、不保存，不请求麦克风。示例模式使用已有虚构肖像。五个角色素材由内置 imagegen 生成，浏览器合成人脸和动画。音效为可关闭的合成语音和原创电子节奏。
-
-本轮在 GitHub 云端准备源文件，通过 PR 的现有 Actions 执行 typecheck、单元测试、build 和 Sites worker 检查。通过后进入 main 并由已有 Pages 工作流发布。
+## Privacy and sound
+Explicit opt-in camera; audio:false. Video and landmarks never leave the browser. Close tracks on camera-off, ending, pagehide and unmount. Sample mode works without a camera. Sound defaults off: short generic synthesized phrases and original oscillator beats, not original recordings or a named creator's voice.
