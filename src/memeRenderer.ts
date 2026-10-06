@@ -56,16 +56,16 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
   const entrance=reduced?1:Math.min(1,t/2.2),ease=1-Math.pow(1-entrance,3);
   person('dance',w*(-.35+ease*.83),mainY,1,-.24*(1-ease)+face.tilt*.4,v===2?1:0);
   if(v===1&&t>2.5)person('dance',w*(.15+Math.sin(t*2)*.1),mainY+.03*h,.65,-.2,.3,.75);
-  stamp(t<2.2?'有请…':'登场！',w*.44,h*.70,27,'#fcf6c6',-.08);break;
+  stamp(t<2.2?'有请…':'登场！',w*.44,h*.57,27,'#fcf6c6',-.08);break;
  }
  case 'blue':
   person('dance',mainX+Math.sin(t*(v===1?6:2))*w*.08,mainY-bounce,1.03,sway,v===2?active:face.smile);
   if(v===2)person('dance',w*.83,mainY+h*.05,.65,-sway,1,.55);
-  stamp('YELLOW SHOES / BLUE SIGNAL',w*.47,h*.72,14,'#fff01f',-.04);break;
+  stamp('YELLOW SHOES / BLUE SIGNAL',w*.47,h*.59,14,'#fff01f',-.04);break;
  case 'food':
   person('food',mainX,mainY,.99,Math.sin(t*3)*.025,face.mouth*(1+v));
   if(v===1){faceAt(w*.21,h*.40,w*.19,h*.13,-.12,face.mouth,.8);faceAt(w*.78,h*.43,w*.19,h*.13,.12,face.mouth,.8);}
-  stamp(face.mouth>.17?'浇给！':'汁子就位',w*.48,h*.69,28,'#ffc477',-.055);break;
+  stamp(face.mouth>.17?'浇给！':'汁子就位',w*.48,h*.57,28,'#ffc477',-.055);break;
  case 'mc':
  case 'buy':
  case 'caoxian':
@@ -80,8 +80,8 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
    const count=v+1+Math.floor(face.mouth*4);
    for(let i=0;i<Math.min(count,5);i++){const x=w*(.07+(i%2)*.55),y=h*(.28+Math.floor(i/2)*.13);ctx.fillStyle='#fcf1d4';ctx.fillRect(x,y,w*.35,h*.08);ctx.fillStyle='#ff2357';ctx.fillRect(x,y,w*.35,17*s);ctx.fillStyle='#111';ctx.font='bold '+(11*s)+'px monospace';ctx.textAlign='left';ctx.fillText('BUY.NOW.exe',x+5*s,y+12*s);ctx.fillText('FAKE SALE: -999%',x+5*s,y+38*s);}
   }
-  if(post.kind==='disney')stamp(Math.sin(t*2+face.tilt*4)>0?'DISS YOU':'DISNEY?',w*.49,h*.69,34,'#bcff22',-.05);
-  if(post.kind==='dragon')stamp(face.smile>.22?'龙王归来':'嘴角等待中',w*.46,h*.71,28,'#ffdc71',-.055);
+  if(post.kind==='disney')stamp(Math.sin(t*2+face.tilt*4)>0?'DISS YOU':'DISNEY?',w*.49,h*.57,34,'#bcff22',-.05);
+  if(post.kind==='dragon')stamp(face.smile>.22?'龙王归来':'嘴角等待中',w*.46,h*.57,28,'#ffdc71',-.055);
   break;
  }
  case 'dino':{
@@ -89,16 +89,16 @@ export function paintMeme({ctx,source,face,images,effect,width:w,height:h,time,i
   const count=v===1?1:2;
   for(let i=0;i<count;i++){const scale=count===1?.95:.68,dw=w*scale,dh=dw*im.naturalHeight/im.naturalWidth,cx=count===1?mainX:w*(.28+i*.44),cy=mainY+(i?bounce:-bounce);
    ctx.save();ctx.translate(cx,cy);ctx.rotate(sway*(i?-1:1));ctx.drawImage(im,-dw/2,-dh/2,dw,dh);faceAt(0,-dh/2+dh*.27,dw*.28,dh*.22,0,v===2?active:0);ctx.restore();}
-  stamp(Math.sin(t*2)>0?'我是奶龙':'我才是！',mainX,h*.71,29,'#ffe82e',-.03);break;
+  stamp(Math.sin(t*2)>0?'我是奶龙':'我才是！',mainX,h*.57,29,'#ffe82e',-.03);break;
  }
  case 'retreat':
   person('host',mainX,mainY,1.02,sway,face.mouth*.9);
   for(let i=0;i<5;i++){const angle=i*Math.PI*2/5+.4,r=w*(.18+((t*.55+i*.21)%1)*(face.mouth+.1)*1.8);faceAt(mainX+Math.cos(angle)*r,h*.43+Math.sin(angle)*r,w*.14,h*.09,angle*.12,v*.3,.85);}
-  stamp(face.mouth>.18?'退！退！退！':'又推回来了',mainX,h*.72,30,'#ccff28',-.06);break;
+  stamp(face.mouth>.18?'退！退！退！':'又推回来了',mainX,h*.59,30,'#ccff28',-.06);break;
  case 'mahi':
   if(v!==1)for(let i=0;i<3;i++)faceAt(w*(.18+i*.32),h*.27+Math.sin(t*5+i)*h*.03,w*.25,h*.15,Math.sin(t*3+i)*.14,1.5,.7);
   faceAt(mainX,h*.46,w*.79,h*.38,Math.sin(t*4)*.08+face.tilt*.2,1+face.mouth*2+Math.sin(t*7)*.6);
-  if(v===2)stamp('嘴巴单飞 / FACE.EXE',mainX,h*.70,23,'#fe93dc',-.06);break;
+  if(v===2)stamp('嘴巴单飞 / FACE.EXE',mainX,h*.57,23,'#fe93dc',-.06);break;
  }
  // Deterministic intermittent tape tearing, not full-screen strobing.
  if(!reduced){const pulse=Math.floor(t*8);

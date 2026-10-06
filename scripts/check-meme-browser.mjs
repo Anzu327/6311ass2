@@ -23,7 +23,7 @@ try{
  const beforeSwipe=await page.locator('.post-caption > .mono').innerText();
  await page.evaluate(()=>{const target=document.querySelector('.stage');const start=new Touch({identifier:1,target,clientX:150,clientY:650});target.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[start]}));const end=new Touch({identifier:1,target,clientX:150,clientY:200});target.dispatchEvent(new TouchEvent('touchend',{bubbles:true,changedTouches:[end]}));});
  await page.waitForTimeout(550);assert.notEqual(await page.locator('.post-caption > .mono').innerText(),beforeSwipe,'Mobile swipe must advance the feed');
- for(const [name,label] of [['shadow','SHADOW CLONE / 1'],['dragon','DRAGON LORD / 1'],['mahi','FACE KARAOKE / 1'],['food','SOUL SAUCE / 3'],['dino','DINO IDENTITY / 1'],['pan','PAN ENTRANCE / 1'],['buy','BUY NOW LOOP / 3']]){
+ for(const [name,label] of [['shadow','SHADOW CLONE / 1'],['dragon','DRAGON LORD / 2'],['mahi','FACE KARAOKE / 3'],['food','SOUL SAUCE / 3'],['dino','DINO IDENTITY / 1'],['pan','PAN ENTRANCE / 1'],['buy','BUY NOW LOOP / 3']]){
   await page.getByRole('button',{name:'Explore',exact:true}).click();
   await page.getByRole('button',{name:new RegExp(label)}).click();await page.waitForTimeout(1300);
   const beforeCanvas=await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL());
@@ -35,6 +35,8 @@ try{
  await page.getByRole('button',{name:'Explore',exact:true}).click();assert.equal(await page.locator('.explore-meme').count(),48);await page.getByRole('button',{name:'Close dialog'}).click();
  await page.setViewportSize({width:320,height:568});await page.waitForTimeout(450);
  assert.ok(await page.locator('.bottom-nav').evaluate(e=>e.getBoundingClientRect().bottom<=window.innerHeight+1),'Small-mobile navigation must fit');
+ const popup=await page.locator('.bootleg-popup').boundingBox(),rail=await page.locator('.action-rail').boundingBox();assert.ok(popup&&rail&&popup.x+popup.width<rail.x,'System popup must not overlap real interaction rail');
+ await page.getByRole('button',{name:'Dismiss system message'}).click();assert.equal(await page.locator('.bootleg-popup').count(),0,'Dismiss must really close the fictional popup');
  console.log('QA_SCREENSHOT_SMALL='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));
  await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(450);
  const still=await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL());await page.waitForTimeout(450);assert.equal(await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL()),still,'Reduced motion must stop visual warping');
