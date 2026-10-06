@@ -16,12 +16,12 @@ try{
   const original=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
   navigator.mediaDevices.getUserMedia=(constraints)=>{window.__qaCameraRequests++;return original(constraints);};
   window.__qaIntroTiming={};
-  new MutationObserver(()=>{const phase=document.querySelector('.stage')?.classList;const now=performance.now();if(phase?.contains('intro')&&!window.__qaIntroTiming.intro)window.__qaIntroTiming.intro=now;if(phase?.contains('feed')&&!window.__qaIntroTiming.feed)window.__qaIntroTiming.feed=now;}).observe(document,{childList:true,subtree:true,attributes:true});
+  new MutationObserver(()=>{const phase=document.querySelector('.stage')?.classList;const now=performance.now();if(phase?.contains('intro')&&!window.__qaIntroTiming.intro)window.__qaIntroTiming.intro=now;if(document.querySelector('.intro-art.ready')&&!window.__qaIntroTiming.ready)window.__qaIntroTiming.ready=now;if(phase?.contains('feed')&&!window.__qaIntroTiming.feed)window.__qaIntroTiming.feed=now;}).observe(document,{childList:true,subtree:true,attributes:true});
  });
  await page.goto(url);
  await page.locator('.stage.feed').waitFor({timeout:5000});
  const timing=await page.evaluate(()=>window.__qaIntroTiming);
- assert.ok(timing.feed-timing.intro>=1400&&timing.feed-timing.intro<2300,'Intro must last about1.5 seconds from React mount');
+ assert.ok(timing.feed-timing.ready>=1400&&timing.feed-timing.ready<2300,'Intro must last about1.5 seconds from artwork ready');
  assert.equal(await page.evaluate(()=>window.__qaCameraRequests),0,'Entry must not request the camera');
  assert.equal(await page.locator('.welcome-copy,.identity-copy,.scan-copy,.ending-copy').count(),0,'No intermediate onboarding screens');
 
@@ -39,6 +39,17 @@ try{
  assert.ok(!mediaRequests.some(url=>/meme-|remix-|cheek-effect/.test(url)),'Must not request any removed effect assets');
  await page.getByRole('button',{name:'Reset my feed'}).click();assert.ok(await page.locator('.stage.feed').count());assert.equal(await page.locator('.stage.intro').count(),0);assert.match(await page.locator('.post-caption > .mono').innerText(),/#001/);
  const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await reduced.goto(url);await reduced.locator('.stage.feed').waitFor({timeout:5000});await reduced.close();
+
+ const intro=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+ await intro.addInitScript(()=>{const original=window.setTimeout;window.setTimeout=(fn,ms,...args)=>original(fn,ms===1500?60000:ms,...args);});
+ await intro.goto(url);await intro.locator('.intro-art.ready').waitFor();await intro.locator('.intro-art').evaluate(im=>im.decode());
+ assert.equal(await intro.locator('.intro-art').getAttribute('alt'),'抖歪');
+ assert.equal(await intro.locator('.intro-wordmark').count(),0);
+ assert.ok(await intro.locator('.intro-art').evaluate(im=>im.naturalWidth>0),'Splash image must load');
+ console.log('QA_SCREENSHOT_SPLASH='+(await intro.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
+ await intro.setViewportSize({width:320,height:568});console.log('QA_SCREENSHOT_SPLASHSMALL='+(await intro.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
+ await intro.setViewportSize({width:1366,height:768});console.log('QA_SCREENSHOT_SPLASHDESKTOP='+(await intro.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
+ await intro.close();
  const live=await browser.newPage({viewport:{width:390,height:844}});
  await live.addInitScript(()=>{
   window.__qaStopped=0;

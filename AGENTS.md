@@ -28,3 +28,6 @@ Opening the page shows a 1.5-second typographic transition, then automatically e
 
 ## Splash exploration (2026-10-07)
 User wants three counterfeit-Douyin splash directions to choose from. All use1.5 seconds, then automatically enter the existing feed. Timing update is independent; do not implement an unselected proposed design. Make shanzhai recognizable through a deliberately fake note/wordmark and mismatched print, not just generic glitch. Preserve the feed and cleared effects.
+
+## Selected splash (2026-10-07)
+Use the googly-eyed cartoon-note 抖歪 design. The user's exact requested removals identify this image: remove the whole 纯属山寨 sticker and the bottom 滑进去，就算你爱看 sentence/marks. Preserve the note, eyes, palette and main title. This specific visual/text reference resolves numeric-option ambiguity. Keep the revised artwork whole with contain scaling, light entrance/fade,1500ms visible timing after artwork ready, then the unchanged feed. Do not add new slogans or restore old effects.
