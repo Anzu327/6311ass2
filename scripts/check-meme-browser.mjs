@@ -13,42 +13,20 @@ try{
  const broken=[];page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
  await page.goto(url);await page.getByRole('button',{name:'Try a sample'}).click();
  await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
- const names=new Set();
- for(let i=0;i<48;i++){await page.waitForTimeout(650);names.add(await page.locator('.meme-badge').innerText());if(i<47)await page.keyboard.press('ArrowDown');}
- assert.equal(names.size,48,'First 48 posts must have 48 distinct clips');
- for(let i=0;i<5;i++){await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');}
- assert.match(await page.locator('.post-caption > .mono').innerText(),/#053/);
- await page.getByRole('button',{name:'Like post'}).click();assert.equal(await page.getByRole('button',{name:'Like post'}).getAttribute('aria-pressed'),'true');
- await page.waitForTimeout(550);
- const beforeSwipe=await page.locator('.post-caption > .mono').innerText();
- await page.evaluate(()=>{const target=document.querySelector('.stage');const start=new Touch({identifier:1,target,clientX:150,clientY:650});target.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[start]}));const end=new Touch({identifier:1,target,clientX:150,clientY:200});target.dispatchEvent(new TouchEvent('touchend',{bubbles:true,changedTouches:[end]}));});
- await page.waitForTimeout(550);assert.notEqual(await page.locator('.post-caption > .mono').innerText(),beforeSwipe,'Mobile swipe must advance the feed');
- await page.getByRole('button',{name:'Reset my feed'}).click();await page.getByRole('button',{name:'Start again',exact:true}).click();await page.getByRole('button',{name:'Try a sample'}).click();await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
- for(const [name,label] of [['shadow','SHADOW CLONE / 1'],['dragon','DRAGON LORD / 2'],['mahi','FACE KARAOKE / 3'],['food','SOUL SAUCE / 3'],['dino','DINO IDENTITY / 1'],['pan','PAN ENTRANCE / 1'],['buy','BUY NOW LOOP / 3']]){
-  await page.getByRole('button',{name:'Explore',exact:true}).click();
-  await page.getByRole('button',{name:new RegExp(label)}).click();await page.waitForTimeout(1300);
-  await page.locator('.toast').waitFor({state:'hidden'});await page.evaluate(()=>document.fonts.ready);
-  const beforeCanvas=await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL());
-  await page.waitForTimeout(450);assert.notEqual(await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL()),beforeCanvas,'Each clip must animate, not display a still');
-  const unique=await page.locator('canvas.face-effects').evaluate(c=>{const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data,colors=new Set();for(let i=0;i<data.length;i+=400)colors.add(data[i]+','+data[i+1]+','+data[i+2]);return colors.size;});
-  assert.ok(unique>50,'Meme canvas must contain rendered portrait and character artwork');
-  assert.ok(await page.evaluate(()=>document.fonts.check('20px "Meme Display"')),'Self-hosted meme display font must load');
-  console.log('QA_SCREENSHOT_'+name.toUpperCase()+'='+(await page.screenshot({type:'jpeg',quality:65})).toString('base64'));
- }
- await page.getByRole('button',{name:'Explore',exact:true}).click();assert.equal(await page.locator('.explore-meme').count(),48);await page.getByRole('button',{name:'Close dialog'}).click();
- await page.setViewportSize({width:320,height:568});await page.waitForTimeout(450);
- assert.ok(await page.locator('.bottom-nav').evaluate(e=>e.getBoundingClientRect().bottom<=window.innerHeight+1),'Small-mobile navigation must fit');
- const popup=await page.locator('.bootleg-popup').boundingBox(),rail=await page.locator('.action-rail').boundingBox();assert.ok(popup&&rail&&popup.x+popup.width<rail.x,'System popup must not overlap real interaction rail');
- await page.getByRole('button',{name:'Dismiss system message'}).click();assert.equal(await page.locator('.bootleg-popup').count(),0,'Dismiss must really close the fictional popup');
- console.log('QA_SCREENSHOT_SMALL='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));
- await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(450);
- const still=await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL());await page.waitForTimeout(450);assert.equal(await page.locator('canvas.face-effects').evaluate(c=>c.toDataURL()),still,'Reduced motion must stop visual warping');
- await page.emulateMedia({reducedMotion:'no-preference'});
- await page.setViewportSize({width:1366,height:768});await page.waitForTimeout(500);
- assert.ok(await page.locator('.stage').evaluate(e=>e.getBoundingClientRect().height<=window.innerHeight),'Desktop stage must fit');
- console.log('QA_SCREENSHOT_DESKTOP='+(await page.screenshot({type:'jpeg',quality:55})).toString('base64'));
+
+ assert.equal(await page.locator('canvas.face-effects').count(),0,'No legacy effects canvas');
+ assert.equal(await page.locator('.meme-headline,.meme-badge,.bootleg-popup,.interest-popup,.video-timeline').count(),0,'No effect UI remains');
+ await page.getByRole('heading',{name:'No effects',exact:true}).waitFor();
+ assert.equal(await page.getByRole('button',{name:'Like post'}).isDisabled(),true);
+ for(let i=0;i<15;i++){await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');}
+ assert.match(await page.locator('.post-caption > .mono').innerText(),/#016/);
+ await page.getByRole('button',{name:'Explore',exact:true}).click();await page.getByRole('heading',{name:'No effects available.'}).waitFor();assert.equal(await page.locator('.explore-meme').count(),0);await page.getByRole('button',{name:'Close dialog'}).click();
+ for(const viewport of [{width:390,height:844},{width:320,height:568},{width:1366,height:768}]){await page.setViewportSize(viewport);await page.waitForTimeout(300);assert.ok(await page.locator('.bottom-nav').evaluate(e=>e.getBoundingClientRect().bottom<=window.innerHeight+1),'Navigation must fit');}
+ console.log('QA_SCREENSHOT_CLEARED='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));
+ const mediaRequests=[];page.on('request',r=>mediaRequests.push(r.url()));
+ await page.reload();await page.getByRole('button',{name:'Try a sample'}).click();await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});await page.waitForTimeout(500);
+ assert.ok(!mediaRequests.some(url=>/meme-|remix-|cheek-effect/.test(url)),'Must not request any removed effect assets');
  await page.getByRole('button',{name:'Reset my feed'}).click();await page.getByRole('button',{name:'Start again',exact:true}).waitFor();
- assert.equal(await page.locator('.stage').getAttribute('class').then(c=>c.includes('ending')),true);
  const live=await browser.newPage({viewport:{width:390,height:844}});
  await live.addInitScript(()=>{
   window.__qaStopped=0;
@@ -61,10 +39,10 @@ try{
    return stream;
   };
  });
- live.on('pageerror',e=>errors.push(e.message));await live.goto(url);await live.getByRole('button',{name:'Make me a meme'}).click();await live.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
+ live.on('pageerror',e=>errors.push(e.message));await live.goto(url);await live.getByRole('button',{name:'Open camera'}).click();await live.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
  await live.getByText('LIVE · face tracked',{exact:true}).waitFor({timeout:60000});
  await live.waitForTimeout(1000);console.log('QA_SCREENSHOT_TRACKING='+(await live.screenshot({type:'jpeg',quality:60})).toString('base64'));
  await live.getByRole('button',{name:'Turn camera off'}).click();assert.ok(await live.evaluate(()=>window.__qaStopped)>0,'Camera tracks must stop');
  assert.deepEqual(errors,[],'No browser runtime errors');assert.deepEqual(broken,[],'No missing local assets');
- console.log('Meme browser checks passed: 48 unique clips, 16 families, three skins, animated renders, reduced motion, endless feed, likes, Explore, reset, mobile, desktop, real landmark model on synthetic camera, camera cleanup.');
+ console.log('Camera shell checks passed: all effects removed, no deleted-asset requests, navigation, empty Explore, reset, three viewports, live landmark model on synthetic camera, camera cleanup.');
 }catch(error){if(page){console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));}throw error;}finally{await browser?.close();server.kill('SIGTERM');}
