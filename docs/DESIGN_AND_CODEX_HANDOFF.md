@@ -6,4 +6,4 @@ Rebuild direction: animated scenes and characters, with recognizable costumes, s
 
 Cloud-only source editing; read main before edits, verify and deliver on main without overwriting collaborators.
 
-Entry simplified: page open → one-second FOR Y0U? text transition → feed automatically. No welcome, scanning, assigned identity or outro. No camera request without click. Reset stays in feed. Preserve the rest of the cleared app shell.
+Entry simplified: page open → 1.5-second FOR Y0U? text transition → feed automatically. No welcome, scanning, assigned identity or outro. No camera request without click. Reset stays in feed. Preserve the rest of the cleared app shell.
