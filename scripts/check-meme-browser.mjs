@@ -14,11 +14,15 @@ try{
  await page.goto(url);await page.getByRole('button',{name:'Try a sample'}).click();
  await page.getByRole('button',{name:'Start scrolling'}).click({timeout:10000});
  const names=new Set();
- for(let i=0;i<9;i++){await page.waitForTimeout(650);names.add(await page.locator('.meme-badge').innerText());if(i<8)await page.getByRole('button',{name:'Next post'}).click();}
+ for(let i=0;i<9;i++){await page.waitForTimeout(650);names.add(await page.locator('.meme-badge').innerText());if(i<8)await page.keyboard.press('ArrowDown');}
  assert.equal(names.size,9,'First nine posts must show nine different effects');
- for(let i=0;i<5;i++){await page.waitForTimeout(500);await page.getByRole('button',{name:'Next post'}).click();}
+ for(let i=0;i<5;i++){await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');}
  assert.match(await page.locator('.post-caption > .mono').innerText(),/#014/);
  await page.getByRole('button',{name:'Like post'}).click();assert.equal(await page.getByRole('button',{name:'Like post'}).getAttribute('aria-pressed'),'true');
+ await page.waitForTimeout(550);
+ const beforeSwipe=await page.locator('.post-caption > .mono').innerText();
+ await page.evaluate(()=>{const target=document.querySelector('.stage');const start=new Touch({identifier:1,target,clientX:150,clientY:650});target.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[start]}));const end=new Touch({identifier:1,target,clientX:150,clientY:200});target.dispatchEvent(new TouchEvent('touchend',{bubbles:true,changedTouches:[end]}));});
+ await page.waitForTimeout(550);assert.notEqual(await page.locator('.post-caption > .mono').innerText(),beforeSwipe,'Mobile swipe must advance the feed');
  for(const [name,label] of [['cat','CAT MEME'],['hood','HOODIE INCIDENT'],['duck','DUCK REVENGE']]){
   await page.getByRole('button',{name:'Explore',exact:true}).click();
   await page.getByRole('button',{name:new RegExp(label)}).click();await page.waitForTimeout(1300);
