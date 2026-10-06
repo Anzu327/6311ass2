@@ -21,7 +21,7 @@ try{
  await page.goto(url);
  await page.locator('.stage.feed').waitFor({timeout:5000});
  const timing=await page.evaluate(()=>window.__qaIntroTiming);
- assert.ok(timing.feed-timing.intro>=900&&timing.feed-timing.intro<1800,'Intro must last about one second from React mount');
+ assert.ok(timing.feed-timing.intro>=1400&&timing.feed-timing.intro<2300,'Intro must last about1.5 seconds from React mount');
  assert.equal(await page.evaluate(()=>window.__qaCameraRequests),0,'Entry must not request the camera');
  assert.equal(await page.locator('.welcome-copy,.identity-copy,.scan-copy,.ending-copy').count(),0,'No intermediate onboarding screens');
 
@@ -56,5 +56,5 @@ try{
  await live.waitForTimeout(1000);console.log('QA_SCREENSHOT_TRACKING='+(await live.screenshot({type:'jpeg',quality:60})).toString('base64'));
  await live.getByRole('button',{name:'Turn camera off'}).click();assert.ok(await live.evaluate(()=>window.__qaStopped)>0,'Camera tracks must stop');
  assert.deepEqual(errors,[],'No browser runtime errors');assert.deepEqual(broken,[],'No missing local assets');
- console.log('Direct entry checks passed: one-second intro, automatic feed, no welcome/scan/identity, no automatic camera request, all effects removed, no deleted-asset requests, navigation, empty Explore, reset, three viewports, live landmark model on synthetic camera, camera cleanup.');
+ console.log('Direct entry checks passed: 1.5-second intro, automatic feed, no welcome/scan/identity, no automatic camera request, all effects removed, no deleted-asset requests, navigation, empty Explore, reset, three viewports, live landmark model on synthetic camera, camera cleanup.');
 }catch(error){if(page){console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));}throw error;}finally{await browser?.close();server.kill('SIGTERM');}

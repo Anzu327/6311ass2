@@ -1,5 +1,5 @@
 
-export const INTRO_DURATION_MS=1000;
+export const INTRO_DURATION_MS=1500;
 export type Phase='intro'|'feed';
 export interface Experience {phase:Phase;index:number;}
 export type Action={type:'entered'}|{type:'step';delta:number}|{type:'reset'};
