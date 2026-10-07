@@ -6,8 +6,8 @@ final result: passed
 - User-selected source feed: E:/微信/微信聊天记录/xwechat_files/bailing7935_a5eb/temp/RWTemp/2026-10/9e20f478899dc29eb19741386f9343c8/cffa4d36364957a272548f01b8cd0aa4.png
 - User-selected source comments: same directory/a16c0342e31aee78a84b2336973ad9fe.png
 - Both originals:1206×2622px. Native iOS status/home chrome excluded using crop(0,177,1206,2520), resized to390×758px.
-- Implementation: real Chromium browser screenshots at390×758 CSS px, deviceScaleFactor1, branch capture commit9d394702f95e175a9ef57c2540c0c480d5649cd7.
-- Browser evidence: https://github.com/Anzu327/6311ass2/actions/runs/37633406016
+- Implementation: real Chromium browser screenshots at390×758 CSS px, deviceScaleFactor1, branch capture commit51e5dc4bc1fbd43e50dff06c44bd901e9b00410a.
+- Browser evidence: https://github.com/Anzu327/6311ass2/actions/runs/37634173564
 - Log/artifact labels: QA_SCREENSHOT_FEED_REFERENCE, QA_SCREENSHOT_COMMENTS_REFERENCE.
 - Local implementation evidence: C:/Users/Administrator/Documents/ChatGPT/山寨/outputs/douyin-ui/implementation-feed.jpg and implementation-comments.jpg.
 - Same interaction states: portrait recommendation feed; white unexpanded comment sheet with first replies collapsed and a later nested reply open. Feed capture includes active local like/save.
@@ -34,8 +34,8 @@ Focused evidence, all opened and inspected:
 - comparison-comments-sheet-top.png, comparison-comments-rows.png, comparison-comments-composer.png
 Reference-state comparison resolved the original P2 findings. Additional1366×768 capture revealed a P2: the selected 推荐 tab could be partly clipped when resizing the portrait stage. The existing active-tab alignment effect now also handles window resize, and QA asserts full tab visibility at all three viewports.
 
-### Iteration3 — final responsive confirmation
-The following capture/check reruns the unchanged390×758 reference states and resized feed states. Final result requires all checks and capture inspection to pass. This is a matching interface anatomy, not a claim of pixel-exact reproduction of native Douyin.
+### Iteration3 — passed
+Browser run37634173564 and build run37634173590 both passed at51e5dc4bc1fbd43e50dff06c44bd901e9b00410a. New390×758 feed/comments captures were normalized and re-opened in full and all six focused combined comparisons. Their layout is unchanged from the resolved iteration2 reference states. New320×568 and1366×768 captures confirm the selected 推荐 tab is fully visible after resize; browser assertions enforce its entire bounding box within the channel scroller. Local comparison-*.png and implementation-*.jpg now refer to this final iteration; prior evidence preserved as iteration-1-* and iteration-2-*. No actionable P0/P1/P2 remains. This is a matching interface anatomy, not a claim of pixel-exact reproduction of native Douyin.
 
 ## Required fidelity surfaces
 - Fonts/typography: system sans stack preserves native PingFang SC/Microsoft YaHei on target devices; compact Chinese channels, heavier creator/navigation, lighter comment metadata and clear body hierarchy. No marketing display typography in the feed. Browser/OS CJK fallback rasterization differs slightly from native iOS (P3).
@@ -46,14 +46,14 @@ The following capture/check reruns the unchanged390×758 reference states and re
 - Affordances/accessibility: labeled buttons, keyboard video toggle, arrows for feed, comment Escape/focus trap, selected/pressed states, reduced motion and safe-area spacing. Native mobile safe-area/keyboard rendering needs device-specific confirmation.
 
 ## Functional / regression checks
-Run37633406016 passed:
+Final browser run37634173564 passed:
 -1.5-second existing intro; one automatic video-only camera request afterward.
 -All six actual MP4/WebM clips, audio tracks, default audible attempt, autoplay hint, pause/play/replay and cyclic navigation.
 -Comment sheet shrinks video without restarting camera pipeline; close/expand/AI tab; replies; votes; local posting and retained posted text across reopen; image picker local-only.
 -390×844,320×568,1366×768 browser viewport checks; additional390×758 source comparison.
 -Synthetic camera moving head, disappearance→mosaic, recovery, denied permission and pagehide cleanup.
 -No browser runtime errors, missing local assets or frame-upload requests.
-Check artwork run37633405882 passed typecheck/tests/build/test:sites.
+Check artwork run37634173590 passed typecheck/tests/build/test:sites.
 Tests use isolated synthetic camera input, not a user's camera.
 A final nonvisual stylesheet deduplication removes identical responsive rule repetitions without changing computed layout.
 
