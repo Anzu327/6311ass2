@@ -40,3 +40,5 @@ Runtime commit71e9b4c6fadaae8f6863646c2c9f787ea84d377c.
 Merge only after final checks. Verify Pages deployment and actual production asset/index responses before handing off. Demo labels are preset, not evidence of recognizing the supplied private photos.
 
 CI infrastructure follow-up: repeated browser-dependency installation stalls came from HTTP Ubuntu/Azure package mirror requests. Normalize only the ephemeral runner's known Ubuntu APT mirror files to the official HTTPS archive before the unchanged playwright install --with-deps step. All browser/runtime checks remain enabled; no app dependency/runtime/hosting change.
+
+Scanner test timing: a slower runner let several browser round trips consume the2-second scan before the fixture blanked the camera, so the application correctly retained its completed result. Fixture now interrupts the first scan via an in-page observer when scanning starts, then asserts actual progress occurred and reset tozero; motion/duration are verified on the recovered full scan. No production timer change or assertion removal.

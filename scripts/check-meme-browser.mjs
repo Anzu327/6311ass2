@@ -177,18 +177,30 @@ try{
  for(const profile of ['nailong','lulu']){
   const demo=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
-  diagnosticPage=demo;await demo.addInitScript(syntheticCamera);await demo.goto(url+'?demo='+profile);
+  diagnosticPage=demo;await demo.addInitScript(syntheticCamera);
+  await demo.addInitScript(()=>{
+   window.__qaLossRequested=false;window.__qaResetObserved=false;window.__qaProgressBeforeReset=0;
+   new MutationObserver(()=>{
+    const stage=document.querySelector('.scan-demo'),state=stage?.dataset.scanState;
+    const progress=Number(document.querySelector('.scan-demo [role="progressbar"]')?.getAttribute('aria-valuenow')??0);
+    if(!window.__qaLossRequested&&state==='scanning'){window.__qaLossRequested=true;window.__qaBlank=true;}
+    if(window.__qaLossRequested&&!window.__qaResetObserved){window.__qaProgressBeforeReset=Math.max(window.__qaProgressBeforeReset,progress);if(state==='waiting')window.__qaResetObserved=true;}
+   }).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-scan-state','aria-valuenow']});
+  });
+  await demo.goto(url+'?demo='+profile);
   const scan=demo.locator('.scan-demo');await scan.waitFor({timeout:7000});
   assert.equal(await demo.locator('.scan-sticker').count(),0,'No result before animation');
-  await scan.locator('[role="progressbar"]').waitFor();await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:60000});
+  await scan.locator('[role="progressbar"]').waitFor();
+  await demo.waitForFunction(()=>window.__qaResetObserved&&document.querySelector('.scan-demo')?.dataset.scanState==='waiting',{},{timeout:60000});
+  assert.equal(await demo.locator('.scan-sticker').count(),0,'Face loss during scan cannot reveal a result');
+  assert.ok(await demo.evaluate(()=>window.__qaProgressBeforeReset)>0,'The interrupted scan had actually progressed');
+  await demo.waitForFunction(()=>document.querySelector('.scan-demo [role="progressbar"]')?.getAttribute('aria-valuenow')==='0');
+  assert.equal(await demo.locator('.meme-video').evaluate(v=>v.paused),true,'No source-video sound under the scanner');
+  await demo.evaluate(()=>{window.__qaBlank=false;});await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:15000});
+  const began=Date.now();
   const firstTop=await demo.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await demo.waitForTimeout(250);
   const secondTop=await demo.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);assert.ok(Math.abs(secondTop-firstTop)>12,'Blue beam moves, not a static drawing');
-  assert.equal(await demo.locator('.meme-video').evaluate(v=>v.paused),true,'No source-video sound under the scanner');
-  await demo.evaluate(()=>{window.__qaBlank=true;});await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='waiting',{},{timeout:15000});
-  assert.equal(await demo.locator('.scan-sticker').count(),0,'Face loss cannot reveal a result');
-  assert.equal(await demo.getByRole('progressbar').getAttribute('aria-valuenow'),'0','Face loss resets progress');
-  await demo.evaluate(()=>{window.__qaBlank=false;});await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:15000});
-  const began=Date.now();await demo.waitForTimeout(400);
+  await demo.waitForTimeout(150);
   console.log('QA_SCAN_ACTIVE_'+profile.toUpperCase()+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
   await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='complete',{},{timeout:6000});
   assert.ok(Date.now()-began>=1700,'Result follows the full two-second scan');
