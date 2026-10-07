@@ -90,7 +90,7 @@ try{
  assert.ok(await page.locator('.media-stage').evaluate(e=>e.getBoundingClientRect().height)<fullMedia.height*.6,'Video shrinks above comments');
  assert.equal(await page.locator('.comments-sheet').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(255, 255, 255)');
  console.log('QA_SCREENSHOT_COMMENTS_REFERENCE='+(await page.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
- await page.getByRole('button',{name:'展开 3 条回复',exact:true}).click();assert.equal(await page.locator('.reply-list .nested').count(),3);
+ await page.getByRole('button',{name:'展开 3 条回复',exact:true}).click();assert.equal(await page.locator('.comments-scroll > .comment-row').first().locator('.reply-list .nested').count(),3);
  await page.getByRole('button',{name:'AI解析',exact:true}).click();await page.getByRole('heading',{name:'你的脸，平台的动作。',exact:true}).waitFor();
  await page.getByRole('button',{name:/评论 275/}).click();
  await page.getByRole('textbox',{name:'写评论',exact:true}).fill('本地测试评论，不上传');
