@@ -47,3 +47,6 @@
 
 /* Readable controls over bright outdoor clips without changing source footage. */
 .stage.feed:after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to bottom,#000b 0,#0006 110px,transparent 185px,transparent calc(100% - 180px),#0008 calc(100% - 82px))}
+
+.camera-status{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:8px 4px;white-space:nowrap}
+.playback-hint{position:absolute;z-index:7;left:20px;right:20px;top:52%;text-align:center;pointer-events:none;background:#111c;border:1px solid #fff7;padding:14px;font-size:13px}
