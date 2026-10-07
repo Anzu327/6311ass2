@@ -37,3 +37,13 @@
 /* Do not reveal the unmasked source head while the trajectory is loading. */
 .stage.feed:not([data-head-ready="true"]) .meme-video{visibility:hidden}
 .action-rail .avatar>svg{color:#ddd}
+
+.clip-list{display:grid;gap:8px}
+.clip-list button{display:flex;align-items:center;gap:15px;padding:14px 12px;border:1px solid #444;text-align:left;font-size:14px}
+.clip-list button span{font:11px monospace;color:var(--cyan)}
+.clip-list .selected{border-color:var(--red);background:#ffffff0a}
+
+.clip-controls>button span{font-size:10px;padding-right:5px;white-space:nowrap}
+
+/* Readable controls over bright outdoor clips without changing source footage. */
+.stage.feed:after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to bottom,#000b 0,#0006 110px,transparent 185px,transparent calc(100% - 180px),#0008 calc(100% - 82px))}

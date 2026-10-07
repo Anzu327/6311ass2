@@ -11,3 +11,5 @@ describe('1.5-second direct entry',()=>{
  it('ignores navigation and reset during intro',()=>{expect(reducer(initialExperience,{type:'step',delta:1})).toEqual(initialExperience);expect(reducer(initialExperience,{type:'reset'})).toEqual(initialExperience);});
  it('stops all camera tracks',()=>{const a=vi.fn(),b=vi.fn();stopStream({getTracks:()=>[{stop:a},{stop:b}]} as unknown as MediaStream);expect(a).toHaveBeenCalledOnce();expect(b).toHaveBeenCalledOnce();stopStream(null);});
 });
+
+it('selects a specific supplied clip without replaying the intro',()=>{const s=reducer(initialExperience,{type:'entered'});expect(reducer(s,{type:'select',index:4})).toEqual({phase:'feed',index:4});expect(reducer(initialExperience,{type:'select',index:4})).toEqual(initialExperience);});

@@ -1,11 +1,13 @@
 export interface Point {x:number;y:number;z?:number;}
 export type HeadFrame=[number,number,number,number,number];
-export interface HeadTrack {fps:number;width:number;height:number;frames:HeadFrame[];}
+export interface HeadTrack {fps:number;width:number;height:number;frames:(HeadFrame|null)[];cuts?:number[];}
 export function containBox(sw:number,sh:number,w:number,h:number){
  const scale=Math.min(w/sw,h/sh);return {scale,x:(w-sw*scale)/2,y:(h-sh*scale)/2};
 }
-export function sampleHead(track:HeadTrack,time:number):HeadFrame{
+export function sampleHead(track:HeadTrack,time:number):HeadFrame|null{
  const at=Math.max(0,Math.min(track.frames.length-1,time*track.fps)),i=Math.floor(at),a=track.frames[i],b=track.frames[Math.min(i+1,track.frames.length-1)],t=at-i;
+ if(track.cuts?.includes(i+1))return a;
+ if(!a||!b)return t<.5?a:b;
  return a.map((n,j)=>n+(b[j]-n)*t) as HeadFrame;
 }
 export function headCrop(face:Point[],w:number,h:number){
@@ -17,11 +19,16 @@ export function headCrop(face:Point[],w:number,h:number){
 }
 export function isHeadCategory(category:number){return category===1||category===2||category===3||category===5;}
 export function validHeadTrack(value:unknown):value is HeadTrack{
- const t=value as HeadTrack|null;return !!t&&t.fps>0&&t.width>0&&t.height>0&&Array.isArray(t.frames)&&t.frames.length>1&&t.frames.every(r=>Array.isArray(r)&&r.length===5&&r.every(Number.isFinite)&&r[2]>0&&r[3]>0);
+ const t=value as HeadTrack|null;return !!t&&t.fps>0&&t.width>0&&t.height>0&&Array.isArray(t.frames)&&t.frames.length>1&&t.frames.some(r=>r!==null)&&t.frames.every(r=>r===null||(Array.isArray(r)&&r.length===5&&r.every(Number.isFinite)&&r[2]>0&&r[3]>0));
 }
 
 export function mosaicCrop(frame:HeadFrame,width:number,height:number){
  const [x,y,w,h]=frame,left=Math.max(0,Math.floor(x-w*.24)),top=Math.max(0,Math.floor(y-h*.40));
  const right=Math.min(width,Math.ceil(x+w*1.24)),bottom=Math.min(height,Math.ceil(y+h*1.10));
  return {x:left,y:top,width:right-left,height:bottom-top};
+}
+
+export function fittedHeadScale(frame:HeadFrame,headWidth:number,headSpan:number,videoWidth:number,videoHeight:number){
+ const [,y,,h]=frame,chin=Math.max(1,Math.min(videoHeight*.97,y+h*1.035));
+ return {chin,scale:Math.min(h*2.5/headSpan,videoWidth*.90/headWidth,Math.max(1,chin-videoHeight*.02)/headSpan)};
 }

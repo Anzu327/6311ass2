@@ -1,20 +1,24 @@
 import {useEffect,useRef,type RefObject} from 'react';
-import {containBox,sampleHead,mosaicCrop,headCrop,isHeadCategory,validHeadTrack,type HeadTrack} from './faceGeometry';
+import {containBox,sampleHead,fittedHeadScale,mosaicCrop,headCrop,isHeadCategory,validHeadTrack,type HeadTrack} from './faceGeometry';
+import type {FeedClip} from './clips';
 import type {FaceLandmarker,ImageSegmenter} from '@mediapipe/tasks-vision';
-interface Props {video:RefObject<HTMLVideoElement|null>;clip:RefObject<HTMLVideoElement|null>;active:boolean;onStatus:(s:string)=>void;}
+interface Props {video:RefObject<HTMLVideoElement|null>;clip:RefObject<HTMLVideoElement|null>;active:boolean;source:FeedClip;onStatus:(s:string)=>void;}
 interface Cutout {image:HTMLCanvasElement;chinX:number;chinY:number;top:number;angle:number;}
 const base=import.meta.env.BASE_URL;
-export default function FaceTracking({video,clip,active,onStatus}:Props){
- const canvas=useRef<HTMLCanvasElement>(null),liveHead=useRef<Cutout|null>(null),useCamera=useRef(active);useCamera.current=active;
+export default function FaceTracking({video,clip,active,source,onStatus}:Props){
+ const status=useRef('');const canvas=useRef<HTMLCanvasElement>(null),liveHead=useRef<Cutout|null>(null),useCamera=useRef(active);useCamera.current=active;
  // One renderer for live cutouts and source-video mosaic; no fictional face fallback.
  useEffect(()=>{
-  let disposed=false,frame=0,lastStatus='',track:HeadTrack|null=null,lastVideo=-1;
+  let disposed=false,frame=0,track:HeadTrack|null=null,lastVideo=-1;
   const mosaic=document.createElement('canvas');mosaic.width=6;mosaic.height=8;const mosaicCtx=mosaic.getContext('2d')!;
   const gloves=document.createElement('canvas'),gctx=gloves.getContext('2d',{willReadFrequently:true})!;
-  const say=(s:string)=>{if(!disposed&&s!==lastStatus){lastStatus=s;onStatus(s);}};
+  const say=(s:string)=>{if(!disposed&&s!==status.current){status.current=s;onStatus(s);}};
   const controller=new AbortController();
+  const element=canvas.current,stage=element?.closest<HTMLElement>('.stage');if(stage)delete stage.dataset.headReady;
+  if(element){element.getContext('2d')?.clearRect(0,0,element.width,element.height);delete element.dataset.headSource;}
+  say('Loading clip overlay…');
   void(async()=>{try{
-   const response=await fetch(base+'media/qinghai-track.json',{signal:controller.signal});if(!response.ok)throw new Error('track');
+   const response=await fetch(base+source.track,{signal:controller.signal});if(!response.ok)throw new Error('track');
    const data:unknown=await response.json();if(!validHeadTrack(data))throw new Error('track');
    if(disposed)return;track=data;
   }catch{if(!disposed)say('Clip assets unavailable · reload to retry');}})();
@@ -24,23 +28,25 @@ export default function FaceTracking({video,clip,active,onStatus}:Props){
    const width=c.clientWidth,height=c.clientHeight,dpr=Math.min(devicePixelRatio,2);if(!width||!height)return;
    if(c.width!==Math.round(width*dpr)||c.height!==Math.round(height*dpr)){c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);}
    const ctx=c.getContext('2d')!;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
-   const [x,y,w,h,angle]=sampleHead(track,v.currentTime),box=containBox(track.width,track.height,width,height);
+   const row=sampleHead(track,v.currentTime),box=containBox(track.width,track.height,width,height);
+   if(!row){c.dataset.headSource='none';if(stage)stage.dataset.headReady='true';return;}
+   const [x,y,w,h,angle]=row;
    const head=useCamera.current?liveHead.current:null;
+   const crop=mosaicCrop(row,track.width,track.height);
+   mosaicCtx.drawImage(v,crop.x,crop.y,crop.width,crop.height,0,0,6,8);
+   ctx.save();ctx.imageSmoothingEnabled=!!head;if(head)ctx.filter='blur(10px)';
+   ctx.drawImage(mosaic,box.x+crop.x*box.scale,box.y+crop.y*box.scale,crop.width*box.scale,crop.height*box.scale);
+   ctx.restore();
    if(head){
-    const scale=h*2.5/(head.chinY-head.top)*box.scale;
-    ctx.save();ctx.translate(box.x+(x+w*.5)*box.scale,box.y+(y+h*1.035)*box.scale);
+    const fit=fittedHeadScale(row,head.image.width,head.chinY-head.top,track.width,track.height),scale=fit.scale*box.scale;
+    ctx.save();ctx.translate(box.x+(x+w*.5)*box.scale,box.y+fit.chin*box.scale);
     ctx.rotate(Math.max(-.42,Math.min(.42,angle-head.angle)));ctx.scale(scale,scale);
     ctx.filter='saturate(65%) brightness(82%)';ctx.drawImage(head.image,-head.chinX,-head.chinY);ctx.restore();
-   }else{
-    const crop=mosaicCrop([x,y,w,h,angle],track.width,track.height);
-    mosaicCtx.drawImage(v,crop.x,crop.y,crop.width,crop.height,0,0,6,8);
-    ctx.save();ctx.imageSmoothingEnabled=false;
-    ctx.drawImage(mosaic,box.x+crop.x*box.scale,box.y+crop.y*box.scale,crop.width*box.scale,crop.height*box.scale);
-    ctx.restore();
    }
    c.dataset.headSource=head?'live':'mosaic';
-   const stage=c.closest<HTMLElement>('.stage');if(stage&&stage.dataset.headReady!=='true')stage.dataset.headReady='true';
+   if(stage&&stage.dataset.headReady!=='true')stage.dataset.headReady='true';
    if(!useCamera.current)say('MOSAIC · camera off');
+   if(!source.whiteGloves)return;
    // This clip has white gloves. Restore only bright foreground around the face.
    // Excluding the original face prevents its highlights leaking through the cutout.
    const gx=Math.max(0,Math.floor(x-w*.85)),gy=Math.max(0,Math.floor(y+h*.15));
@@ -56,15 +62,15 @@ export default function FaceTracking({video,clip,active,onStatus}:Props){
    }
    ctx.drawImage(gloves,box.x+gx*box.scale,box.y+gy*box.scale,gw*box.scale,gh*box.scale);
   };frame=requestAnimationFrame(tick);
-  return()=>{disposed=true;controller.abort();cancelAnimationFrame(frame);liveHead.current=null;};
- },[clip,onStatus]);
+  return()=>{disposed=true;controller.abort();cancelAnimationFrame(frame);if(stage)delete stage.dataset.headReady;};
+ },[clip,source,onStatus]);
  useEffect(()=>{
   liveHead.current=null;if(!active)return;
-  let disposed=false,frame=0,last=-1,lastRun=0,interval=180,lastStatus='',tracker:FaceLandmarker|null=null,segmenter:ImageSegmenter|null=null;
+  let disposed=false,frame=0,last=-1,lastRun=0,interval=180,tracker:FaceLandmarker|null=null,segmenter:ImageSegmenter|null=null;
   const input=document.createElement('canvas'),ictx=input.getContext('2d')!;
   const cut=document.createElement('canvas'),cctx=cut.getContext('2d')!;
   const mask=document.createElement('canvas'),mctx=mask.getContext('2d')!;
-  const say=(s:string)=>{if(!disposed&&s!==lastStatus){lastStatus=s;onStatus(s);}};
+  const say=(s:string)=>{if(!disposed&&s!==status.current){status.current=s;onStatus(s);}};
   const tick=(time:number)=>{
    if(disposed)return;frame=requestAnimationFrame(tick);
    const v=video.current;if(!v||v.readyState<2||!tracker||!segmenter||time-lastRun<interval||v.currentTime===last)return;
