@@ -42,3 +42,5 @@ Merge only after final checks. Verify Pages deployment and actual production ass
 CI infrastructure follow-up: repeated browser-dependency installation stalls came from HTTP Ubuntu/Azure package mirror requests. Normalize only the ephemeral runner's known Ubuntu APT mirror files to the official HTTPS archive before the unchanged playwright install --with-deps step. All browser/runtime checks remain enabled; no app dependency/runtime/hosting change.
 
 Scanner test timing: a slower runner let several browser round trips consume the2-second scan before the fixture blanked the camera, so the application correctly retained its completed result. Fixture now interrupts the first scan via an in-page observer when scanning starts, then asserts actual progress occurred and reset tozero; motion/duration are verified on the recovered full scan. No production timer change or assertion removal.
+
+Fixture checkpoint refinement: interrupt at observed15%progress, not the initial scanning-state commit (which may still be0%before its first animation frame). The positive-progress, reset, no-premature-result, motion and duration assertions all remain.

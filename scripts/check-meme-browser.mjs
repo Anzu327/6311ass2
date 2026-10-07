@@ -183,7 +183,7 @@ try{
    new MutationObserver(()=>{
     const stage=document.querySelector('.scan-demo'),state=stage?.dataset.scanState;
     const progress=Number(document.querySelector('.scan-demo [role="progressbar"]')?.getAttribute('aria-valuenow')??0);
-    if(!window.__qaLossRequested&&state==='scanning'){window.__qaLossRequested=true;window.__qaBlank=true;}
+    if(!window.__qaLossRequested&&state==='scanning'&&progress>=15){window.__qaLossRequested=true;window.__qaBlank=true;}
     if(window.__qaLossRequested&&!window.__qaResetObserved){window.__qaProgressBeforeReset=Math.max(window.__qaProgressBeforeReset,progress);if(state==='waiting')window.__qaResetObserved=true;}
    }).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-scan-state','aria-valuenow']});
   });
