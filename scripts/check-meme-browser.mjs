@@ -7,7 +7,7 @@ await mkdir('qa-results',{recursive:true});
 const qaLog=[],originalLog=console.log;
 console.log=(...args)=>{qaLog.push(args.map(String).join(' '));originalLog(...args);};
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
-let browser,page;
+let browser,page,diagnosticPage;
 try{
  const url='http://127.0.0.1:5173/6311ass2/';
  for(let i=0;i<80;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));if(i===79)throw new Error('Vite failed to start');}
@@ -177,7 +177,7 @@ try{
  for(const profile of ['nailong','lulu']){
   const demo=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
-  await demo.addInitScript(syntheticCamera);await demo.goto(url+'?demo='+profile);
+  diagnosticPage=demo;await demo.addInitScript(syntheticCamera);await demo.goto(url+'?demo='+profile);
   const scan=demo.locator('.scan-demo');await scan.waitFor({timeout:7000});
   assert.equal(await demo.locator('.scan-sticker').count(),0,'No result before animation');
   await scan.locator('[role="progressbar"]').waitFor();await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:60000});
@@ -256,4 +256,4 @@ try{
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
-}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
+}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(diagnosticPage){console.log('QA_MEDIA_DIAGNOSTIC='+JSON.stringify(await diagnosticPage.evaluate(()=>{const v=document.querySelector('.meme-video');return {id:v?.dataset.clipId,ready:v?.readyState,current:v?.currentSrc,error:v?.error?.code,message:v?.error?.message,sources:[...document.querySelectorAll('.meme-video source')].map(x=>({src:x.src,type:x.type,support:v.canPlayType(x.type)}))};})));console.log('QA_CURRENT_IMAGE='+(await diagnosticPage.screenshot({type:'jpeg',quality:70})).toString('base64'));}if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
