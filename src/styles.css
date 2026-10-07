@@ -37,15 +37,18 @@
 
 /* The approved blue scanner is an explicit classroom UI demo, not identity matching. */
 .scan-open .media-stage,.scan-open .stage-header,.scan-open .post-caption,.scan-open .action-rail,.scan-open .bottom-nav{visibility:hidden;pointer-events:none}
-.scan-demo{position:absolute;inset:0;z-index:30;background:#000;--scan-blue:#5cbcff}
+@font-face{font-family:ScanSans;font-style:normal;font-weight:400;font-display:swap;src:url('/media/scan-sans-400.ttf') format('truetype')}
+@font-face{font-family:ScanSans;font-style:normal;font-weight:700;font-display:swap;src:url('/media/scan-sans-700.ttf') format('truetype')}
+@font-face{font-family:ScanSans;font-style:normal;font-weight:900;font-display:swap;src:url('/media/scan-sans-900.ttf') format('truetype')}
+.scan-demo{font-family:ScanSans,-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;position:absolute;inset:0;z-index:30;background:#000;--scan-blue:#5cbcff}
 .scan-brand{position:absolute;top:3.8%;left:0;right:0;text-align:center;font-size:28px;font-weight:800;line-height:1.2}
 .scan-status{position:absolute;top:10.5%;left:15px;right:15px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:17px;line-height:1.5}
 .scan-blue{color:var(--scan-blue)}
 .scanner-camera{position:absolute;top:14.5%;left:9%;width:82%;height:51%;border-radius:12px;overflow:hidden;background:#353535}
 .scanner-camera canvas{display:block;width:100%;height:100%;image-rendering:pixelated;filter:grayscale(1) brightness(.9)}
 .scan-corners{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
-.scan-mesh{position:absolute;left:13%;top:8%;width:74%;height:84%;object-fit:contain;opacity:.65;pointer-events:none}
-.scan-beam{position:absolute;left:0;top:var(--scan-sweep);width:100%;height:auto;transform:translateY(-40%);opacity:.65;pointer-events:none}
+.scan-mesh{position:absolute;left:13%;top:8%;width:74%;height:84%;object-fit:contain;opacity:.85;pointer-events:none}
+.scan-beam{position:absolute;left:0;top:var(--scan-sweep);width:100%;height:200px;transform:translateY(-40%);opacity:.95;pointer-events:none}
 .scan-camera-caption{position:absolute;top:66.4%;left:0;right:0;margin:0;text-align:center;font-size:12px;line-height:1.5;color:#b8b8bc}
 .scan-sticker{position:absolute;top:35.5%;left:1%;width:98%;height:34%;object-fit:contain;pointer-events:none;animation:tag-pop .42s cubic-bezier(.2,.8,.2,1) both}
 .scan-outcome{position:absolute;top:73%;left:20px;right:20px;display:flex;flex-direction:column;align-items:center;gap:7px;font-size:17px;font-weight:650}
