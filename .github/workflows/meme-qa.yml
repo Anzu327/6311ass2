@@ -20,6 +20,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm install --no-save --ignore-scripts --package-lock=false playwright@1.56.1
+      - name: Use official HTTPS Ubuntu mirrors
+        run: |
+          for aptConfig in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
+            if [ -f "$aptConfig" ]; then
+              sudo sed -i -E 's#http://(azure[.]archive|archive|security)[.]ubuntu[.]com/ubuntu/?#https://archive.ubuntu.com/ubuntu/#g' "$aptConfig"
+            fi
+          done
       - run: npx playwright install --with-deps chromium
       - run: node scripts/check-meme-browser.mjs
 
