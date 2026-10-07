@@ -30,7 +30,7 @@ export default function App(){
   window.addEventListener('pointerdown',unlock);window.addEventListener('keydown',unlock);
   return()=>{window.removeEventListener('pointerdown',unlock);window.removeEventListener('keydown',unlock);};
  },[phase,playWithSound]);
- useEffect(()=>{if(phase==='feed')document.querySelector('.feed-tabs .active')?.scrollIntoView({block:'nearest',inline:'nearest'});},[phase,tab]);
+ useEffect(()=>{if(phase!=='feed')return;const alignActive=()=>document.querySelector('.feed-tabs .active')?.scrollIntoView({block:'nearest',inline:'nearest'});alignActive();window.addEventListener('resize',alignActive);return()=>window.removeEventListener('resize',alignActive);},[phase,tab]);
  const replay=()=>{const v=clip.current;if(v){v.currentTime=0;playWithSound();}};
  const togglePlayback=()=>{const v=clip.current;if(!v)return;if(v.paused)playWithSound();else{playRequest.current++;v.pause();setPaused(true);}};
  useEffect(()=>{if(!toast)return;const t=setTimeout(()=>setToast(''),3200);return()=>clearTimeout(t);},[toast]);

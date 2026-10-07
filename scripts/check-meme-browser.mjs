@@ -47,6 +47,7 @@ try{
   await page.setViewportSize(viewport);await page.waitForTimeout(200);
   assert.ok(await page.locator('.bottom-nav').evaluate(e=>e.getBoundingClientRect().bottom<=innerHeight+1));
   assert.equal(await source.evaluate(v=>getComputedStyle(v).objectFit),'contain');
+  assert.ok(await page.locator('.feed-tabs .active').evaluate(e=>{const t=e.parentElement.getBoundingClientRect(),r=e.getBoundingClientRect();return r.left>=t.left-1&&r.right<=t.right+1;}),'Selected recommendation channel stays fully visible after viewport resize');
   console.log('QA_SCREENSHOT_HEAD_'+viewport.width+'='+(await page.locator('.stage').screenshot({type:'jpeg',quality:70})).toString('base64'));
  }
  assert.ok(await page.locator('.head-overlay').evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;return d.some((v,i)=>i%4===3&&v===255);}), 'Mosaic must actually be drawn');

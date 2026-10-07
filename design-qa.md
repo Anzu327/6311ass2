@@ -24,7 +24,7 @@ Evidence preserved as outputs/douyin-ui/iteration-1-comparison-*.png.
 - P2 row density: smaller body/metadata spacing,19px row gap; two-line first mock comment and a nested later reply restore source rhythm.
 - Composer bottom padding reduced; no pasted-image suggestion bubble duplicated.
 
-### Iteration2 — passed
+### Iteration2 — matched reference states; responsive follow-up blocked
 Revised capture from browser run37633406016 compared against normalized originals.
 Full-view evidence:
 - outputs/douyin-ui/comparison-feed.png
@@ -32,7 +32,10 @@ Full-view evidence:
 Focused evidence, all opened and inspected:
 - comparison-feed-header.png, comparison-feed-rail.png, comparison-feed-caption.png
 - comparison-comments-sheet-top.png, comparison-comments-rows.png, comparison-comments-composer.png
-No actionable P0/P1/P2 remains in the requested screenshot adaptation. This is a matching interface anatomy, not a claim of pixel-exact reproduction of native Douyin.
+Reference-state comparison resolved the original P2 findings. Additional1366×768 capture revealed a P2: the selected 推荐 tab could be partly clipped when resizing the portrait stage. The existing active-tab alignment effect now also handles window resize, and QA asserts full tab visibility at all three viewports.
+
+### Iteration3 — final responsive confirmation
+The following capture/check reruns the unchanged390×758 reference states and resized feed states. Final result requires all checks and capture inspection to pass. This is a matching interface anatomy, not a claim of pixel-exact reproduction of native Douyin.
 
 ## Required fidelity surfaces
 - Fonts/typography: system sans stack preserves native PingFang SC/Microsoft YaHei on target devices; compact Chinese channels, heavier creator/navigation, lighter comment metadata and clear body hierarchy. No marketing display typography in the feed. Browser/OS CJK fallback rasterization differs slightly from native iOS (P3).
