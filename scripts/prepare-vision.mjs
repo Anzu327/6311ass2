@@ -10,3 +10,11 @@ try{await access(model);}catch{
  if(!response.ok)throw new Error(`Face model download failed: ${response.status}`);
  await writeFile(model,new Uint8Array(await response.arrayBuffer()));
 }
+
+const headModel=new URL('selfie_multiclass.tflite',root);
+try{await access(headModel);}catch{
+ console.log('Downloading official MediaPipe head segmentation model…');
+ const response=await fetch('https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite',{signal:AbortSignal.timeout(120000)});
+ if(!response.ok)throw new Error(`Head model download failed: ${response.status}`);
+ await writeFile(headModel,new Uint8Array(await response.arrayBuffer()));
+}

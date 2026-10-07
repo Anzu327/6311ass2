@@ -12,3 +12,5 @@ public/vision/face_landmarker.task
 # Original generated master not used by the app
 public/media/demo-portrait.png
 About Class Practice 2_(Assignment 2).pdf
+
+public/vision/selfie_multiclass.tflite
