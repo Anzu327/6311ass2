@@ -24,6 +24,7 @@ try{
  });
  await page.goto(url);await page.locator('.stage.feed').waitFor({timeout:7000});
  const timing=await page.evaluate(()=>window.__qaIntroTiming);assert.ok(timing.feed-timing.ready>=1400&&timing.feed-timing.ready<2300);
+ await page.waitForFunction(()=>window.__qaCameraRequests===1);
  assert.equal(await page.evaluate(()=>window.__qaCameraRequests),1,'One camera request automatically after intro');
  assert.deepEqual(await page.evaluate(()=>window.__qaCameraPhases),[true]);
  assert.equal(await page.getByRole('button',{name:/Turn camera|Mute video|Unmute video/}).count(),0,'No camera or mute switches');
@@ -97,6 +98,7 @@ try{
  await live.goto(url);await live.locator('.stage.feed').waitFor({timeout:7000});
  await live.getByText('LIVE · your face',{exact:true}).waitFor({timeout:60000});
  await live.locator('.head-overlay[data-head-source="live"]').waitFor();
+ if(await live.getByRole('button',{name:'Play video',exact:true}).count())await live.getByRole('button',{name:'Play video',exact:true}).click();
  await live.getByRole('button',{name:'Pause video',exact:true}).click();
  await live.locator('.meme-video').evaluate(v=>{v.currentTime=8;});await live.waitForTimeout(500);
  console.log('QA_SCREENSHOT_LIVE='+(await live.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
