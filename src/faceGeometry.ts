@@ -19,3 +19,9 @@ export function isHeadCategory(category:number){return category===1||category===
 export function validHeadTrack(value:unknown):value is HeadTrack{
  const t=value as HeadTrack|null;return !!t&&t.fps>0&&t.width>0&&t.height>0&&Array.isArray(t.frames)&&t.frames.length>1&&t.frames.every(r=>Array.isArray(r)&&r.length===5&&r.every(Number.isFinite)&&r[2]>0&&r[3]>0);
 }
+
+export function mosaicCrop(frame:HeadFrame,width:number,height:number){
+ const [x,y,w,h]=frame,left=Math.max(0,Math.floor(x-w*.24)),top=Math.max(0,Math.floor(y-h*.40));
+ const right=Math.min(width,Math.ceil(x+w*1.24)),bottom=Math.min(height,Math.ceil(y+h*1.10));
+ return {x:left,y:top,width:right-left,height:bottom-top};
+}

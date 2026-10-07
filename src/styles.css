@@ -33,3 +33,7 @@
 .clip-controls>button{display:flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;background:#0b0b0b99;border-radius:3px}
 .clip-controls>.reset-button{padding:3px 7px;font-size:9px}
 .post-caption p{font-size:12px;line-height:1.5}
+
+/* Do not reveal the unmasked source head while the trajectory is loading. */
+.stage.feed:not([data-head-ready="true"]) .meme-video{visibility:hidden}
+.action-rail .avatar>svg{color:#ddd}

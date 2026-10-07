@@ -4,10 +4,10 @@ The old rejected effect library remains removed. The user superseded the animati
 
 - `public/media/qinghai-original.mp4`: supplied source MP4,720×1166,30fps,533frames,17.77seconds. Original watermark and audio preserved.
 - `public/media/qinghai-track.json`: offline central-character face trajectory,533frames, with position, size and angle. Source automatically detected525frames;8were interpolated, longest gap4frames.
-- `public/media/qinghai-demo-head.webp`: entirely fictional adult male head, generated with built-in ImageGen. No user or video-subject identity. Sample only.
+- `docs/test-fixtures/qa-head.webp`: fictional head for synthetic-camera tests only; excluded from production static assets.
 - Runtime head height uses the approved v2 factor2.5 compared to1.65 in v1, about52%larger linearly; chin anchored to source body.
 
-When explicitly enabled, the webcam's current face/hair pixels replace the sample. Face Landmarker and selfie multiclass segmentation run locally. Frames, landmarks and cutouts are not saved or uploaded. Camera off restores demo; no detected face clears the last live head immediately. No gender or identity inference.
+When explicitly enabled, the webcam's current face/hair pixels replace the source-head mosaic. Face Landmarker and selfie multiclass segmentation run locally. Frames, landmarks and cutouts are not saved or uploaded. Camera off restores a6×8block mosaic of the source head; no detected face clears the last live head immediately and renders the mosaic. No gender or identity inference.
 
 Limitations:2D collage, not a neural identity swap. This clip's white glove occlusion uses a brightness approximation outside the original face box, not a universal depth mask. Fast turns, hair edges and gloves across the original face can be imperfect. CPU inference is adaptively throttled180–500ms; actual mobile-camera performance still needs the creator's device trial.
 
@@ -18,3 +18,5 @@ Browser compatibility: the supplied HEVC clip is transcoded to H.264 Main/yuv420
 A VP9/Opus WebM alternative is also included for browsers without MP4 codec support. The browser selects one compatible source; both preserve the full source choreography, framing and audio content.
 
 Privacy: a connect-src self CSP blocks the runtime library's external logging endpoint. Browser QA requires this policy and checks there are no completed non-GET/upload requests. This is separate from camera compositing, which never serializes or submits frames.
+
+The profile circle now uses a neutral user icon. Source video is hidden until the first protected overlay is ready. No production fictional face fallback remains.
