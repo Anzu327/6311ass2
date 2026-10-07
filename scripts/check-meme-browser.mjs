@@ -83,9 +83,9 @@ try{
  const live=await browser.newPage({viewport:{width:390,height:844}});
  live.on('pageerror',e=>errors.push(e.message));live.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});live.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
  await live.addInitScript(()=>{
-  window.__qaStopped=0;window.__qaBlank=false;window.__qaShift=0;
+  window.__qaStopped=0;window.__qaCameraCalls=0;window.__qaBlank=false;window.__qaShift=0;
   navigator.mediaDevices.getUserMedia=async c=>{
-   if(c.audio!==false)throw new Error('Microphone must not be requested');
+   window.__qaCameraCalls++;if(c.audio!==false)throw new Error('Microphone must not be requested');
    const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
    const image=new Image();image.src=location.origin+'/6311ass2/docs/test-fixtures/qa-head.webp';await image.decode();
    const ctx=canvas.getContext('2d');
@@ -118,6 +118,11 @@ try{
  await live.evaluate(()=>{window.__qaBlank=true;});await live.getByText('No face · showing mosaic',{exact:true}).waitFor({timeout:15000});await live.locator('.head-overlay[data-head-source="mosaic"]').waitFor();
  console.log('QA_SCREENSHOT_NO_FACE='+(await live.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
  await live.evaluate(()=>{window.__qaBlank=false;});await live.getByText('LIVE · your face',{exact:true}).waitFor({timeout:15000});
+ const callsBeforeEnd=await live.evaluate(()=>window.__qaCameraCalls);
+ await live.locator('.camera-source').evaluate(v=>v.srcObject.getVideoTracks()[0].dispatchEvent(new Event('ended')));
+ await live.locator('.head-overlay[data-head-source="mosaic"]').waitFor();await live.waitForTimeout(500);
+ assert.equal(await live.evaluate(()=>window.__qaCameraCalls),callsBeforeEnd,'Never fight a revoked/ended camera by automatically reopening it');
+ await live.getByRole('button',{name:'Retry camera',exact:true}).click();await live.getByText('LIVE · your face',{exact:true}).waitFor({timeout:60000});
  await live.evaluate(()=>window.dispatchEvent(new Event('pagehide')));
  assert.ok(await live.evaluate(()=>window.__qaStopped)>0);await live.locator('.head-overlay[data-head-source="mosaic"]').waitFor();
  assert.equal(await live.locator('.camera-source').evaluate(v=>v.srcObject),null);
@@ -136,7 +141,7 @@ try{
  assert.equal(await blocked.locator('.meme-video').evaluate(v=>v.muted),false,'Never fall back to hidden silent playback');
  await blocked.getByRole('button',{name:'Continue watching',exact:true}).click();
  await blocked.locator('.stage.feed').click({position:{x:50,y:250}});await blocked.waitForFunction(()=>!document.querySelector('.meme-video').paused);
- assert.equal(await blocked.locator('.playback-hint').count(),0,'A genuine tap resolves blocked audio');
+ await blocked.locator('.playback-hint').waitFor({state:'hidden'});
  await blocked.close();
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
