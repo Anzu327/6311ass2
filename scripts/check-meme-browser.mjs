@@ -134,8 +134,10 @@ try{
  const blocked=await browser.newPage({viewport:{width:390,height:844}});
  await blocked.addInitScript(()=>{
   navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};
+  window.__qaAudioAllowed=false;
+  const allow=e=>{if(e.isTrusted)window.__qaAudioAllowed=true;};window.addEventListener('pointerdown',allow,{capture:true});window.addEventListener('keydown',allow,{capture:true});
   const original=HTMLMediaElement.prototype.play;
-  HTMLMediaElement.prototype.play=function(){if(this.classList.contains('meme-video')&&!navigator.userActivation.hasBeenActive)return Promise.reject(new DOMException('Gesture required','NotAllowedError'));return original.call(this);};
+  HTMLMediaElement.prototype.play=function(){if(this.classList.contains('meme-video')&&!window.__qaAudioAllowed)return Promise.reject(new DOMException('Gesture required','NotAllowedError'));return original.call(this);};
  });
  await blocked.goto(url);await blocked.locator('.stage.feed').waitFor({timeout:7000});await blocked.locator('.playback-hint').waitFor();
  assert.equal(await blocked.locator('.meme-video').evaluate(v=>v.muted),false,'Never fall back to hidden silent playback');
