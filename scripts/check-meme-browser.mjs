@@ -2,6 +2,10 @@
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+await mkdir('qa-results',{recursive:true});
+const qaLog=[],originalLog=console.log;
+console.log=(...args)=>{qaLog.push(args.map(String).join(' '));originalLog(...args);};
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
 let browser,page;
 try{
@@ -80,4 +84,4 @@ try{
  await denied.goto(url);await denied.locator('.stage.feed').waitFor({timeout:7000});await denied.getByRole('button',{name:'Turn camera on'}).click();await denied.locator('.camera-error').waitFor();await denied.getByRole('button',{name:'Continue in demo',exact:true}).click();await denied.locator('.head-overlay[data-head-source="demo"]').waitFor();await denied.close();
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No camera pixels or landmarks may be posted anywhere');
  console.log('Head-overlay QA passed:1.5-second entry, no automatic camera access, complete source video, approved big-head sample, three viewports, pause/audio/replay/navigation, local live head segmentation on synthetic camera, moving camera face, disappearance clears face, recovery, camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
-}catch(error){if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await browser?.close();server.kill('SIGTERM');}
+}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}

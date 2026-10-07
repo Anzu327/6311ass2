@@ -8,7 +8,7 @@ export default function FaceTracking({video,clip,active,onStatus}:Props){
  const canvas=useRef<HTMLCanvasElement>(null),liveHead=useRef<Cutout|null>(null),useCamera=useRef(active);useCamera.current=active;
  // One renderer for both sample mode and real camera mode; no legacy guide/collage.
  useEffect(()=>{
-  let disposed=false,frame=0,lastStatus='',track:HeadTrack|null=null,demo:HTMLImageElement|null=null,lastVideo=-1;
+  let disposed=false,frame=0,lastStatus='',track:HeadTrack|null=null,demo:HTMLCanvasElement|null=null,lastVideo=-1;
   const gloves=document.createElement('canvas'),gctx=gloves.getContext('2d',{willReadFrequently:true})!;
   const say=(s:string)=>{if(!disposed&&s!==lastStatus){lastStatus=s;onStatus(s);}};
   const controller=new AbortController();
@@ -16,7 +16,11 @@ export default function FaceTracking({video,clip,active,onStatus}:Props){
    const response=await fetch(base+'media/qinghai-track.json',{signal:controller.signal});if(!response.ok)throw new Error('track');
    const data:unknown=await response.json();if(!validHeadTrack(data))throw new Error('track');
    const image=new Image();image.src=base+'media/qinghai-demo-head.webp';await image.decode();
-   if(disposed)return;track=data;demo=image;say('DEMO · sample face');
+   if(disposed)return;track=data;
+   const sample=document.createElement('canvas');sample.width=image.width;sample.height=image.height;
+   const sctx=sample.getContext('2d')!;sctx.drawImage(image,0,0);sctx.globalCompositeOperation='destination-in';
+   const neck=sctx.createLinearGradient(0,sample.height*.877,0,sample.height*.924);neck.addColorStop(0,'#fff');neck.addColorStop(1,'#fff0');sctx.fillStyle=neck;sctx.fillRect(0,0,sample.width,sample.height);
+   demo=sample;say('DEMO · sample face');
   }catch{if(!disposed)say('Clip assets unavailable · reload to retry');}})();
   const tick=()=>{
    if(disposed)return;frame=requestAnimationFrame(tick);
@@ -83,7 +87,12 @@ export default function FaceTracking({video,clip,active,onStatus}:Props){
      cctx.drawImage(mask,crop.x*mask.width/input.width,crop.y*mask.height/input.height,crop.width*mask.width/input.width,crop.height*mask.height/input.height,0,0,cut.width,cut.height);
      cctx.restore();cctx.filter='none';cctx.globalCompositeOperation='destination-in';
      const fade=cctx.createLinearGradient(0,235,0,256);fade.addColorStop(0,'#fff');fade.addColorStop(1,'#fff0');cctx.fillStyle=fade;cctx.fillRect(0,0,cut.width,cut.height);cctx.globalCompositeOperation='source-over';
-     liveHead.current={image:cut,chinX:cut.width-(crop.chin.x-crop.x)*ratio,chinY:(crop.chin.y-crop.y)*ratio,top:0,angle:-crop.angle};
+     // Tighten the scale to the segmented hair, rather than magnify empty crop padding.
+     const small=cctx.getImageData(0,0,cut.width,cut.height).data;let first=0;
+     for(;first<cut.height;first++){let opaque=0;for(let col=0;col<cut.width;col++)if(small[(first*cut.width+col)*4+3]>180)opaque++;if(opaque>cut.width*.08)break;}
+     const chinY=(crop.chin.y-crop.y)*ratio;
+     if(first>=chinY-20){liveHead.current=null;say('Head cutout unavailable · showing demo');return;}
+     liveHead.current={image:cut,chinX:cut.width-(crop.chin.x-crop.x)*ratio,chinY,top:first,angle:-crop.angle};
      say('LIVE · your face');
     });
    }catch{liveHead.current=null;say('Tracking paused · showing demo');}
