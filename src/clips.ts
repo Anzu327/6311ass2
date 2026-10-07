@@ -15,49 +15,56 @@ export const groupedClips:Record<FeedGroup,readonly FeedClip[]>={
    "title": "奶龙 · 01",
    "mp4": "media/nailong-01.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-01.webm"
   },
   {
    "id": "nailong-02",
    "title": "奶龙 · 02",
    "mp4": "media/nailong-02.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-02.webm"
   },
   {
    "id": "nailong-03",
    "title": "奶龙 · 03",
    "mp4": "media/nailong-03.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-03.webm"
   },
   {
    "id": "nailong-04",
    "title": "奶龙 · 04",
    "mp4": "media/nailong-04.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-04.webm"
   },
   {
    "id": "nailong-05",
    "title": "奶龙 · 05",
    "mp4": "media/nailong-05.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-05.webm"
   },
   {
    "id": "nailong-06",
    "title": "奶龙 · 06",
    "mp4": "media/nailong-06.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-06.webm"
   },
   {
    "id": "nailong-07",
    "title": "奶蛙 · 01",
    "mp4": "media/nailong-07.mp4",
    "group": "nailong",
-   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙",
+   "webm": "media/nailong-07.webm"
   }
  ],
  "lulu": [
@@ -66,56 +73,64 @@ export const groupedClips:Record<FeedGroup,readonly FeedClip[]>={
    "title": "噜噜 · 01",
    "mp4": "media/lulu-01.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-01.webm"
   },
   {
    "id": "lulu-02",
    "title": "噜噜 · 02",
    "mp4": "media/lulu-02.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-02.webm"
   },
   {
    "id": "lulu-03",
    "title": "噜噜 · 03",
    "mp4": "media/lulu-03.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-03.webm"
   },
   {
    "id": "lulu-04",
    "title": "噜噜 · 04",
    "mp4": "media/lulu-04.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-04.webm"
   },
   {
    "id": "lulu-05",
    "title": "噜噜 · 05",
    "mp4": "media/lulu-05.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-05.webm"
   },
   {
    "id": "lulu-06",
    "title": "噜噜 · 06",
    "mp4": "media/lulu-06.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-06.webm"
   },
   {
    "id": "lulu-07",
    "title": "噜噜 · 07",
    "mp4": "media/lulu-07.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-07.webm"
   },
   {
    "id": "lulu-08",
    "title": "噜噜 · 08",
    "mp4": "media/lulu-08.mp4",
    "group": "lulu",
-   "caption": "今天的推荐，只有噜噜。 #噜噜"
+   "caption": "今天的推荐，只有噜噜。 #噜噜",
+   "webm": "media/lulu-08.webm"
   }
  ]
 };
