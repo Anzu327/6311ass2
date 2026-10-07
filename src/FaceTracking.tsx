@@ -124,5 +124,5 @@ export default function FaceTracking({video,clip,active,source,onStatus}:Props){
   }catch{say('Head tracking unavailable · showing mosaic');}})();
   return()=>{disposed=true;cancelAnimationFrame(frame);tracker?.close();segmenter?.close();liveHead.current=null;};
  },[active,video,onStatus]);
- return <canvas ref={canvas} className="face-tracking head-overlay" aria-label="Local head overlay"/>;
+ return <canvas ref={canvas} hidden={!source.track} className="face-tracking head-overlay" aria-label="Local head overlay"/>;
 }

@@ -1,5 +1,5 @@
 export type FeedGroup='nailong'|'lulu';
-export interface FeedClip {id:string;title:string;mp4:string;webm?:string;track?:string;whiteGloves?:boolean;group?:FeedGroup;caption?:string;}
+export interface FeedClip {id:string;title:string;mp4:string;webm:string;track?:string;whiteGloves?:boolean;group?:FeedGroup;caption?:string;}
 export const feedClips:FeedClip[]=[
  {id:'qinghai',title:'青海摇',mp4:'media/qinghai-original.mp4',webm:'media/qinghai-original.webm',track:'media/qinghai-track.json',whiteGloves:true},
  {id:'blue-run',title:'蓝色妖姬跑步',mp4:'media/blue-run.mp4',webm:'media/blue-run.webm',track:'media/blue-run-track.json'},

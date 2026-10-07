@@ -204,7 +204,7 @@ try{
   }
   const modelLoads=await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length);
   await demo.getByRole('button',{name:'进入推荐',exact:true}).click();await demo.locator('.scan-demo').waitFor({state:'hidden'});
-  await demo.locator('.head-overlay[data-head-source="original"]').waitFor();
+  await demo.locator('.head-overlay[data-head-source="original"]').waitFor({state:'attached'});
   const poolIDs={"nailong":["nailong-01","nailong-02","nailong-03","nailong-04","nailong-05","nailong-06","nailong-07"],"lulu":["lulu-01","lulu-02","lulu-03","lulu-04","lulu-05","lulu-06","lulu-07","lulu-08"]}[profile];
   const cartoon=demo.locator('.meme-video');
   for(let i=0;i<poolIDs.length;i++){

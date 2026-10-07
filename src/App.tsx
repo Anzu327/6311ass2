@@ -63,7 +63,7 @@ export default function App(){
  onWheel={e=>{if(Math.abs(e.deltaY)>20)step(e.deltaY>0?1:-1);}} onTouchStart={e=>{touchStart.current=e.touches[0].clientY;}} onTouchEnd={e=>{if(touchStart.current===null)return;const d=touchStart.current-e.changedTouches[0].clientY;if(Math.abs(d)>50)step(d>0?1:-1);touchStart.current=null;}}>
  <div className="media-stage" inert={scanVisible} role="button" aria-label={paused?'播放视频':'暂停视频'} tabIndex={0} onClick={tapVideo} onKeyDown={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();tapVideo();}}}>
   <div className="portrait-backdrop"><video ref={clip} className="meme-video" autoPlay={!scanVisible} loop muted={false} playsInline preload="auto" aria-label={currentClip.title+' source video'} data-clip-id={currentClip.id}
-  onError={e=>{if(e.target===e.currentTarget)setClipError('视频加载失败，请刷新重试');}} onCanPlay={()=>setClipError('')}><source src={base+currentClip.mp4} type='video/mp4; codecs="avc1.4D4029,mp4a.40.2"'/>{currentClip.webm&&<source src={base+currentClip.webm} type='video/webm; codecs="vp9,opus"'/>}</video></div>
+  onError={e=>{if(e.target===e.currentTarget)setClipError('视频加载失败，请刷新重试');}} onCanPlay={()=>setClipError('')}><source src={base+currentClip.mp4} type='video/mp4; codecs="avc1.4D4029,mp4a.40.2"'/><source src={base+currentClip.webm} type='video/webm; codecs="vp9,opus"'/></video></div>
   <FaceTracking video={video} clip={clip} source={currentClip} active={!!stream&&(scanVisible||!!currentClip.track)} onStatus={onTracking}/>
   {paused&&!needsGesture&&<Play className="paused-symbol" size={52} weight="fill" aria-hidden="true"/>}
  </div>
