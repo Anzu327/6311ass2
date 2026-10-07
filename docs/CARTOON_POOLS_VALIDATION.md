@@ -38,3 +38,5 @@ Runtime commit71e9b4c6fadaae8f6863646c2c9f787ea84d377c.
 
 ## Publication
 Merge only after final checks. Verify Pages deployment and actual production asset/index responses before handing off. Demo labels are preset, not evidence of recognizing the supplied private photos.
+
+CI infrastructure follow-up: repeated browser-dependency installation stalls came from HTTP Ubuntu/Azure package mirror requests. Normalize only the ephemeral runner's known Ubuntu APT mirror files to the official HTTPS archive before the unchanged playwright install --with-deps step. All browser/runtime checks remain enabled; no app dependency/runtime/hosting change.
