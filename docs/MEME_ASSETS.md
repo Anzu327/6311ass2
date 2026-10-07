@@ -14,3 +14,5 @@ Limitations:2D collage, not a neural identity swap. This clip's white glove occl
 Only one source clip is available; scrolling replays it. The approved splash and1.5-second entry are unchanged.
 
 Browser compatibility: the supplied HEVC clip is transcoded to H.264 Main/yuv420p with its AAC audio copied and MP4 faststart. Runtime file keeps all533frames and original dimensions/rate; not an untouched binary copy. The supplied original remains unchanged outside this repository.
+
+A VP9/Opus WebM alternative is also included for browsers without MP4 codec support. The browser selects one compatible source; both preserve the full source choreography, framing and audio content.
