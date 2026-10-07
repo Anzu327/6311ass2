@@ -16,3 +16,5 @@ Only one source clip is available; scrolling replays it. The approved splash and
 Browser compatibility: the supplied HEVC clip is transcoded to H.264 Main/yuv420p with its AAC audio copied and MP4 faststart. Runtime file keeps all533frames and original dimensions/rate; not an untouched binary copy. The supplied original remains unchanged outside this repository.
 
 A VP9/Opus WebM alternative is also included for browsers without MP4 codec support. The browser selects one compatible source; both preserve the full source choreography, framing and audio content.
+
+Privacy: a connect-src self CSP blocks the runtime library's external logging endpoint. Browser QA requires this policy and checks there are no completed non-GET/upload requests. This is separate from camera compositing, which never serializes or submits frames.

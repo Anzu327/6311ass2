@@ -14,7 +14,7 @@ try{
  browser=await chromium.launch({headless:true});
  page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  const errors=[],broken=[],outgoing=[];
- page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});page.on('request',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
+ page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});page.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
  await page.addInitScript(()=>{
   window.__qaCameraRequests=0;
   const original=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
@@ -50,7 +50,7 @@ try{
  const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await reduced.goto(url);await reduced.locator('.stage.feed').waitFor({timeout:7000});await reduced.close();
 
  const live=await browser.newPage({viewport:{width:390,height:844}});
- live.on('pageerror',e=>errors.push(e.message));live.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});live.on('request',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
+ live.on('pageerror',e=>errors.push(e.message));live.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});live.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
  await live.addInitScript(()=>{
   window.__qaStopped=0;window.__qaBlank=false;window.__qaShift=0;
   navigator.mediaDevices.getUserMedia=async c=>{
@@ -82,6 +82,7 @@ try{
  const denied=await browser.newPage({viewport:{width:390,height:844}});
  await denied.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};});
  await denied.goto(url);await denied.locator('.stage.feed').waitFor({timeout:7000});await denied.getByRole('button',{name:'Turn camera on'}).click();await denied.locator('.camera-error').waitFor();await denied.getByRole('button',{name:'Continue in demo',exact:true}).click();await denied.locator('.head-overlay[data-head-source="demo"]').waitFor();await denied.close();
- assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No camera pixels or landmarks may be posted anywhere');
+ assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
+ assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, no automatic camera access, complete source video, approved big-head sample, three viewports, pause/audio/replay/navigation, local live head segmentation on synthetic camera, moving camera face, disappearance clears face, recovery, camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
 }catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
