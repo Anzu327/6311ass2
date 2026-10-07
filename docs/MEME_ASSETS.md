@@ -34,3 +34,5 @@ Every source has an audio stream. Both H.264/AAC MP4 and VP9/Opus WebM are inclu
 The head scale retains2.5 when it fits, with width/top caps on close-ups. Mosaic always underlies live heads; unused bright foreground restoration is disabled except for青海摇. Test real phone/camera hair edges and motion separately.
 
 When a camera face is present, the source-head base is heavily softened before the live head is composited; hard6×8mosaic blocks remain only for missing-camera-face mode. This avoids huge square blocks surrounding close-up cutouts. The UI has a transparent top/bottom shade for readability on bright outdoor footage; source video files are not darkened.
+
+Audio level check: the Disney screen recording was very quiet (mean -37.8dB, peak -24.1dB). Its runtime audio is raised22dB; verified MP4 mean -15.8dB/peak -1.9dB and WebM mean -15.9dB/peak -2.4dB. Both797-frame decoded video SHA256s are identical before/after this audio-only remux, so all head timing and images are unchanged. Other source audio levels remain unchanged.
