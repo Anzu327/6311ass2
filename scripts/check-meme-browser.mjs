@@ -55,7 +55,7 @@ try{
  await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');await page.waitForTimeout(250);
  assert.match(await page.locator('.post-caption .sr-only').innerText(),/蓝色妖姬跑步.*2\/6/);
  await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();
- await page.getByRole('button',{name:'打开菜单',exact:true}).click();await page.getByRole('button',{name:'重新播放当前视频',exact:true}).click();assert.match(await page.locator('.post-caption > .mono').innerText(),/蓝色妖姬跑步.*2\/6/);assert.ok(await source.evaluate(v=>v.currentTime)<1);
+ await page.getByRole('button',{name:'打开菜单',exact:true}).click();await page.getByRole('button',{name:'重新播放当前视频',exact:true}).click();assert.match(await page.locator('.post-caption .sr-only').innerText(),/蓝色妖姬跑步.*2\/6/);assert.ok(await source.evaluate(v=>v.currentTime)<1);
  assert.equal(await page.locator('.stage.intro').count(),0);
  await page.getByRole('button',{name:'视频合集',exact:true}).click();await page.getByRole('heading',{name:'视频合集',exact:true}).waitFor();await page.getByRole('button',{name:'关闭弹窗'}).click();
 
@@ -64,7 +64,7 @@ try{
   await page.getByRole('button',{name:'视频合集',exact:true}).click();
   await page.locator('.clip-list button').nth(i).click();
   await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor({timeout:15000});
-  assert.match(await page.locator('.post-caption > .mono').innerText(),new RegExp((i+1)+'/6'));
+  assert.match(await page.locator('.post-caption .sr-only').innerText(),new RegExp((i+1)+'/6'));
   assert.notEqual(await source.evaluate(v=>v.currentSrc),'');
   assert.ok(await source.evaluate(v=>v.duration)>4);
   if(await page.getByRole('button',{name:'播放视频',exact:true}).count())await page.getByRole('button',{name:'播放视频',exact:true}).click();
@@ -80,7 +80,7 @@ try{
  await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();assert.equal(await source.getAttribute('data-clip-id'),'qinghai','Feed cycles to first actual clip');
 
  // Screenshot-grounded feed and white comments-sheet interactions.
- await page.setViewportSize({width:390,height:844});await page.waitForTimeout(250);
+ await page.setViewportSize({width:390,height:758});await page.waitForTimeout(250);
  assert.equal(await page.locator('.bootleg-brand,.scan-meta,.camera-status').count(),0,'No oversized counterfeit/debug chrome');
  await page.getByRole('button',{name:'点赞视频',exact:true}).click();assert.equal(await page.getByRole('button',{name:'点赞视频',exact:true}).getAttribute('aria-pressed'),'true');
  await page.getByRole('button',{name:'收藏视频',exact:true}).click();assert.equal(await page.getByRole('button',{name:'收藏视频',exact:true}).getAttribute('aria-pressed'),'true');
