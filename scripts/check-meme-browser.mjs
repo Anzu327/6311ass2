@@ -108,7 +108,7 @@ try{
 
  const live=await browser.newPage({viewport:{width:390,height:844}});
  live.on('pageerror',e=>errors.push(e.message));live.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});live.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
- await live.addInitScript(()=>{
+ const syntheticCamera=()=>{
   window.__qaStopped=0;window.__qaCameraCalls=0;window.__qaBlank=false;window.__qaShift=0;
   navigator.mediaDevices.getUserMedia=async c=>{
    window.__qaCameraCalls++;if(c.audio!==false)throw new Error('Microphone must not be requested');
@@ -120,7 +120,8 @@ try{
    for(const track of stream.getTracks()){const stop=track.stop.bind(track);track.stop=()=>{clearInterval(timer);window.__qaStopped++;stop();};}
    return stream;
   };
- });
+ };
+ await live.addInitScript(syntheticCamera);
  await live.goto(url);await live.locator('.stage.feed').waitFor({timeout:7000});
  await live.getByText('LIVE · your face',{exact:true}).waitFor({timeout:60000});
  await live.locator('.head-overlay[data-head-source="live"]').waitFor();
@@ -171,6 +172,56 @@ try{
  await blocked.locator('.media-stage').click({position:{x:50,y:100}});await blocked.waitForFunction(()=>!document.querySelector('.meme-video').paused);
  await blocked.locator('.playback-hint').waitFor({state:'hidden'});
  await blocked.close();
+
+ // Approved blue scanner: explicit demo URL determines a label, never identity inference.
+ for(const profile of ['nailong','lulu']){
+  const demo=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+  demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
+  await demo.addInitScript(syntheticCamera);await demo.goto(url+'?demo='+profile);
+  const scan=demo.locator('.scan-demo');await scan.waitFor({timeout:7000});
+  assert.equal(await demo.locator('.scan-sticker').count(),0,'No result before animation');
+  await scan.locator('[role="progressbar"]').waitFor();await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:60000});
+  const firstTop=await demo.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await demo.waitForTimeout(250);
+  const secondTop=await demo.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);assert.ok(Math.abs(secondTop-firstTop)>12,'Blue beam moves, not a static drawing');
+  assert.equal(await demo.locator('.meme-video').evaluate(v=>v.paused),true,'No source-video sound under the scanner');
+  await demo.evaluate(()=>{window.__qaBlank=true;});await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='waiting',{},{timeout:15000});
+  assert.equal(await demo.locator('.scan-sticker').count(),0,'Face loss cannot reveal a result');
+  assert.equal(await demo.getByRole('progressbar').getAttribute('aria-valuenow'),'0','Face loss resets progress');
+  await demo.evaluate(()=>{window.__qaBlank=false;});await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:15000});
+  const began=Date.now();await demo.waitForTimeout(400);
+  console.log('QA_SCAN_ACTIVE_'+profile.toUpperCase()+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
+  await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='complete',{},{timeout:6000});
+  assert.ok(Date.now()-began>=1700,'Result follows the full two-second scan');
+  const label=profile==='nailong'?'重度奶龙用户':'噜噜资深粉';
+  await demo.getByRole('heading',{name:label,exact:true}).waitFor();
+  await demo.waitForTimeout(450);
+  assert.ok(await demo.locator('.scan-sticker').evaluate(e=>e.complete&&e.naturalWidth>0));
+  assert.match(await demo.locator('.scan-disclosure').innerText(),/界面演示.*非身份识别/);
+  for(const viewport of [{width:390,height:844},{width:320,height:568},{width:1366,height:768}]){
+   await demo.setViewportSize(viewport);await demo.waitForTimeout(120);
+   assert.ok(await demo.locator('.scan-enter').evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth;}),'Demo continue button fits viewport');
+   console.log('QA_SCAN_RESULT_'+profile.toUpperCase()+'_'+viewport.width+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
+  }
+  const modelLoads=await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length);
+  await demo.getByRole('button',{name:'进入推荐',exact:true}).click();await demo.locator('.scan-demo').waitFor({state:'hidden'});
+  await demo.locator('.head-overlay[data-head-source="live"]').waitFor();
+  assert.equal(await demo.evaluate(()=>window.__qaCameraCalls),1,'Same camera stream after demo');
+  assert.equal(await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length),modelLoads,'No model restart after demo');
+  await demo.getByRole('button',{name:'打开评论区',exact:true}).click();await demo.getByRole('button',{name:'关闭评论区',exact:true}).click();
+  await demo.evaluate(()=>window.dispatchEvent(new Event('pagehide')));assert.ok(await demo.evaluate(()=>window.__qaStopped)>0);await demo.close();
+ }
+ const sample=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
+ await sample.addInitScript(()=>{window.__qaRequests=0;navigator.mediaDevices.getUserMedia=async()=>{window.__qaRequests++;throw new DOMException('Denied','NotAllowedError');};});
+ await sample.goto(url+'?demo=lulu');await sample.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});
+ assert.equal(await sample.locator('.scan-sticker').count(),0);await sample.getByRole('button',{name:'播放界面样例',exact:true}).click();
+ await sample.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning');
+ const beamPosition=await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await sample.waitForTimeout(300);assert.ok(Math.abs(await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top)-beamPosition)<1,'Reduced motion fixes scan beam position');
+ await sample.getByRole('heading',{name:'噜噜资深粉',exact:true}).waitFor({timeout:6000});
+ assert.equal(await sample.evaluate(()=>window.__qaRequests),1,'Denied input not repeatedly requested');
+ assert.match(await sample.locator('.scan-camera-caption').innerText(),/未使用人脸判断/);await sample.close();
+ const invalid=await browser.newPage({viewport:{width:390,height:844}});await invalid.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};});
+ await invalid.goto(url+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),0);await invalid.close();
+ console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera/models after continue, denied-camera manual example, reduced motion, invalid URL preserves original feed, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
