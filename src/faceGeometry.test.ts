@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {containBox,sampleHead,mosaicCrop,headCrop,isHeadCategory,validHeadTrack,type HeadTrack} from './faceGeometry';
+import {containBox,sampleHead,fittedHeadScale,mosaicCrop,headCrop,isHeadCategory,validHeadTrack,type HeadTrack} from './faceGeometry';
 describe('video head overlay geometry',()=>{
  it('contains the complete video in narrow and desktop portrait stages',()=>{for(const [w,h] of [[390,844],[320,568],[355,768]]){const b=containBox(720,1166,w,h);expect(b.x).toBeGreaterThanOrEqual(0);expect(b.y).toBeGreaterThanOrEqual(0);expect(b.x+720*b.scale).toBeLessThanOrEqual(w+.001);expect(b.y+1166*b.scale).toBeLessThanOrEqual(h+.001);}});
  const t:HeadTrack={fps:30,width:720,height:1166,frames:[[100,200,60,80,0],[120,220,64,84,.2]]};
@@ -16,3 +16,8 @@ it('mosaic covers forehead, face and jaw with safe video boundaries',()=>{
  const edge=mosaicCrop([0,0,60,80,0],720,1166);expect(edge.x).toBe(0);expect(edge.y).toBe(0);
  const far=mosaicCrop([690,1100,30,66,0],720,1166);expect(far.x+far.width).toBe(720);expect(far.y+far.height).toBe(1166);
 });
+
+it('does not paste heads into blank end frames',()=>{const t:HeadTrack={fps:30,width:576,height:1024,frames:[[100,200,60,80,0],null]};expect(validHeadTrack(t)).toBe(true);expect(sampleHead(t,1/30)).toBeNull();});
+it('caps giant close-up heads inside the visible video',()=>{const r=fittedHeadScale([20,10,500,550,0],190,220,576,744);expect(r.scale*190).toBeLessThanOrEqual(576*.9);expect(r.chin-r.scale*220).toBeGreaterThanOrEqual(744*.02-.001);});
+
+it('never interpolates a head across a hard scene cut',()=>{const t:HeadTrack={fps:30,width:720,height:370,frames:[[10,20,30,40,0],[500,200,100,100,.2]],cuts:[1]};expect(sampleHead(t,1/60)).toEqual(t.frames[0]);});

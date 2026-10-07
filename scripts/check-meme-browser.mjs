@@ -48,10 +48,31 @@ try{
  await page.getByRole('button',{name:'Unmute video',exact:true}).click();assert.equal(await source.evaluate(v=>v.muted),false);
  await page.getByRole('button',{name:'Mute video',exact:true}).click();assert.equal(await source.evaluate(v=>v.muted),true);
  await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');await page.waitForTimeout(250);
- assert.match(await page.locator('.post-caption > .mono').innerText(),/#002/);
- await page.getByRole('button',{name:'Reset my feed'}).click();assert.match(await page.locator('.post-caption > .mono').innerText(),/#001/);assert.ok(await source.evaluate(v=>v.currentTime)<1);
+ assert.match(await page.locator('.post-caption > .mono').innerText(),/蓝色妖姬跑步.*2\/6/);
+ await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();
+ await page.getByRole('button',{name:'Replay video'}).click();assert.match(await page.locator('.post-caption > .mono').innerText(),/蓝色妖姬跑步.*2\/6/);assert.ok(await source.evaluate(v=>v.currentTime)<1);
  assert.equal(await page.locator('.stage.intro').count(),0);
- await page.getByRole('button',{name:'Explore',exact:true}).click();await page.getByRole('heading',{name:'青海摇 · 大头版',exact:true}).waitFor();await page.getByRole('button',{name:'Close dialog'}).click();
+ await page.getByRole('button',{name:'Explore',exact:true}).click();await page.getByRole('heading',{name:'6 clips',exact:true}).waitFor();await page.getByRole('button',{name:'Close dialog'}).click();
+
+ const titles=['青海摇','蓝色妖姬跑步','社会摇','我要迪士尼','山东菏泽曹县','退！退！退！'];
+ for(let i=0;i<titles.length;i++){
+  await page.getByRole('button',{name:'Explore',exact:true}).click();
+  await page.locator('.clip-list button').nth(i).click();
+  await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor({timeout:15000});
+  assert.match(await page.locator('.post-caption > .mono').innerText(),new RegExp((i+1)+'/6'));
+  assert.notEqual(await source.evaluate(v=>v.currentSrc),'');
+  assert.ok(await source.evaluate(v=>v.duration)>4);
+  await page.getByRole('button',{name:'Unmute video',exact:true}).click();
+  assert.equal(await source.evaluate(v=>v.muted),false);
+  const hasAudio=await source.evaluate(v=>{if(!v.captureStream)return null;const s=v.captureStream();const audio=s.getAudioTracks().length;s.getTracks().forEach(t=>t.stop());return audio;});
+  if(hasAudio!==null)assert.ok(hasAudio>0,'Every supplied clip must expose an audio track');
+  await page.getByRole('button',{name:'Mute video',exact:true}).click();
+  await page.getByRole('button',{name:'Pause video',exact:true}).click();
+  await source.evaluate(v=>{v.currentTime=Math.min(2,v.duration/2);});await page.waitForTimeout(200);
+  console.log('QA_SCREENSHOT_CATALOG_'+i+'='+(await page.locator('.stage').screenshot({type:'jpeg',quality:70})).toString('base64'));
+ }
+ await page.waitForTimeout(500);await page.getByRole('button',{name:'Next post',exact:true}).click();
+ await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();assert.equal(await source.getAttribute('data-clip-id'),'qinghai','Feed cycles to first actual clip');
  const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await reduced.goto(url);await reduced.locator('.stage.feed').waitFor({timeout:7000});await reduced.close();
 
  const live=await browser.newPage({viewport:{width:390,height:844}});
@@ -77,6 +98,16 @@ try{
  console.log('QA_SCREENSHOT_LIVE='+(await live.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
  const cut=await live.locator('.head-overlay').evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;return {colored:Array.from(d).filter((n,i)=>i%4===3&&n>200).length,clear:Array.from(d).filter((n,i)=>i%4===3&&n===0).length};});
  assert.ok(cut.colored>100&&cut.clear>1000,'Cutout must render opaque face pixels and transparent surrounding pixels');
+
+ let cameraModelsBefore=await live.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length);
+ for(let i=1;i<titles.length;i++){
+  await live.getByRole('button',{name:'Explore',exact:true}).click();await live.locator('.clip-list button').nth(i).click();
+  await live.locator('.head-overlay[data-head-source="live"]').waitFor({timeout:15000});
+  await live.getByRole('button',{name:'Pause video',exact:true}).click();await live.locator('.meme-video').evaluate(v=>{v.currentTime=Math.min(2,v.duration/2);});await live.waitForTimeout(250);
+  console.log('QA_SCREENSHOT_LIVE_CATALOG_'+i+'='+(await live.locator('.stage').screenshot({type:'jpeg',quality:70})).toString('base64'));
+ }
+ assert.equal(await live.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length),cameraModelsBefore,'Changing clips must not reload camera models');
+ await live.getByRole('button',{name:'Explore',exact:true}).click();await live.locator('.clip-list button').nth(0).click();await live.locator('.head-overlay[data-head-source="live"]').waitFor();
  await live.evaluate(()=>{window.__qaShift=70;});await live.waitForTimeout(1000);assert.equal(await live.locator('.head-overlay').getAttribute('data-head-source'),'live');
  await live.evaluate(()=>{window.__qaBlank=true;});await live.getByText('No face · showing mosaic',{exact:true}).waitFor({timeout:15000});await live.locator('.head-overlay[data-head-source="mosaic"]').waitFor();
  console.log('QA_SCREENSHOT_NO_FACE='+(await live.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
@@ -90,5 +121,5 @@ try{
  await denied.goto(url);await denied.locator('.stage.feed').waitFor({timeout:7000});await denied.getByRole('button',{name:'Turn camera on'}).click();await denied.locator('.camera-error').waitFor();await denied.getByRole('button',{name:'Continue watching',exact:true}).click();await denied.locator('.head-overlay[data-head-source="mosaic"]').waitFor();await denied.close();
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
- console.log('Head-overlay QA passed:1.5-second entry, no automatic camera access, complete source video, source-head mosaic without fictional avatars, three viewports, pause/audio/replay/navigation, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
+ console.log('Head-overlay QA passed:1.5-second entry, no automatic camera access, complete source video, six distinct original videos with source-head mosaic, three viewports, actual audio tracks, mute/unmute, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
 }catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
