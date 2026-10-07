@@ -1,4 +1,5 @@
-export interface FeedClip {id:string;title:string;mp4:string;webm:string;track:string;whiteGloves?:boolean;}
+export type FeedGroup='nailong'|'lulu';
+export interface FeedClip {id:string;title:string;mp4:string;webm?:string;track?:string;whiteGloves?:boolean;group?:FeedGroup;caption?:string;}
 export const feedClips:FeedClip[]=[
  {id:'qinghai',title:'青海摇',mp4:'media/qinghai-original.mp4',webm:'media/qinghai-original.webm',track:'media/qinghai-track.json',whiteGloves:true},
  {id:'blue-run',title:'蓝色妖姬跑步',mp4:'media/blue-run.mp4',webm:'media/blue-run.webm',track:'media/blue-run-track.json'},
@@ -7,4 +8,116 @@ export const feedClips:FeedClip[]=[
  {id:'caoxian',title:'山东菏泽曹县',mp4:'media/caoxian.mp4',webm:'media/caoxian.webm',track:'media/caoxian-track.json'},
  {id:'retreat',title:'退！退！退！',mp4:'media/retreat.mp4',webm:'media/retreat.webm',track:'media/retreat-track.json'}
 ];
-export function clipAt(index:number){return feedClips[((index%feedClips.length)+feedClips.length)%feedClips.length];}
+export const groupedClips:Record<FeedGroup,readonly FeedClip[]>={
+ "nailong": [
+  {
+   "id": "nailong-01",
+   "title": "奶龙 · 01",
+   "mp4": "media/nailong-01.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  },
+  {
+   "id": "nailong-02",
+   "title": "奶龙 · 02",
+   "mp4": "media/nailong-02.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  },
+  {
+   "id": "nailong-03",
+   "title": "奶龙 · 03",
+   "mp4": "media/nailong-03.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  },
+  {
+   "id": "nailong-04",
+   "title": "奶龙 · 04",
+   "mp4": "media/nailong-04.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  },
+  {
+   "id": "nailong-05",
+   "title": "奶龙 · 05",
+   "mp4": "media/nailong-05.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  },
+  {
+   "id": "nailong-06",
+   "title": "奶龙 · 06",
+   "mp4": "media/nailong-06.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  },
+  {
+   "id": "nailong-07",
+   "title": "奶蛙 · 01",
+   "mp4": "media/nailong-07.mp4",
+   "group": "nailong",
+   "caption": "奶龙和奶蛙，一条接一条。 #奶龙 #奶蛙"
+  }
+ ],
+ "lulu": [
+  {
+   "id": "lulu-01",
+   "title": "噜噜 · 01",
+   "mp4": "media/lulu-01.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-02",
+   "title": "噜噜 · 02",
+   "mp4": "media/lulu-02.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-03",
+   "title": "噜噜 · 03",
+   "mp4": "media/lulu-03.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-04",
+   "title": "噜噜 · 04",
+   "mp4": "media/lulu-04.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-05",
+   "title": "噜噜 · 05",
+   "mp4": "media/lulu-05.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-06",
+   "title": "噜噜 · 06",
+   "mp4": "media/lulu-06.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-07",
+   "title": "噜噜 · 07",
+   "mp4": "media/lulu-07.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  },
+  {
+   "id": "lulu-08",
+   "title": "噜噜 · 08",
+   "mp4": "media/lulu-08.mp4",
+   "group": "lulu",
+   "caption": "今天的推荐，只有噜噜。 #噜噜"
+  }
+ ]
+};
+export function feedFor(group:FeedGroup|null):readonly FeedClip[]{return group?groupedClips[group]:feedClips;}
+export function clipAt(index:number,clips:readonly FeedClip[]=feedClips){return clips[((index%clips.length)+clips.length)%clips.length];}

@@ -16,6 +16,12 @@ export default function FaceTracking({video,clip,active,source,onStatus}:Props){
   const controller=new AbortController();
   const element=canvas.current,stage=element?.closest<HTMLElement>('.stage');if(stage)delete stage.dataset.headReady;
   if(element){element.getContext('2d')?.clearRect(0,0,element.width,element.height);delete element.dataset.headSource;}
+  if(!source.track){
+   if(element)element.dataset.headSource='original';
+   if(stage)stage.dataset.headReady='true';
+   say('原片播放 · 不叠加头像');
+   return()=>{disposed=true;if(element)element.getContext('2d')?.clearRect(0,0,element.width,element.height);if(stage)delete stage.dataset.headReady;};
+  }
   say('Loading clip overlay…');
   void(async()=>{try{
    const response=await fetch(base+source.track,{signal:controller.signal});if(!response.ok)throw new Error('track');

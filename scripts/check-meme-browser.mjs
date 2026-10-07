@@ -204,7 +204,38 @@ try{
   }
   const modelLoads=await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length);
   await demo.getByRole('button',{name:'进入推荐',exact:true}).click();await demo.locator('.scan-demo').waitFor({state:'hidden'});
-  await demo.locator('.head-overlay[data-head-source="live"]').waitFor();
+  await demo.locator('.head-overlay[data-head-source="original"]').waitFor();
+  const poolIDs={"nailong":["nailong-01","nailong-02","nailong-03","nailong-04","nailong-05","nailong-06","nailong-07"],"lulu":["lulu-01","lulu-02","lulu-03","lulu-04","lulu-05","lulu-06","lulu-07","lulu-08"]}[profile];
+  const cartoon=demo.locator('.meme-video');
+  for(let i=0;i<poolIDs.length;i++){
+   await demo.getByRole('button',{name:'视频合集',exact:true}).click();
+   assert.equal(await demo.locator('.clip-list button').count(),poolIDs.length,'Catalog is restricted to the current pool');
+   await demo.locator('.clip-list button').nth(i).click();
+   await demo.waitForFunction(()=>{const v=document.querySelector('.meme-video');return v.readyState>=2&&v.videoWidth>0;});
+   assert.equal(await cartoon.getAttribute('data-clip-id'),poolIDs[i],'No cross-pool clip');
+   assert.equal(await cartoon.evaluate(v=>v.videoWidth),576);
+   assert.ok(await cartoon.evaluate(v=>v.duration)>4);
+   assert.equal(await cartoon.evaluate(v=>v.muted),false);
+   assert.equal(await cartoon.evaluate(v=>getComputedStyle(v).objectFit),'contain','Original complete cartoon framing');
+   assert.equal(await demo.locator('.head-overlay').getAttribute('data-head-source'),'original');
+   assert.ok(await demo.locator('.head-overlay').evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;return !d.some((x,j)=>j%4===3&&x!==0);}), 'No camera head or mosaic drawn on cartoon characters');
+   if(await demo.getByRole('button',{name:'播放视频',exact:true}).count())await demo.getByRole('button',{name:'播放视频',exact:true}).click();
+   const audio=await cartoon.evaluate(v=>{if(!v.captureStream)return null;const stream=v.captureStream(),n=stream.getAudioTracks().length;stream.getTracks().forEach(t=>t.stop());return n;});
+   if(audio!==null)assert.ok(audio>0,'Every cartoon includes original audio');
+   await demo.getByRole('button',{name:'暂停视频',exact:true}).click();
+   await cartoon.evaluate(v=>{v.currentTime=Math.min(2,v.duration/2);});await demo.waitForTimeout(100);
+   assert.match(await demo.locator('.post-caption .sr-only').innerText(),new RegExp((i+1)+'/'+poolIDs.length));
+   console.log('QA_POOL_'+profile.toUpperCase()+'_'+i+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
+  }
+  await demo.waitForTimeout(500);await demo.keyboard.press('ArrowDown');
+  await demo.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
+  assert.equal(await cartoon.getAttribute('data-clip-id'),poolIDs[0],'Current pool wraps to its own first clip');
+  await demo.getByRole('button',{name:'打开菜单',exact:true}).click();await demo.getByRole('button',{name:'重新播放当前视频',exact:true}).click();
+  assert.equal(await cartoon.getAttribute('data-clip-id'),poolIDs[0]);assert.ok(await cartoon.evaluate(v=>v.currentTime)<1);
+  for(const button of ['搜索视频','朋友']){
+   await demo.getByRole('button',{name:button,exact:true}).click();assert.equal(await demo.locator('.clip-list button').count(),poolIDs.length);await demo.getByRole('button',{name:'关闭弹窗',exact:true}).click();
+  }
+
   assert.equal(await demo.evaluate(()=>window.__qaCameraCalls),1,'Same camera stream after demo');
   assert.equal(await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length),modelLoads,'No model restart after demo');
   await demo.getByRole('button',{name:'打开评论区',exact:true}).click();await demo.getByRole('button',{name:'关闭评论区',exact:true}).click();
@@ -221,7 +252,7 @@ try{
  assert.match(await sample.locator('.scan-camera-caption').innerText(),/未使用人脸判断/);await sample.close();
  const invalid=await browser.newPage({viewport:{width:390,height:844}});await invalid.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};});
  await invalid.goto(url+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),0);await invalid.close();
- console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera/models after continue, denied-camera manual example, reduced motion, invalid URL preserves original feed, no identity or gender inference.');
+ console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, denied-camera manual example, reduced motion, invalid URL preserves original feed, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
