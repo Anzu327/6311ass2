@@ -12,3 +12,5 @@ When explicitly enabled, the webcam's current face/hair pixels replace the sampl
 Limitations:2D collage, not a neural identity swap. This clip's white glove occlusion uses a brightness approximation outside the original face box, not a universal depth mask. Fast turns, hair edges and gloves across the original face can be imperfect. CPU inference is adaptively throttled180–500ms; actual mobile-camera performance still needs the creator's device trial.
 
 Only one source clip is available; scrolling replays it. The approved splash and1.5-second entry are unchanged.
+
+Browser compatibility: the supplied HEVC clip is transcoded to H.264 Main/yuv420p with its AAC audio copied and MP4 faststart. Runtime file keeps all533frames and original dimensions/rate; not an untouched binary copy. The supplied original remains unchanged outside this repository.
