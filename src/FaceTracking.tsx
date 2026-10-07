@@ -31,12 +31,12 @@ export default function FaceTracking({video,clip,active,source,onStatus}:Props){
    const row=sampleHead(track,v.currentTime),box=containBox(track.width,track.height,width,height);
    if(!row){c.dataset.headSource='none';if(stage)stage.dataset.headReady='true';return;}
    const [x,y,w,h,angle]=row;
+   const head=useCamera.current?liveHead.current:null;
    const crop=mosaicCrop(row,track.width,track.height);
    mosaicCtx.drawImage(v,crop.x,crop.y,crop.width,crop.height,0,0,6,8);
-   ctx.save();ctx.imageSmoothingEnabled=false;
+   ctx.save();ctx.imageSmoothingEnabled=!!head;if(head)ctx.filter='blur(10px)';
    ctx.drawImage(mosaic,box.x+crop.x*box.scale,box.y+crop.y*box.scale,crop.width*box.scale,crop.height*box.scale);
    ctx.restore();
-   const head=useCamera.current?liveHead.current:null;
    if(head){
     const fit=fittedHeadScale(row,head.image.width,head.chinY-head.top,track.width,track.height),scale=fit.scale*box.scale;
     ctx.save();ctx.translate(box.x+(x+w*.5)*box.scale,box.y+fit.chin*box.scale);

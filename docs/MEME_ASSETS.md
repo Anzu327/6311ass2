@@ -32,3 +32,5 @@ The user supplied five additional video files. Runtime catalog now contains six 
 - 退退退:6.07s, manually calibrated foreground red-shirt head. Back/side-facing body means a frontal webcam head remains an intentionally comic2D collage, not a natural3D face swap.
 Every source has an audio stream. Both H.264/AAC MP4 and VP9/Opus WebM are included. Original source files remain unchanged. Codec conversion and resizing affect delivered bytes; do not call them untouched originals.
 The head scale retains2.5 when it fits, with width/top caps on close-ups. Mosaic always underlies live heads; unused bright foreground restoration is disabled except for青海摇. Test real phone/camera hair edges and motion separately.
+
+When a camera face is present, the source-head base is heavily softened before the live head is composited; hard6×8mosaic blocks remain only for missing-camera-face mode. This avoids huge square blocks surrounding close-up cutouts. The UI has a transparent top/bottom shade for readability on bright outdoor footage; source video files are not darkened.
