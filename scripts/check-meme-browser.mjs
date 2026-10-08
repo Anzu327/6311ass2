@@ -6,6 +6,16 @@ import {mkdir,writeFile} from 'node:fs/promises';
 await mkdir('qa-results',{recursive:true});
 const qaLog=[],originalLog=console.log;
 console.log=(...args)=>{qaLog.push(args.map(String).join(' '));originalLog(...args);};
+async function cameraGeometry(page){
+ const geometry=await page.locator('.scanner-camera canvas').evaluate(c=>{
+  const rect=c.getBoundingClientRect(),v=document.querySelector('.camera-source'),s=Math.max(c.width/v.videoWidth,c.height/v.videoHeight);
+  return {ratio:c.width/c.height,cssRatio:rect.width/rect.height,x:s*rect.width/c.width,y:s*rect.height/c.height,width:c.width,height:c.height,css:[rect.width,rect.height],filter:getComputedStyle(c).filter,rendering:getComputedStyle(c).imageRendering};
+ });
+ assert.ok(Math.abs(geometry.ratio-geometry.cssRatio)<.006,'Canvas buffer matches phone display aspect ratio');
+ assert.ok(Math.abs(geometry.x/geometry.y-1)<.006,'Camera horizontal/vertical displayed scale must be equal');
+ assert.equal(geometry.filter,'none');assert.equal(geometry.rendering,'auto');
+ return geometry;
+}
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
 let browser,page,diagnosticPage;
 async function waitForClip(page,id){await page.waitForFunction(id=>{const v=document.querySelector('.meme-video'),p=document.querySelector('.feed-motion');return v?.dataset.clipId===id&&v.readyState>=2&&p?.dataset.motion==='idle'&&document.querySelector('.stage')?.dataset.headReady==='true';},id,{timeout:15000});}
@@ -84,6 +94,7 @@ try{
  // Screenshot-grounded feed and white comments-sheet interactions.
  await page.setViewportSize({width:390,height:758});await page.waitForTimeout(250);
  assert.equal(await page.locator('.bootleg-brand,.scan-meta,.camera-status').count(),0,'No oversized counterfeit/debug chrome');
+ assert.equal(await page.getByRole('button',{name:'打开评论区',exact:true}).innerText(),'275','Comment icon shows numeric count, not caption');
  await page.getByRole('button',{name:'点赞视频',exact:true}).click();assert.equal(await page.getByRole('button',{name:'点赞视频',exact:true}).getAttribute('aria-pressed'),'true');
  await page.getByRole('button',{name:'收藏视频',exact:true}).click();assert.equal(await page.getByRole('button',{name:'收藏视频',exact:true}).getAttribute('aria-pressed'),'true');
  console.log('QA_SCREENSHOT_FEED_REFERENCE='+(await page.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
@@ -98,6 +109,7 @@ try{
  await page.getByRole('textbox',{name:'写评论',exact:true}).fill('本地测试评论，不上传');
  await page.getByRole('button',{name:'发送评论',exact:true}).click();await page.getByText('本地测试评论，不上传',{exact:true}).waitFor();
  await page.getByRole('button',{name:'关闭评论区',exact:true}).click();
+ assert.equal(await page.getByRole('button',{name:'打开评论区',exact:true}).innerText(),'276','Local comment updates rail total');
  await page.getByRole('button',{name:'打开评论区',exact:true}).click();await page.getByText('本地测试评论，不上传',{exact:true}).waitFor();
  await page.getByRole('button',{name:'展开评论区',exact:true}).click();assert.ok(await page.locator('.comments-sheet').evaluate(e=>e.getBoundingClientRect().top)<100);
  await page.getByRole('button',{name:'缩小评论区',exact:true}).click();await page.keyboard.press('Escape');assert.equal(await page.locator('.comments-sheet').count(),0);
@@ -195,7 +207,7 @@ try{
   await demo.waitForFunction(()=>window.__qaResetObserved&&document.querySelector('.scan-demo')?.dataset.scanState==='waiting',{},{timeout:60000});
   assert.equal(await demo.locator('.scan-sticker').count(),0,'Face loss during scan cannot reveal a result');
   const preview=demo.locator('.scanner-camera canvas');
-  assert.deepEqual(await preview.evaluate(c=>[c.width,c.height,getComputedStyle(c).filter,getComputedStyle(c).imageRendering]),[660,900,'none','auto'],'Clear full-resolution color camera preview');
+  await cameraGeometry(demo);
   assert.equal(await demo.getByRole('button',{name:'播放界面样例',exact:true}).count(),0,'No fake source-video scan');
   await demo.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'));});
   await demo.waitForTimeout(100);
@@ -224,7 +236,7 @@ try{
   assert.ok(await demo.locator('.scan-sticker').evaluate(e=>e.complete&&e.naturalWidth>0));
   assert.match(await demo.locator('.scan-disclosure').innerText(),/分组为演示.*非身份识别/);
   for(const viewport of [{width:390,height:844},{width:320,height:568},{width:1366,height:768}]){
-   await demo.setViewportSize(viewport);await demo.waitForTimeout(120);
+   await demo.setViewportSize(viewport);await demo.waitForTimeout(120);await cameraGeometry(demo);
    assert.ok(await demo.locator('.scan-enter').evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth;}),'Demo continue button fits viewport');
    console.log('QA_SCAN_RESULT_'+profile.toUpperCase()+'_'+viewport.width+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
   }
@@ -265,7 +277,7 @@ try{
   assert.equal(await demo.evaluate(()=>window.__qaCameraCalls),1,'Same camera stream after demo');
   assert.equal(await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length),modelLoads,'No model restart after demo');
   await demo.getByRole('button',{name:'打开评论区',exact:true}).click();await demo.getByRole('button',{name:'关闭评论区',exact:true}).click();
-  await demo.evaluate(()=>window.dispatchEvent(new Event('pagehide')));assert.ok(await demo.evaluate(()=>window.__qaStopped)>0);await demo.close();
+  await demo.evaluate(()=>window.dispatchEvent(new Event('pagehide')));assert.ok(await demo.evaluate(()=>window.__qaStopped)>0);await demo.close();diagnosticPage=null;
  }
  const sample=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
  await sample.addInitScript(syntheticCamera);
@@ -314,11 +326,16 @@ try{
   await unified.waitForFunction(id=>document.querySelector('.meme-video')?.dataset.clipId===id,expected);
   await unified.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
   const before=await unified.locator('.meme-video').getAttribute('data-clip-id');
+  const beforePositions=await unified.evaluate(()=>Object.fromEntries(['.media-stage','.post-caption','.action-rail','.stage-header','.bottom-nav'].map(s=>[s,document.querySelector(s).getBoundingClientRect().top])));
   // Short drag returns without changing index, pointer cancel also resets.
   const p=await unified.locator('.media-stage').boundingBox(),x=p.x+p.width*.5,y=p.y+p.height*.6;
   const pointer=async(type,py)=>unified.locator('.stage').evaluate((el,{type,x,y})=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:9,pointerType:'touch',isPrimary:true,button:0,clientX:x,clientY:y})),{type,x,y:py});
   await pointer('pointerdown',y);await pointer('pointermove',y-25);
   assert.equal(await unified.locator('.feed-motion').getAttribute('data-motion'),'drag');
+  const movedPositions=await unified.evaluate(()=>Object.fromEntries(['.media-stage','.post-caption','.action-rail','.stage-header','.bottom-nav'].map(s=>[s,document.querySelector(s).getBoundingClientRect().top])));
+  for(const s of ['.media-stage','.post-caption','.action-rail'])assert.ok(Math.abs(movedPositions[s]-beforePositions[s]+25)<1,s+' follows video drag');
+  for(const s of ['.stage-header','.bottom-nav'])assert.ok(Math.abs(movedPositions[s]-beforePositions[s])<1,s+' stays fixed');
+  assert.equal(await unified.getByRole('button',{name:'打开评论区',exact:true}).innerText(),'275');
   assert.ok(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42)<-10,'Frame follows the finger');
   console.log('QA_SWIPE_DRAG_'+group.toUpperCase()+'='+(await unified.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
   await pointer('pointerup',y-25);await unified.waitForTimeout(220);
@@ -346,11 +363,11 @@ try{
   await unified.locator('.comments-sheet').dispatchEvent('wheel',{deltaY:180});assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),idBeforeComment);
   await unified.getByRole('button',{name:'关闭评论区',exact:true}).click();
   console.log('QA_UNIFIED_'+group.toUpperCase()+'='+(await unified.locator('.stage').screenshot({type:'jpeg',quality:85})).toString('base64'));
-  await unified.close();
+  await unified.close();diagnosticPage=null;
  }
- console.log('Unified/swipe QA passed:root and unknown presets randomly assign7/8pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
+ console.log('Unified/swipe QA passed:whole-post UI moves together while nav stays fixed, numeric comment count,root and unknown presets randomly assign7/8pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
  console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, clear mirrored live preview and denied-camera skip without success/sample, reduced motion, invalid URL uses unified entry, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
-}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(diagnosticPage){console.log('QA_MEDIA_DIAGNOSTIC='+JSON.stringify(await diagnosticPage.evaluate(()=>{const v=document.querySelector('.meme-video');return {motion:document.querySelector('.feed-motion')?.dataset.motion,transform:document.querySelector('.feed-motion')?.style.transform,protected:document.querySelector('.stage')?.dataset.headReady,id:v?.dataset.clipId,ready:v?.readyState,current:v?.currentSrc,error:v?.error?.code,message:v?.error?.message,sources:[...document.querySelectorAll('.meme-video source')].map(x=>({src:x.src,type:x.type,support:v.canPlayType(x.type)}))};})));console.log('QA_CURRENT_IMAGE='+(await diagnosticPage.screenshot({type:'jpeg',quality:70})).toString('base64'));}if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
+}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));console.log('QA_ORIGINAL_ERROR='+String(error.stack||error));if(diagnosticPage&&!diagnosticPage.isClosed()){console.log('QA_MEDIA_DIAGNOSTIC='+JSON.stringify(await diagnosticPage.evaluate(()=>{const v=document.querySelector('.meme-video');return {motion:document.querySelector('.feed-motion')?.dataset.motion,transform:document.querySelector('.feed-motion')?.style.transform,protected:document.querySelector('.stage')?.dataset.headReady,id:v?.dataset.clipId,ready:v?.readyState,current:v?.currentSrc,error:v?.error?.code,message:v?.error?.message,sources:[...document.querySelectorAll('.meme-video source')].map(x=>({src:x.src,type:x.type,support:v.canPlayType(x.type)}))};})));console.log('QA_CURRENT_IMAGE='+(await diagnosticPage.screenshot({type:'jpeg',quality:70})).toString('base64'));}if(page&&!page.isClosed())console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
