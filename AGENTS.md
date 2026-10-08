@@ -100,3 +100,7 @@ User supplied ScreenRecording_10-08-2026 21-03-45_1.mov and asked to append it t
 
 ## Varied per-video comments (2026-10-08)
 User wants substantially more comments and different content on different videos. Each supplied clip receives22main demo comments plus multiple reply threads from curated奶龙/噜噜/虎哥/科比/legacy-meme topic pools; legacy lead comments refer to the actual meme. Per-visit selections and metadata vary by clip and remain stable while navigating; local posts/replies update only their own clip. Use only fictional authors and existing public animal/landscape avatars. No copied private friends, scraped contacts, identity claims or server/persistent messaging. Newly added clips automatically receive their own discussion. Preserve randomized total/count consistency and existing comment-sheet interactions.
+
+
+## Wider scanner camera framing (2026-10-08)
+User says scanner is over-zoomed and phone must be held too far away. Replace scanner-onlycovercrop with existingcontainBox full-frame fit: no source cropping or extra digital zoom, preserve all camera edges, mirror once and keep responsive buffer/aspect correction. Allow dark letterboxing when camera/display ratios differ rather than stretching. Actualface gate,2sanimation, masks/pools/privacy, terminal UI, feed/legacy head overlays, messages/profile and camera constraints unchanged. Test portrait/landscape camera math plus four source-corner markers in isolated browser fixtures; never draw calibration markers in production.

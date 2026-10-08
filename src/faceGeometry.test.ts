@@ -21,3 +21,16 @@ it('does not paste heads into blank end frames',()=>{const t:HeadTrack={fps:30,w
 it('caps giant close-up heads inside the visible video',()=>{const r=fittedHeadScale([20,10,500,550,0],190,220,576,744);expect(r.scale*190).toBeLessThanOrEqual(576*.9);expect(r.chin-r.scale*220).toBeGreaterThanOrEqual(744*.02-.001);});
 
 it('never interpolates a head across a hard scene cut',()=>{const t:HeadTrack={fps:30,width:720,height:370,frames:[[10,20,30,40,0],[500,200,100,100,.2]],cuts:[1]};expect(sampleHead(t,1/60)).toEqual(t.frames[0]);});
+
+it('fits the full front-camera field of view without digital crop zoom',()=>{
+ for(const [sw,sh] of [[640,480],[1920,1080],[720,1280]]){
+  for(const [w,h] of [[272,270],[330,500],[328,318]]){
+   const box=containBox(sw,sh,w,h);
+   expect(box.scale).toBe(Math.min(w/sw,h/sh));
+   expect(box.x).toBeGreaterThanOrEqual(0);expect(box.y).toBeGreaterThanOrEqual(0);
+   expect(box.x+sw*box.scale).toBeLessThanOrEqual(w+.001);
+   expect(box.y+sh*box.scale).toBeLessThanOrEqual(h+.001);
+   expect(box.x*2+sw*box.scale).toBeCloseTo(w);expect(box.y*2+sh*box.scale).toBeCloseTo(h);
+  }
+ }
+});

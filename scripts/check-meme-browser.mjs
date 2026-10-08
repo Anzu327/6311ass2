@@ -8,12 +8,16 @@ const qaLog=[],originalLog=console.log;
 console.log=(...args)=>{qaLog.push(args.map(String).join(' '));originalLog(...args);};
 async function cameraGeometry(page){
  const geometry=await page.locator('.scanner-camera canvas').evaluate(c=>{
-  const rect=c.getBoundingClientRect(),v=document.querySelector('.camera-source'),s=Math.max(c.width/v.videoWidth,c.height/v.videoHeight);
-  return {ratio:c.width/c.height,cssRatio:rect.width/rect.height,x:s*rect.width/c.width,y:s*rect.height/c.height,width:c.width,height:c.height,css:[rect.width,rect.height],filter:getComputedStyle(c).filter,rendering:getComputedStyle(c).imageRendering};
+  const rect=c.getBoundingClientRect(),v=document.querySelector('.camera-source'),s=Math.min(c.width/v.videoWidth,c.height/v.videoHeight);
+  const x=(c.width-v.videoWidth*s)/2,y=(c.height-v.videoHeight*s)/2;
+  const corners=[[8,8],[v.videoWidth-8,8],[8,v.videoHeight-8],[v.videoWidth-8,v.videoHeight-8]];
+  const edgePixels=window.__qaCameraMarkers?corners.map(([sx,sy])=>Array.from(c.getContext('2d').getImageData(Math.floor(x+sx*s),Math.floor(y+sy*s),1,1).data).slice(0,3)):null;
+  return {edgePixels,ratio:c.width/c.height,cssRatio:rect.width/rect.height,x:s*rect.width/c.width,y:s*rect.height/c.height,width:c.width,height:c.height,css:[rect.width,rect.height],filter:getComputedStyle(c).filter,rendering:getComputedStyle(c).imageRendering};
  });
  assert.ok(Math.abs(geometry.ratio-geometry.cssRatio)<.006,'Canvas buffer matches phone display aspect ratio');
  assert.ok(Math.abs(geometry.x/geometry.y-1)<.006,'Camera horizontal/vertical displayed scale must be equal');
  assert.equal(geometry.filter,'none');assert.equal(geometry.rendering,'auto');
+ if(geometry.edgePixels){const expected=[[240,50,70],[45,220,95],[40,155,245],[250,180,25]];for(let i=0;i<4;i++)assert.ok(geometry.edgePixels[i].every((v,j)=>Math.abs(v-expected[i^1][j])<15),'All four mirrored source corners must remain visible, not cropped/zoomed');}
  return geometry;
 }
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
@@ -129,7 +133,7 @@ try{
    const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
    const image=new Image();image.src=location.origin+'/6311ass2/docs/test-fixtures/qa-head.webp';await image.decode();
    const ctx=canvas.getContext('2d');
-   const draw=()=>{ctx.fillStyle='#282d34';ctx.fillRect(0,0,720,1280);if(!window.__qaBlank)ctx.drawImage(image,80+window.__qaShift,window.__qaPortraitCentered?360:100,560,560);};draw();
+   const draw=()=>{ctx.fillStyle='#282d34';ctx.fillRect(0,0,720,1280);if(!window.__qaBlank)ctx.drawImage(image,80+window.__qaShift,window.__qaPortraitCentered?360:100,560,560);if(window.__qaCameraMarkers){const colors=['rgb(240,50,70)','rgb(45,220,95)','rgb(40,155,245)','rgb(250,180,25)'];[[0,0],[canvas.width-24,0],[0,canvas.height-24],[canvas.width-24,canvas.height-24]].forEach(([x,y],i)=>{ctx.fillStyle=colors[i];ctx.fillRect(x,y,24,24);});}};draw();
    const timer=setInterval(draw,75),stream=canvas.captureStream(12);
    for(const track of stream.getTracks()){const stop=track.stop.bind(track);track.stop=()=>{clearInterval(timer);window.__qaStopped++;stop();};}
    return stream;
@@ -193,7 +197,7 @@ try{
   demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(!['GET','HEAD'].includes(r.method()))outgoing.push(r.url());});
   diagnosticPage=demo;await demo.addInitScript(syntheticCamera);
   await demo.addInitScript(()=>{
-   window.__qaLossRequested=false;window.__qaResetObserved=false;window.__qaProgressBeforeReset=0;
+   window.__qaCameraMarkers=true;window.__qaLossRequested=false;window.__qaResetObserved=false;window.__qaProgressBeforeReset=0;
    new MutationObserver(()=>{
     const stage=document.querySelector('.scan-demo'),state=stage?.dataset.scanState;
     const progress=Number(document.querySelector('.scan-demo [role="progressbar"]')?.getAttribute('aria-valuenow')??0);
