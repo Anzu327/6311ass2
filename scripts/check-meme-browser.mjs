@@ -231,7 +231,7 @@ try{
   console.log('QA_SCAN_ACTIVE_'+profile.toUpperCase()+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
   await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='complete',{},{timeout:6000});
   assert.ok(Date.now()-began>=1700,'Result follows the full two-second scan');
-  const label={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉',kobe:'科比资深粉'}[profile];
+  const label={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉',kobe:'man巴out'}[profile];
   await demo.getByRole('heading',{name:label,exact:true}).waitFor();
   await demo.waitForTimeout(450);
   if(profile==='huge'||profile==='kobe')assert.equal(await demo.locator('.text-sticker').innerText(),label);else assert.ok(await demo.locator('.scan-sticker').evaluate(e=>e.complete&&e.naturalWidth>0));
@@ -322,7 +322,7 @@ try{
   await unified.addInitScript(syntheticCamera);diagnosticPage=unified;await unified.goto(baseURL);
   await unified.locator('.scan-demo').waitFor({timeout:7000});
   const group=['nailong','lulu','huge','kobe'][choice],expected=group+'-01';
-  await unified.getByRole('heading',{name:['重度奶龙用户','噜噜资深粉','虎哥资深粉','科比资深粉'][choice],exact:true}).waitFor({timeout:60000});
+  await unified.getByRole('heading',{name:['重度奶龙用户','噜噜资深粉','虎哥资深粉','man巴out'][choice],exact:true}).waitFor({timeout:60000});
   await unified.getByRole('button',{name:'进入推荐',exact:true}).click();
   await unified.waitForFunction(id=>document.querySelector('.meme-video')?.dataset.clipId===id,expected);
   await unified.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
