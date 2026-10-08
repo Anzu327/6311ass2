@@ -9,7 +9,7 @@ try{
  for(let i=0;i<40;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));}
  browser=await chromium.launch({headless:true,...(process.env.QA_CHROMIUM_PATH?{executablePath:process.env.QA_CHROMIUM_PATH}:{})});
  await mkdir('qa-results',{recursive:true});
- for(const group of ['nailong','lulu','huge','kobe']){
+ for(const group of ['nailong','lulu','huge','kobe','jokebear']){
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{window.__cameraCalls=0;navigator.mediaDevices.getUserMedia=async()=>{window.__cameraCalls++;throw new DOMException('QA denied','NotAllowedError');};});

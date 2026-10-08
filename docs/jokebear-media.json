@@ -1,0 +1,261 @@
+[
+  {
+    "id": "jokebear-01",
+    "sourceFile": "8665664eb31d13701a1cbcc00a4692b2.mp4",
+    "source": {
+      "width": 720,
+      "height": 960,
+      "fps": 30,
+      "seconds": 13.97,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 669080,
+      "sha256": "8e5f19bc12d55abf6f22b637a38a684e418223f6342d3cd99c0074e7b543045f"
+    },
+    "mp4": {
+      "width": 720,
+      "height": 960,
+      "fps": 30,
+      "seconds": 13.97,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 1339082,
+      "sha256": "4618b37c036409a6edf022ec6ca45894c60f415a42279d26fb90a4c8dc368f12"
+    },
+    "webm": {
+      "width": 720,
+      "height": 960,
+      "fps": 30,
+      "seconds": 13.97,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 1166979,
+      "sha256": "6ee377116aabd11914895df8c976e96d6f4a12df520468fa3fd88a7722949497"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  },
+  {
+    "id": "jokebear-02",
+    "sourceFile": "34306e94ac504cb5632f67a3d02a8f4f.mp4",
+    "source": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 38.52,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 1266325,
+      "sha256": "c75fca7d6652f4a228d0231324f254788ebf7ca0fce32354a6801a2071c54c60"
+    },
+    "mp4": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 38.52,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 1949281,
+      "sha256": "52a99bfca519c5dd1aa98e6951eed2fbbebc8f88de884adfbef033ad4cd73275"
+    },
+    "webm": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 38.53,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 2424689,
+      "sha256": "b600aa0cf27537f907a65d9ff2e08e4248c2653024ba35680019a0ac8dfdb7f2"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  },
+  {
+    "id": "jokebear-03",
+    "sourceFile": "33ce94ac109d302450130833aa898d51.mp4",
+    "source": {
+      "width": 960,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 324930,
+      "sha256": "f00bb4ed955638c762d14622ea4076d7ad32ea7dc1d72b667b50792c05372958"
+    },
+    "mp4": {
+      "width": 960,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 448006,
+      "sha256": "6227af3afcbe14a7f1a88326e2110afc8dcd0209e481de3397193f8afe7ae6e3"
+    },
+    "webm": {
+      "width": 960,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 581207,
+      "sha256": "4d09219540267d6d7e44b5dd71edd585debeb1637e30523e6efd12ed11e682ab"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  },
+  {
+    "id": "jokebear-04",
+    "sourceFile": "46ae89235fa3461c7455b11d499caae0.mp4",
+    "source": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.23,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 352174,
+      "sha256": "b466cbf04de0545e69043050de5818afa944cd5996a3181b40c106cfcc51f028"
+    },
+    "mp4": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.23,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 441276,
+      "sha256": "f01f57145ae6265e88dc76961ac79840af1ca5b1b252cb49da1ecda229139142"
+    },
+    "webm": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.23,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 602454,
+      "sha256": "dcca6a5257fc1658aa8f1b32aea35d07ccfddbe928d98eb17e1bf489fb9bb56e"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  },
+  {
+    "id": "jokebear-05",
+    "sourceFile": "f87b0230e11558ea4d0c6143d0456222.mp4",
+    "source": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 523182,
+      "sha256": "d2515c26950c64f9d8e9f81048bd096f32011bdcad7017cf8d86f8674b201dbc"
+    },
+    "mp4": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 801733,
+      "sha256": "01fb4780bb81d176b257f3fd116a57efb0bfa4d9a75adca60b50f93b45d1a50d"
+    },
+    "webm": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 1038986,
+      "sha256": "3551c7ce32365a97f94c9e03b24881a2d9d2e1f9f0f5279281f3528e4b5d34e4"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  },
+  {
+    "id": "jokebear-06",
+    "sourceFile": "87abedf328139ac79f404149b4734397.mp4",
+    "source": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 12.8,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 453864,
+      "sha256": "14ac3bef68e1c31e0b5de529c530b6dc1d79a8ee5ae85e3b9553b9af36e5628b"
+    },
+    "mp4": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 12.8,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 575838,
+      "sha256": "67b582590617704699f570c375532eb8fb95be6ff11c6324211e7443fc1533c1"
+    },
+    "webm": {
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "seconds": 12.8,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 825131,
+      "sha256": "0958cebd01e20733c1f962c51d100763df9df29041391243c6875c5a414cd13d"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  },
+  {
+    "id": "jokebear-07",
+    "sourceFile": "55a578aaf2a24ad2ca35e7a7e63ff119.mp4",
+    "source": {
+      "width": 720,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "hevc",
+      "audioCodec": "aac",
+      "bytes": 322139,
+      "sha256": "b6808bcb14889e1d92eae04475756ad538c2ef05de325c6203774ac736483cad"
+    },
+    "mp4": {
+      "width": 720,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "bytes": 478007,
+      "sha256": "2990bc4e3c0989a18bfa37b36558b570bd261992db9be818e5293d530dcaf58b"
+    },
+    "webm": {
+      "width": 720,
+      "height": 720,
+      "fps": 30,
+      "seconds": 13.07,
+      "videoCodec": "vp9",
+      "audioCodec": "opus",
+      "bytes": 647065,
+      "sha256": "087b5dda2ce6e433511d2c2cb5f5096fb204b7763100e9ea79be8adcecc5c055"
+    },
+    "originalAacExact": true,
+    "trimmed": false,
+    "cropped": false
+  }
+]
