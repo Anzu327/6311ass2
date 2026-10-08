@@ -45,7 +45,7 @@
 .scan-status{position:absolute;top:10.5%;left:15px;right:15px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:17px;line-height:1.5}
 .scan-blue{color:var(--scan-blue)}
 .scanner-camera{position:absolute;top:14.5%;left:9%;width:82%;height:51%;border-radius:12px;overflow:hidden;background:#353535}
-.scanner-camera canvas{display:block;width:100%;height:100%;image-rendering:pixelated;filter:grayscale(1) brightness(.9)}
+.scanner-camera canvas{display:block;width:100%;height:100%;image-rendering:auto}
 .scan-corners{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
 .scan-mesh{position:absolute;left:13%;top:8%;width:74%;height:84%;object-fit:contain;opacity:.85;pointer-events:none}
 .scan-beam{position:absolute;left:0;top:var(--scan-sweep);width:100%;height:200px;transform:translateY(-40%);opacity:.95;pointer-events:none}
