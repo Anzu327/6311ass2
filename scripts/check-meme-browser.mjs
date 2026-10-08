@@ -8,6 +8,7 @@ const qaLog=[],originalLog=console.log;
 console.log=(...args)=>{qaLog.push(args.map(String).join(' '));originalLog(...args);};
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
 let browser,page,diagnosticPage;
+async function waitForClip(page,id){await page.waitForFunction(id=>{const v=document.querySelector('.meme-video'),p=document.querySelector('.feed-motion');return v?.dataset.clipId===id&&v.readyState>=2&&p?.dataset.motion==='idle'&&document.querySelector('.stage')?.dataset.headReady==='true';},id,{timeout:15000});}
 try{
  const baseURL='http://127.0.0.1:5173/6311ass2/';const url=baseURL+'?feed=memes';
  for(let i=0;i<80;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));if(i===79)throw new Error('Vite failed to start');}
@@ -53,7 +54,7 @@ try{
  assert.ok(await page.locator('.head-overlay').evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;return d.some((v,i)=>i%4===3&&v===255);}), 'Mosaic must actually be drawn');
  assert.ok(!requested.some(u=>/demo-head|demo-portrait/.test(u)),'No removed fictional portraits');
  assert.equal(await source.evaluate(v=>v.muted),false,'Source is never silently muted');
- await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');await page.waitForTimeout(250);
+ await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');await waitForClip(page,'blue-run');
  assert.match(await page.locator('.post-caption .sr-only').innerText(),/蓝色妖姬跑步.*2\/6/);
  await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();
  await page.getByRole('button',{name:'打开菜单',exact:true}).click();await page.getByRole('button',{name:'重新播放当前视频',exact:true}).click();assert.match(await page.locator('.post-caption .sr-only').innerText(),/蓝色妖姬跑步.*2\/6/);assert.ok(await source.evaluate(v=>v.currentTime)<1);
@@ -78,7 +79,7 @@ try{
   console.log('QA_SCREENSHOT_CATALOG_'+i+'='+(await page.locator('.stage').screenshot({type:'jpeg',quality:70})).toString('base64'));
  }
  await page.waitForTimeout(500);await page.keyboard.press('ArrowDown');
- await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();assert.equal(await source.getAttribute('data-clip-id'),'qinghai','Feed cycles to first actual clip');
+ await waitForClip(page,'qinghai');await page.locator('.head-overlay[data-head-source="mosaic"]').waitFor();assert.equal(await source.getAttribute('data-clip-id'),'qinghai','Feed cycles to first actual clip');
 
  // Screenshot-grounded feed and white comments-sheet interactions.
  await page.setViewportSize({width:390,height:758});await page.waitForTimeout(250);
@@ -240,7 +241,7 @@ try{
    console.log('QA_POOL_'+profile.toUpperCase()+'_'+i+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
   }
   await demo.waitForTimeout(500);await demo.keyboard.press('ArrowDown');
-  await demo.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
+  await waitForClip(demo,poolIDs[0]);
   assert.equal(await cartoon.getAttribute('data-clip-id'),poolIDs[0],'Current pool wraps to its own first clip');
   await demo.getByRole('button',{name:'打开菜单',exact:true}).click();await demo.getByRole('button',{name:'重新播放当前视频',exact:true}).click();
   assert.equal(await cartoon.getAttribute('data-clip-id'),poolIDs[0]);assert.ok(await cartoon.evaluate(v=>v.currentTime)<1);
@@ -273,7 +274,7 @@ try{
    crypto.getRandomValues=array=>{array.fill(value);return array;};
    navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};
   },choice);
-  await unified.goto(baseURL);
+  diagnosticPage=unified;await unified.goto(baseURL);
   await unified.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});await unified.getByRole('button',{name:'播放界面样例',exact:true}).click();
   const group=choice?'lulu':'nailong',expected=group+'-01';
   await unified.getByRole('heading',{name:choice?'噜噜资深粉':'重度奶龙用户',exact:true}).waitFor({timeout:6000});
@@ -292,16 +293,16 @@ try{
   assert.ok(Math.abs(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42))<1,'Short drag rebounds');
   await pointer('pointerdown',y);await pointer('pointermove',y-160);await pointer('pointerup',y-160);
   assert.equal(await unified.locator('.feed-motion').getAttribute('data-motion'),'exit');
-  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle',{},{timeout:10000});
+  await waitForClip(unified,group+'-02');
   assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-02');
   assert.equal(await unified.locator('.camera-source').count(),1);
   assert.equal(await unified.locator('.meme-video').count(),1,'Single decoder, no duplicated video/camera layers');
   // Reverse and wheel use the same animated switch, and never leave the group.
   await unified.waitForTimeout(500);await unified.keyboard.press('ArrowUp');
-  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle',{},{timeout:10000});
+  await waitForClip(unified,group+'-01');
   assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-01');
   await unified.waitForTimeout(500);await unified.locator('.stage').dispatchEvent('wheel',{deltaY:160});
-  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle',{},{timeout:10000});
+  await waitForClip(unified,group+'-02');
   assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-02');
   await unified.getByRole('button',{name:'打开评论区',exact:true}).click();const idBeforeComment=await unified.locator('.meme-video').getAttribute('data-clip-id');
   await unified.locator('.comments-sheet').dispatchEvent('wheel',{deltaY:180});assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),idBeforeComment);
@@ -310,8 +311,8 @@ try{
   await unified.close();
  }
  console.log('Unified/swipe QA passed:root and unknown presets randomly assign7/8pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
- console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, denied-camera manual example, reduced motion, invalid URL preserves original feed, no identity or gender inference.');
+ console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, denied-camera manual example, reduced motion, invalid URL uses unified entry, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
-}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(diagnosticPage){console.log('QA_MEDIA_DIAGNOSTIC='+JSON.stringify(await diagnosticPage.evaluate(()=>{const v=document.querySelector('.meme-video');return {id:v?.dataset.clipId,ready:v?.readyState,current:v?.currentSrc,error:v?.error?.code,message:v?.error?.message,sources:[...document.querySelectorAll('.meme-video source')].map(x=>({src:x.src,type:x.type,support:v.canPlayType(x.type)}))};})));console.log('QA_CURRENT_IMAGE='+(await diagnosticPage.screenshot({type:'jpeg',quality:70})).toString('base64'));}if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
+}catch(error){await writeFile('qa-results/error.txt',String(error.stack||error));if(diagnosticPage){console.log('QA_MEDIA_DIAGNOSTIC='+JSON.stringify(await diagnosticPage.evaluate(()=>{const v=document.querySelector('.meme-video');return {motion:document.querySelector('.feed-motion')?.dataset.motion,transform:document.querySelector('.feed-motion')?.style.transform,protected:document.querySelector('.stage')?.dataset.headReady,id:v?.dataset.clipId,ready:v?.readyState,current:v?.currentSrc,error:v?.error?.code,message:v?.error?.message,sources:[...document.querySelectorAll('.meme-video source')].map(x=>({src:x.src,type:x.type,support:v.canPlayType(x.type)}))};})));console.log('QA_CURRENT_IMAGE='+(await diagnosticPage.screenshot({type:'jpeg',quality:70})).toString('base64'));}if(page)console.log('QA_FAILURE_IMAGE='+(await page.screenshot({type:'jpeg',quality:60})).toString('base64'));throw error;}finally{await writeFile('qa-results/report.log',qaLog.join('\n'));await browser?.close();server.kill('SIGTERM');}
