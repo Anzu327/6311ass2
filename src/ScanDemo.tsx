@@ -23,12 +23,16 @@ export default function ScanDemo({profile,camera,facePresent,cameraError,retry,o
  useEffect(()=>{
   let frame=0;const c=canvas.current;if(!c)return;const ctx=c.getContext('2d')!;
   const paint=()=>{
-   frame=requestAnimationFrame(paint);ctx.clearRect(0,0,c.width,c.height);
+   frame=requestAnimationFrame(paint);
+   const rect=c.getBoundingClientRect(),pixelRatio=Math.min(devicePixelRatio||1,2);
+   const width=Math.max(1,Math.round(rect.width*pixelRatio)),height=Math.max(1,Math.round(rect.height*pixelRatio));
+   if(c.width!==width||c.height!==height){c.width=width;c.height=height;}
+   ctx.clearRect(0,0,c.width,c.height);
    const v=camera.current,stream=v?.srcObject as MediaStream|null;
    if(suspended||!v||v.readyState<2||!v.videoWidth||!stream?.getVideoTracks().some(track=>track.readyState==='live'))return;
-   const scale=Math.max(c.width/v.videoWidth,c.height/v.videoHeight),width=c.width/scale,height=c.height/scale;
+   const scale=Math.max(c.width/v.videoWidth,c.height/v.videoHeight),sourceWidth=c.width/scale,sourceHeight=c.height/scale;
    ctx.save();ctx.translate(c.width,0);ctx.scale(-1,1);ctx.imageSmoothingEnabled=true;
-   ctx.drawImage(v,(v.videoWidth-width)/2,(v.videoHeight-height)/2,width,height,0,0,c.width,c.height);ctx.restore();
+   ctx.drawImage(v,(v.videoWidth-sourceWidth)/2,(v.videoHeight-sourceHeight)/2,sourceWidth,sourceHeight,0,0,c.width,c.height);ctx.restore();
   };frame=requestAnimationFrame(paint);return()=>{cancelAnimationFrame(frame);ctx.clearRect(0,0,c.width,c.height);};
  },[camera,suspended]);
  const sweep=progress<=.5?progress*2:(1-progress)*2;

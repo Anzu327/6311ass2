@@ -127,14 +127,22 @@ export default function App(){
 
  <main className="stage-wrap"><section className={`stage ${phase} ${scanVisible?'scan-open':''} ${modal==='comments'?'comments-open':''} ${modal==='comments'&&commentsExpanded?'comments-expanded':''}`} aria-label="Interactive artwork"
  onWheel={e=>{if(Math.abs(e.deltaY)>20)step(e.deltaY>0?1:-1);}} onPointerDown={beginDrag} onPointerMove={moveDrag} onPointerUp={e=>endDrag(e)} onPointerCancel={e=>endDrag(e,true)}>
+ <div ref={panel} className="feed-motion" data-motion="idle" inert={scanVisible||moving}>
  <div className="media-stage" inert={scanVisible||moving} role="button" aria-label={paused?'播放视频':'暂停视频'} tabIndex={0} onClick={tapVideo} onKeyDown={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();tapVideo();}}}>
-  <div ref={panel} className="feed-motion" data-motion="idle"><div className="portrait-backdrop"><video ref={clip} className="meme-video" autoPlay={!scanVisible&&!moving} loop muted={false} playsInline preload="auto" aria-label={currentClip.title+' source video'} data-clip-id={currentClip.id}
+  <div className="portrait-backdrop"><video ref={clip} className="meme-video" autoPlay={!scanVisible&&!moving} loop muted={false} playsInline preload="auto" aria-label={currentClip.title+' source video'} data-clip-id={currentClip.id}
   onError={e=>{if(e.target===e.currentTarget)setClipError('视频加载失败，请刷新重试');}} onCanPlay={()=>setClipError('')}><source src={base+currentClip.mp4} type='video/mp4; codecs="avc1.4D4029,mp4a.40.2"'/><source src={base+currentClip.webm} type='video/webm; codecs="vp9,opus"'/></video></div>
   <FaceTracking video={video} clip={clip} source={currentClip} active={!!stream&&(scanVisible||!!currentClip.track)} onStatus={onTracking}/>
   {paused&&!needsGesture&&!moving&&<Play className="paused-symbol" size={52} weight="fill" aria-hidden="true"/>}
-  </div>
-  {loadingClip&&<div className="clip-loading" role="status">正在加载视频…</div>}
  </div>
+ <div className="post-caption" inert={scanVisible}><div className="author-name">@抖歪放映员 <span className="post-kind">{currentClip.group?'专属':'换脸'}</span></div><div className="caption-description"><p className={captionExpanded?'expanded':'collapsed'}>{currentClip.caption??descriptions[currentClip.id]}</p><button className="caption-expand" onClick={()=>setCaptionExpanded(v=>!v)}>{captionExpanded?'收起':'展开'}</button></div><small className="sound-line"><MusicNotes size={13}/>{currentClip.title} · 原声</small><span className="sr-only">{currentClip.title} {state.index%activeClips.length+1}/{activeClips.length}</span></div>
+ <div className="action-rail" inert={scanVisible}><button className="avatar" aria-label={followed?'已关注放映员':'关注放映员'} onClick={()=>setFollowed(v=>!v)}><img src={base+'media/avatar-cat.webp'} alt="放映员头像"/><span>{followed?<Check size={13} weight="bold"/>:<Plus size={14} weight="bold"/>}</span></button>
+ <button aria-label="点赞视频" aria-pressed={!!liked[currentClip.id]} className={liked[currentClip.id]?'liked':''} onClick={()=>setLiked(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Heart size={33} weight="fill"/><span>{24+(liked[currentClip.id]?1:0)}</span></button>
+ <button aria-label="打开评论区" onClick={openComments}><ChatCircleDots size={33} weight="fill"/><span>{commentsCount}</span></button>
+ <button aria-label="收藏视频" aria-pressed={!!saved[currentClip.id]} className={saved[currentClip.id]?'saved':''} onClick={()=>setSaved(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Star size={33} weight="fill"/><span>{1+(saved[currentClip.id]?1:0)}</span></button>
+ <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>分享</span></button>
+ <button className="remix-button" aria-label="拍同款" onClick={()=>setModal('about')}><img src={base+'media/avatar-sunset.webp'} alt=""/><span>拍同款</span></button></div>
+ </div>
+ {loadingClip&&<div className="clip-loading" role="status">正在加载视频…</div>}
  <video ref={video} className="camera-source" autoPlay muted playsInline aria-label="Local camera input"/>
  <header className="stage-header" inert={scanVisible}><button aria-label="打开菜单" className="header-menu" onClick={()=>setModal('menu')}><List size={25}/></button>
  <div className="feed-tabs">{['精选','团购','同城','商城','直播','关注','推荐'].map(name=><button key={name} className={tab===name?'active':''} onClick={()=>{setTab(name);if(name!=='推荐')notify('课程作品中的模拟频道');}}>{name}{['商城','关注'].includes(name)&&<Circle className="channel-dot" size={7} weight="fill"/>}</button>)}</div>
@@ -142,13 +150,6 @@ export default function App(){
  {modal==='comments'&&<button className="compact-search" aria-label="搜索视频" onClick={()=>setModal('explore')}><MagnifyingGlass size={25}/></button>}
  <div className="sr-only" role="status">{tracking}</div>
  {needsGesture&&!scanVisible&&<div className="playback-hint" role="status">轻触画面开始有声播放</div>}{clipError&&!scanVisible&&<div className="feed-empty" role="alert">{clipError}</div>}
- <div className="post-caption" inert={scanVisible}><div className="author-name">@抖歪放映员 <span className="post-kind">{currentClip.group?'专属':'换脸'}</span></div><div className="caption-description"><p className={captionExpanded?'expanded':'collapsed'}>{currentClip.caption??descriptions[currentClip.id]}</p><button className="caption-expand" onClick={()=>setCaptionExpanded(v=>!v)}>{captionExpanded?'收起':'展开'}</button></div><small className="sound-line"><MusicNotes size={13}/>{currentClip.title} · 原声</small><span className="sr-only">{currentClip.title} {state.index%activeClips.length+1}/{activeClips.length}</span></div>
- <div className="action-rail" inert={scanVisible}><button className="avatar" aria-label={followed?'已关注放映员':'关注放映员'} onClick={()=>setFollowed(v=>!v)}><img src={base+'media/avatar-cat.webp'} alt="放映员头像"/><span>{followed?<Check size={13} weight="bold"/>:<Plus size={14} weight="bold"/>}</span></button>
- <button aria-label="点赞视频" aria-pressed={!!liked[currentClip.id]} className={liked[currentClip.id]?'liked':''} onClick={()=>setLiked(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Heart size={33} weight="fill"/><span>{24+(liked[currentClip.id]?1:0)}</span></button>
- <button aria-label="打开评论区" onClick={openComments}><ChatCircleDots size={33} weight="fill"/><span>评论</span></button>
- <button aria-label="收藏视频" aria-pressed={!!saved[currentClip.id]} className={saved[currentClip.id]?'saved':''} onClick={()=>setSaved(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Star size={33} weight="fill"/><span>{1+(saved[currentClip.id]?1:0)}</span></button>
- <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>分享</span></button>
- <button className="remix-button" aria-label="拍同款" onClick={()=>setModal('about')}><img src={base+'media/avatar-sunset.webp'} alt=""/><span>拍同款</span></button></div>
  <nav inert={scanVisible} className="bottom-nav" aria-label="底部导航"><button className="active" onClick={()=>{setTab('推荐');setModal(null);}}>首页</button><button onClick={()=>setModal('explore')}>朋友</button><button className="create-button" aria-label="视频合集" onClick={()=>setModal('explore')}><Plus size={27} weight="bold"/></button><button onClick={()=>setModal('inbox')}>消息<span className="notification-count">59</span></button><button onClick={()=>setModal('profile')}>我</button></nav>
  {modal==='comments'&&<CommentsSheet title={currentClip.title} count={commentsCount} items={commentStore[currentClip.id]??initialComments} onItemsChange={items=>setCommentStore(v=>({...v,[currentClip.id]:items}))} onImageURL={url=>imageURLs.current.push(url)} onClose={closeComments} onExpand={setCommentsExpanded} onPost={()=>setCommentTotals(v=>({...v,[currentClip.id]:(v[currentClip.id]??0)+1}))}/>}
  {toast&&<div className="toast" role="status"><Check size={15}/>{toast}</div>}

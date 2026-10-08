@@ -36,7 +36,7 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.intro-art.ready{opacity:1;transform:none}}
 
 /* The approved blue scanner is an explicit classroom UI demo, not identity matching. */
-.scan-open .media-stage,.scan-open .stage-header,.scan-open .post-caption,.scan-open .action-rail,.scan-open .bottom-nav{visibility:hidden;pointer-events:none}
+.scan-open .feed-motion,.scan-open .media-stage,.scan-open .stage-header,.scan-open .post-caption,.scan-open .action-rail,.scan-open .bottom-nav{visibility:hidden;pointer-events:none}
 @font-face{font-family:ScanSans;font-style:normal;font-weight:400;font-display:swap;src:url('/media/scan-sans-400.ttf') format('truetype')}
 @font-face{font-family:ScanSans;font-style:normal;font-weight:700;font-display:swap;src:url('/media/scan-sans-700.ttf') format('truetype')}
 @font-face{font-family:ScanSans;font-style:normal;font-weight:900;font-display:swap;src:url('/media/scan-sans-900.ttf') format('truetype')}
@@ -67,4 +67,4 @@
 
 .feed-motion{position:absolute;inset:0;will-change:transform}
 .feed-motion[data-motion="drag"]{cursor:grabbing}
-.clip-loading{position:absolute;inset:0;display:grid;place-items:center;color:#bbb;font-size:13px;background:#000;pointer-events:none}
+.clip-loading{position:absolute;inset:0;z-index:4;display:grid;place-items:center;color:#bbb;font-size:13px;background:#000;pointer-events:none}
