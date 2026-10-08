@@ -7,6 +7,7 @@ import {feedFor,clipAt,groupNames,feedClips,groupedClips} from './clips';
 import Inbox from './Inbox';
 import {initialUnread} from './inboxData';
 import CommentsSheet,{initialComments,type Item} from './CommentsSheet';
+import {formatCount} from './formatCount';
 const base=import.meta.env.BASE_URL;
 export default function App(){
  const [demoProfile]=useState<DemoProfile|null>(()=>{let choice;do{choice=crypto.getRandomValues(new Uint8Array(1))[0];}while(choice===255);return entryProfile(location.search,choice);});
@@ -145,10 +146,10 @@ export default function App(){
  </div>
  <div className="post-caption" inert={scanVisible}><div className="author-name">@抖歪放映员 <span className="post-kind">{currentClip.group?'专属':'换脸'}</span></div><div className="caption-description"><p className={captionExpanded?'expanded':'collapsed'}>{currentClip.caption??descriptions[currentClip.id]}</p><button className="caption-expand" onClick={()=>setCaptionExpanded(v=>!v)}>{captionExpanded?'收起':'展开'}</button></div><small className="sound-line"><MusicNotes size={13}/>{currentClip.title} · 原声</small><span className="sr-only">{currentClip.title} {state.index%activeClips.length+1}/{activeClips.length}</span></div>
  <div className="action-rail" inert={scanVisible}><button className="avatar" aria-label={followed?'已关注放映员':'关注放映员'} onClick={()=>setFollowed(v=>!v)}><img src={base+'media/avatar-cat.webp'} alt="放映员头像"/><span>{followed?<Check size={13} weight="bold"/>:<Plus size={14} weight="bold"/>}</span></button>
- <button aria-label="点赞视频" aria-pressed={!!liked[currentClip.id]} className={liked[currentClip.id]?'liked':''} onClick={()=>setLiked(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Heart size={33} weight="fill"/><span>{engagement[currentClip.id].likes+(liked[currentClip.id]?1:0)}</span></button>
- <button aria-label="打开评论区" onClick={openComments}><ChatCircleDots size={33} weight="fill"/><span>{commentsCount}</span></button>
- <button aria-label="收藏视频" aria-pressed={!!saved[currentClip.id]} className={saved[currentClip.id]?'saved':''} onClick={()=>setSaved(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Star size={33} weight="fill"/><span>{1+(saved[currentClip.id]?1:0)}</span></button>
- <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>{engagement[currentClip.id].shares+(shareTotals[currentClip.id]??0)}</span></button>
+ <button aria-label="点赞视频" aria-pressed={!!liked[currentClip.id]} className={liked[currentClip.id]?'liked':''} onClick={()=>setLiked(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Heart size={33} weight="fill"/><span>{formatCount(engagement[currentClip.id].likes+(liked[currentClip.id]?1:0))}</span></button>
+ <button aria-label="打开评论区" onClick={openComments}><ChatCircleDots size={33} weight="fill"/><span>{formatCount(commentsCount)}</span></button>
+ <button aria-label="收藏视频" aria-pressed={!!saved[currentClip.id]} className={saved[currentClip.id]?'saved':''} onClick={()=>setSaved(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Star size={33} weight="fill"/><span>{formatCount(1+(saved[currentClip.id]?1:0))}</span></button>
+ <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>{formatCount(engagement[currentClip.id].shares+(shareTotals[currentClip.id]??0))}</span></button>
  <button className="remix-button" aria-label="拍同款" onClick={()=>setModal('about')}><img src={base+'media/avatar-sunset.webp'} alt=""/><span>拍同款</span></button></div>
  </div>
  {loadingClip&&<div className="clip-loading" role="status">正在加载视频…</div>}

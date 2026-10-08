@@ -76,6 +76,7 @@ User supplied seven虎哥originals and asked to integrate them after upload. Kee
 
 ## Random simulated engagement (2026-10-08)
 Generate different simulated like/comment/share totals per video across every pool on each page visit. Keep each video's baseline stable through navigation and rerenders; refresh rerolls. Local like toggles, posted comments and successful link copies update only that video's total. Feed and comments-sheet totals stay consistent; these remain local simulated numbers.
+Display engagement totals below10,000 as integers, and totals from10,000 using万with at most one decimal (16000→1.6万,10000→1万). Apply the same display format in the feed and comments sheet while retaining exact numeric values for updates.
 
 ## Screenshot-referenced messages (2026-10-08)
 The user supplied a personal Douyin messages screenshot as layout reference only. Never copy, publish, commit or embed that screenshot, its friend names, avatars, group names or conversation text. Messages use the existing 抖歪 portrait shell, white comments-style surface, ink/pink tokens and shared bottom navigation. Use clearly labeled fictional project-themed conversations and existing public animal/landscape/cartoon media; no personal contacts or real messaging service. Search, read/unread, conversation drafts, local send and story previews are in-memory demos, cleared on refresh; do not upload or persist entered messages. Opening Messages pauses feed playback and returning restores prior playback without recreating the video/camera stream or changing the active pool.
