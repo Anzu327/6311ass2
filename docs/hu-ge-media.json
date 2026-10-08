@@ -1,0 +1,168 @@
+{
+  "character": "虎哥",
+  "date": "2026-10-08",
+  "status": "Original source uploads; not yet wired into the app feed.",
+  "clips": [
+    {
+      "id": "hu-ge-01",
+      "character": "虎哥",
+      "originalFilename": "v0d00fg10000csa9ehfog65u8ft7l8u0.MP4",
+      "path": "public/media/hu-ge/v0d00fg10000csa9ehfog65u8ft7l8u0.MP4",
+      "sizeBytes": 2601045,
+      "sha256": "1b502c8b86c4fd589fd2a81774802812bc44589b138cfbb6656eeecaf4bf7830",
+      "durationSeconds": 50.061995,
+      "streams": [
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        },
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 360,
+          "height": 468
+        }
+      ]
+    },
+    {
+      "id": "hu-ge-02",
+      "character": "虎哥",
+      "originalFilename": "v0d00fg10000d92hm9fog65rs2rqvi60.MP4",
+      "path": "public/media/hu-ge/v0d00fg10000d92hm9fog65rs2rqvi60.MP4",
+      "sizeBytes": 2282609,
+      "sha256": "08d5a96e3579e8e42f1be62d94ce2b8985f17a1bc35cf539dd11f1999328f7b6",
+      "durationSeconds": 28.420998,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 480,
+          "height": 640
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ]
+    },
+    {
+      "id": "hu-ge-03",
+      "character": "虎哥",
+      "originalFilename": "v0d00fg10000csfm2vfog65qggveh5jg.MP4",
+      "path": "public/media/hu-ge/v0d00fg10000csfm2vfog65qggveh5jg.MP4",
+      "sizeBytes": 26852003,
+      "sha256": "36cc7ff19d8d9849f1408a7d85ef7f08cbb307a5d9e997d40407eadcc6a33bfe",
+      "durationSeconds": 318.415011,
+      "streams": [
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        },
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 540,
+          "height": 1036
+        }
+      ]
+    },
+    {
+      "id": "hu-ge-04",
+      "character": "虎哥",
+      "originalFilename": "v0200fg10000crr4hb7og65sgk9o18l0.MP4",
+      "path": "public/media/hu-ge/v0200fg10000crr4hb7og65sgk9o18l0.MP4",
+      "sizeBytes": 3411747,
+      "sha256": "6d4c8a4864bc111cb4a0a6be2a926c0ce56bcb5e87d6eee2a7fb96c190199807",
+      "durationSeconds": 40.93678,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 360,
+          "height": 480
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ]
+    },
+    {
+      "id": "hu-ge-05",
+      "character": "虎哥",
+      "originalFilename": "v0200fg10000crrlo5fog65gtangsr20.MP4",
+      "path": "public/media/hu-ge/v0200fg10000crrlo5fog65gtangsr20.MP4",
+      "sizeBytes": 4219951,
+      "sha256": "a517b9b2731cef61f67b00f4a2cb20010b9a6a73db4e554f7de06f679fc2799f",
+      "durationSeconds": 31.5,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 720,
+          "height": 960
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ]
+    },
+    {
+      "id": "hu-ge-06",
+      "character": "虎哥",
+      "originalFilename": "v0200fg10000csnn00fog65rous3grd0.MP4",
+      "path": "public/media/hu-ge/v0200fg10000csnn00fog65rous3grd0.MP4",
+      "sizeBytes": 1686361,
+      "sha256": "fc25c886e3662e7763ae2b907b0b2d45df6c6ecfe06c631185159caf47b23afc",
+      "durationSeconds": 18.235026,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 720,
+          "height": 1326
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ]
+    },
+    {
+      "id": "hu-ge-07",
+      "character": "虎哥",
+      "originalFilename": "v0300fg10000cqu5l9nog65pea2nh5g0.MP4",
+      "path": "public/media/hu-ge/v0300fg10000cqu5l9nog65pea2nh5g0.MP4",
+      "sizeBytes": 1567237,
+      "sha256": "0beea07c01cd15069f20bb206681b78f9309ef449dab1860e6564c55d9878a0f",
+      "durationSeconds": 25.030998,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "h264",
+          "width": 360,
+          "height": 484
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ]
+    }
+  ]
+}
