@@ -8,8 +8,9 @@ import Inbox from './Inbox';
 import Profile from './Profile';
 import useNextClipPreload from './useNextClipPreload';
 import {initialUnread} from './inboxData';
-import CommentsSheet,{initialComments,type Item} from './CommentsSheet';
+import CommentsSheet,{type Item} from './CommentsSheet';
 import {formatCount} from './formatCount';
+import {commentsForClip} from './commentData';
 const base=import.meta.env.BASE_URL;
 export default function App(){
  const [demoProfile]=useState<DemoProfile|null>(()=>{const limit=256-256%feedGroups.length;let choice;do{choice=crypto.getRandomValues(new Uint8Array(1))[0];}while(choice>=limit);return entryProfile(location.search,choice);});
@@ -26,7 +27,7 @@ export default function App(){
  const [busy,setBusy]=useState(false),[cameraError,setCameraError]=useState(''),[tracking,setTracking]=useState('Loading head overlay…'),[toast,setToast]=useState(''),[modal,setModal]=useState<'about'|'profile'|'comments'|'explore'|'inbox'|'menu'|null>(null),[tab,setTab]=useState('推荐');
  const [inboxUnread,setInboxUnread]=useState(initialUnread);const inboxOpen=useRef(false),resumeAfterInbox=useRef(false);inboxOpen.current=modal==='inbox'||modal==='profile';
  const [needsGesture,setNeedsGesture]=useState(false),[paused,setPaused]=useState(false),[clipError,setClipError]=useState('');
- const [liked,setLiked]=useState<Record<string,boolean>>({}),[saved,setSaved]=useState<Record<string,boolean>>({}),[followed,setFollowed]=useState(false),[captionExpanded,setCaptionExpanded]=useState(false),[commentsExpanded,setCommentsExpanded]=useState(false),[commentTotals,setCommentTotals]=useState<Record<string,number>>({}),[commentStore,setCommentStore]=useState<Record<string,Item[]>>({});
+ const [liked,setLiked]=useState<Record<string,boolean>>({}),[saved,setSaved]=useState<Record<string,boolean>>({}),[followed,setFollowed]=useState(false),[captionExpanded,setCaptionExpanded]=useState(false),[commentsExpanded,setCommentsExpanded]=useState(false),[commentTotals,setCommentTotals]=useState<Record<string,number>>({}),[commentStore,setCommentStore]=useState<Record<string,Item[]>>(()=>{const seed=crypto.getRandomValues(new Uint32Array(1))[0];return Object.fromEntries([...feedClips,...Object.values(groupedClips).flat()].map(item=>[item.id,commentsForClip(item,seed)]));});
  const [watched,setWatched]=useState<string[]>([]);
  const imageURLs=useRef<string[]>([]);useEffect(()=>()=>{imageURLs.current.forEach(URL.revokeObjectURL);},[]);
  const [introReady,setIntroReady]=useState(false);const phase=state.phase;const scanVisible=!!demoProfile&&!scanFinished&&phase==='feed';const scanVisibleRef=useRef(scanVisible);scanVisibleRef.current=scanVisible;const activeClips=feedFor(scanFinished?demoProfile:null);const currentClip=clipAt(state.index,activeClips);const notify=useCallback((message:string)=>setToast(message),[]);const onTracking=useCallback((s:string)=>setTracking(s),[]);
@@ -168,7 +169,7 @@ export default function App(){
  <nav inert={scanVisible} className="bottom-nav" aria-label="底部导航"><button className={modal==='inbox'||modal==='profile'?'':'active'} onClick={()=>{setTab('推荐');setModal(null);}}>首页</button><button onClick={()=>setModal('explore')}>朋友</button><button className="create-button" aria-label="视频合集" onClick={()=>setModal('explore')}><Plus size={27} weight="bold"/></button><button className={modal==='inbox'?'active':''} aria-current={modal==='inbox'?'page':undefined} onClick={()=>setModal('inbox')}>消息{inboxUnread>0&&<span className="notification-count">{inboxUnread>99?'99+':inboxUnread}</span>}</button><button className={modal==='profile'?'active':''} aria-current={modal==='profile'?'page':undefined} onClick={()=>setModal('profile')}>我</button></nav>
  <Inbox visible={modal==='inbox'} onUnreadChange={setInboxUnread}/>
  <Profile visible={modal==='profile'} clips={activeClips} liked={liked} saved={saved} watched={watched} onSelect={index=>{resumeAfterInbox.current=true;setModal(null);dispatch({type:'select',index});}}/>
- {modal==='comments'&&<CommentsSheet title={currentClip.title} count={commentsCount} items={commentStore[currentClip.id]??initialComments} onItemsChange={items=>setCommentStore(v=>({...v,[currentClip.id]:items}))} onImageURL={url=>imageURLs.current.push(url)} onClose={closeComments} onExpand={setCommentsExpanded} onPost={()=>setCommentTotals(v=>({...v,[currentClip.id]:(v[currentClip.id]??0)+1}))}/>}
+ {modal==='comments'&&<CommentsSheet title={currentClip.title} count={commentsCount} key={currentClip.id} items={commentStore[currentClip.id]} onItemsChange={items=>setCommentStore(v=>({...v,[currentClip.id]:items}))} onImageURL={url=>imageURLs.current.push(url)} onClose={closeComments} onExpand={setCommentsExpanded} onPost={()=>setCommentTotals(v=>({...v,[currentClip.id]:(v[currentClip.id]??0)+1}))}/>}
  {toast&&<div className="toast" role="status"><Check size={15}/>{toast}</div>}
  {scanVisible&&demoProfile&&<ScanDemo profile={demoProfile} camera={video} facePresent={!!stream&&tracking==='LIVE · your face'} cameraError={cameraError} retry={()=>void enableCamera()} onContinue={()=>{setScanFinished(true);setCameraError('');scanVisibleRef.current=false;playWithSound();}}/>}
  </section></main>
