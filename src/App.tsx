@@ -3,7 +3,7 @@ import {Plus,ChatCircleDots,User,Heart,ShareFat,Star,MagnifyingGlass,List,X,Came
 import {INTRO_DURATION_MS,initialExperience,reducer,stopStream,entryProfile} from './experience';
 import FaceTracking from './FaceTracking';
 import ScanDemo,{type DemoProfile} from './ScanDemo';
-import {feedFor,clipAt,groupNames,feedClips,groupedClips} from './clips';
+import {feedFor,clipAt,groupNames,feedClips,groupedClips,feedGroups} from './clips';
 import Inbox from './Inbox';
 import useNextClipPreload from './useNextClipPreload';
 import {initialUnread} from './inboxData';
@@ -11,7 +11,7 @@ import CommentsSheet,{initialComments,type Item} from './CommentsSheet';
 import {formatCount} from './formatCount';
 const base=import.meta.env.BASE_URL;
 export default function App(){
- const [demoProfile]=useState<DemoProfile|null>(()=>{let choice;do{choice=crypto.getRandomValues(new Uint8Array(1))[0];}while(choice===255);return entryProfile(location.search,choice);});
+ const [demoProfile]=useState<DemoProfile|null>(()=>{const limit=256-256%feedGroups.length;let choice;do{choice=crypto.getRandomValues(new Uint8Array(1))[0];}while(choice>=limit);return entryProfile(location.search,choice);});
  const [scanFinished,setScanFinished]=useState(false);
  const [engagement]=useState(()=>Object.fromEntries([...feedClips,...Object.values(groupedClips).flat()].map(item=>{
   const likes=Math.floor(80+Math.random()**2*24000);

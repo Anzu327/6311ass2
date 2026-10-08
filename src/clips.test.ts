@@ -20,3 +20,10 @@ it('plays all seven Hu Ge originals in their own pool without head overlays',()=
  expect(new Set(clips.map(c=>c.mp4)).size).toBe(7);
  expect(clipAt(7,clips)).toBe(clips[0]);expect(clipAt(-1,clips)).toBe(clips[6]);
 });
+
+it('keeps all six Kobe clips in an independent original-video pool',()=>{
+ const clips=feedFor('kobe');expect(clips).toHaveLength(6);
+ expect(clips.every(c=>c.group==='kobe'&&!c.track&&c.webm&&c.title.startsWith('科比'))).toBe(true);
+ expect(new Set(clips.map(c=>c.mp4)).size).toBe(6);
+ expect(clipAt(6,clips)).toBe(clips[0]);expect(clipAt(-1,clips)).toBe(clips[5]);
+});

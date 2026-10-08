@@ -1,0 +1,218 @@
+{
+  "character": "科比",
+  "date": "2026-10-08",
+  "status": "Integrated into the kobe pool; fixed URL ?demo=kobe and random root entry.",
+  "encoding": "Full-frame H.264 MP4 with original AAC stream copy; VP9/Opus WebM compatibility encoding, no trimming or creative audio changes.",
+  "clips": [
+    {
+      "id": "kobe-01",
+      "character": "科比",
+      "originalFilename": "export_1791449235884.MOV",
+      "path": "public/media/kobe-originals/export_1791449235884.MOV",
+      "sizeBytes": 16548062,
+      "sha256": "6df9d55a94ef55402324357fff9eaeedddd1b6f63d38f20f2b9c28a81dfa0b7f",
+      "durationSeconds": 30.067333,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 576,
+          "height": 768
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-01.mp4",
+          "sizeBytes": 8076947,
+          "sha256": "b1c9f02a91c2eab9d60c7ced58b10fa7f5d6582f1cae55f48e4ef1f5a1b61981"
+        },
+        "webm": {
+          "path": "public/media/kobe-01.webm",
+          "sizeBytes": 8422413,
+          "sha256": "b01d1ce49b1c9c6643c085dd47d44fc79e78fecc7c3dc1822cd425bb25509a09"
+        }
+      }
+    },
+    {
+      "id": "kobe-02",
+      "character": "科比",
+      "originalFilename": "10139d99ff6c45daa18a064ffba1f14c.MOV",
+      "path": "public/media/kobe-originals/10139d99ff6c45daa18a064ffba1f14c.MOV",
+      "sizeBytes": 6992626,
+      "sha256": "c0e0c4f614347946890d6ceca62f7107a0a4ad7f34beeccc8f0a60fe99f1aa28",
+      "durationSeconds": 28.070998,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 720,
+          "height": 632
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-02.mp4",
+          "sizeBytes": 1663496,
+          "sha256": "8f79928887f91e27c2f6111c166691c28516b887fcc40aaab8a1a353115a9ee5"
+        },
+        "webm": {
+          "path": "public/media/kobe-02.webm",
+          "sizeBytes": 2299166,
+          "sha256": "adb3fbe26a60a658c5f94756d448fa784dc930a306f8c60848e1f82213f3b6bb"
+        }
+      }
+    },
+    {
+      "id": "kobe-03",
+      "character": "科比",
+      "originalFilename": "export_1791449292991.MOV",
+      "path": "public/media/kobe-originals/export_1791449292991.MOV",
+      "sizeBytes": 14530187,
+      "sha256": "1d666d76d071eab523a13ca35cfb9f9b285ab3d4e83bec8069d2d6229153a079",
+      "durationSeconds": 30.06733,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 720,
+          "height": 544
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-03.mp4",
+          "sizeBytes": 4685736,
+          "sha256": "8c6c4fa8d88492e0d7a961a9b5e7d5f3063c7f91834f06707b158fd0bb4e26f5"
+        },
+        "webm": {
+          "path": "public/media/kobe-03.webm",
+          "sizeBytes": 4163684,
+          "sha256": "d98302cbbfa23c3b39b64b22287b67b10c2277709f20144516a72377955183a6"
+        }
+      }
+    },
+    {
+      "id": "kobe-04",
+      "character": "科比",
+      "originalFilename": "ScreenRecording_10-08-2026 16-48-36_1.mov",
+      "path": "public/media/kobe-originals/ScreenRecording_10-08-2026 16-48-36_1.mov",
+      "sizeBytes": 9130518,
+      "sha256": "8f547d153886d8734a1fef7bcf6143230ad4a5464aca753fc1af2742b8519dcb",
+      "durationSeconds": 9.655,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 1320,
+          "height": 1760
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-04.mp4",
+          "sizeBytes": 1664264,
+          "sha256": "0e2bfe540dcb2060d723e25f3ca2f9fa7abd7bdc738e1803e47713ff538968e9"
+        },
+        "webm": {
+          "path": "public/media/kobe-04.webm",
+          "sizeBytes": 1889513,
+          "sha256": "d6b05e10e2fe2fc4f24387d8015d467ebf7639216f0d6479526ae1aa79d5d330"
+        }
+      }
+    },
+    {
+      "id": "kobe-05",
+      "character": "科比",
+      "originalFilename": "export_1791449414343.MOV",
+      "path": "public/media/kobe-originals/export_1791449414343.MOV",
+      "sizeBytes": 11085577,
+      "sha256": "68ffb77ac6c0eda81c4440a9a00a75571c3158e846ed6bfd1e5c00c44016a124",
+      "durationSeconds": 30.196334,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 400,
+          "height": 720
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-05.mp4",
+          "sizeBytes": 4737646,
+          "sha256": "11fd3f6c55fc586ee8a655196b45d024d2a27a7318ee253362eb355e971f75ad"
+        },
+        "webm": {
+          "path": "public/media/kobe-05.webm",
+          "sizeBytes": 3998615,
+          "sha256": "3fd2111c45e187a3c2edcf30bb836108f6bfb70abe4d3c1d36a5f65cc0ad4466"
+        }
+      }
+    },
+    {
+      "id": "kobe-06",
+      "character": "科比",
+      "originalFilename": "export_1791449382531.MOV",
+      "path": "public/media/kobe-originals/export_1791449382531.MOV",
+      "sizeBytes": 13976312,
+      "sha256": "8dd8bae18acf14be4adc117abca19207138f96f50a3db6953d04d45dd88bfb85",
+      "durationSeconds": 28.694203,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 540,
+          "height": 720
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-06.mp4",
+          "sizeBytes": 6007236,
+          "sha256": "adc5812459e4c44a2e58531f5de4f3a367d5bec14232fc7bf6e5dfd48cd14f93"
+        },
+        "webm": {
+          "path": "public/media/kobe-06.webm",
+          "sizeBytes": 6449618,
+          "sha256": "f33e339982b7b11383f869caa839c8c712b64bb46c45aa80e31550bcb21dc2df"
+        }
+      }
+    }
+  ]
+}

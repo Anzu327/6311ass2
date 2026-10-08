@@ -10,12 +10,12 @@ try{
  for(let i=0;i<40;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(resolve=>setTimeout(resolve,250));}
  browser=await chromium.launch({headless:true,...(process.env.QA_CHROMIUM_PATH?{executablePath:process.env.QA_CHROMIUM_PATH}:{})});
  await mkdir('qa-results',{recursive:true});
- for(const group of ['nailong','lulu','huge']){
+ for(const group of ['nailong','lulu','huge','kobe']){
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript(()=>{window.__qaCameraCalls=0;navigator.mediaDevices.getUserMedia=async()=>{window.__qaCameraCalls++;throw new DOMException('QA denied','NotAllowedError');};});
   // Deliberately make incoming media slower than the gesture animation.
-  await page.route(/media\/(nailong|lulu|huge)-02\.(mp4|webm)/,async route=>{if(route.request().method()==='GET')await new Promise(resolve=>setTimeout(resolve,1000));await route.continue();});
+  await page.route(/media\/(nailong|lulu|huge|kobe)-02\.(mp4|webm)/,async route=>{if(route.request().method()==='GET')await new Promise(resolve=>setTimeout(resolve,1000));await route.continue();});
   await page.goto(base+'?demo='+group);
   await page.getByRole('button',{name:'跳过扫描进入推荐'}).click({timeout:10000});
   await page.waitForFunction(()=>document.querySelector('.meme-video')?.readyState>=2);
@@ -53,5 +53,5 @@ try{
   console.log(group+': slow incoming media uses source poster, no loading label, smooth gesture, one player/camera, sound preserved, reverse and messages navigation passed.');
   await page.close();
  }
- await writeFile('qa-results/feed-transition.txt','PASS: all three pools, delayed media poster handoff, no loading label, one decoder/camera, original audio, reverse navigation, randomized comments and messages.\n');
+ await writeFile('qa-results/feed-transition.txt','PASS: all four pools, delayed media poster handoff, no loading label, one decoder/camera, original audio, reverse navigation, randomized comments and messages.\n');
 }finally{await browser?.close();server.kill('SIGTERM');}
