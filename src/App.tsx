@@ -3,12 +3,17 @@ import {Plus,ChatCircleDots,User,Heart,ShareFat,Star,MagnifyingGlass,List,X,Came
 import {INTRO_DURATION_MS,initialExperience,reducer,stopStream,entryProfile} from './experience';
 import FaceTracking from './FaceTracking';
 import ScanDemo,{type DemoProfile} from './ScanDemo';
-import {feedFor,clipAt,groupNames} from './clips';
+import {feedFor,clipAt,groupNames,feedClips,groupedClips} from './clips';
 import CommentsSheet,{initialComments,type Item} from './CommentsSheet';
 const base=import.meta.env.BASE_URL;
 export default function App(){
  const [demoProfile]=useState<DemoProfile|null>(()=>{let choice;do{choice=crypto.getRandomValues(new Uint8Array(1))[0];}while(choice===255);return entryProfile(location.search,choice);});
  const [scanFinished,setScanFinished]=useState(false);
+ const [engagement]=useState(()=>Object.fromEntries([...feedClips,...Object.values(groupedClips).flat()].map(item=>{
+  const likes=Math.floor(80+Math.random()**2*24000);
+  return [item.id,{likes,comments:Math.floor(8+likes*(.01+Math.random()*.07)),shares:Math.floor(2+likes*(.005+Math.random()*.04))}];
+ })));
+ const [shareTotals,setShareTotals]=useState<Record<string,number>>({});
  const panel=useRef<HTMLDivElement>(null),motion=useRef<Animation|null>(null),motionFrame=useRef(0),motionTimeout=useRef<ReturnType<typeof setTimeout>|null>(null),motionEpoch=useRef(0),motionBusy=useRef(false),motionLoading=useRef(false),suppressTap=useRef(0);
  const [moving,setMoving]=useState(false),[loadingClip,setLoadingClip]=useState(false);
  const drag=useRef<{id:number;x:number;y:number;dy:number;vertical:boolean}|null>(null);
@@ -116,12 +121,12 @@ export default function App(){
  if(modal==='comments'){const sheet=document.querySelector<HTMLElement>('.comments-sheet');sheet?.querySelector<HTMLButtonElement>('button')?.focus();const guard=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setModal(null);setCommentsExpanded(false);}if(e.key==='Tab'&&sheet){const controls=[...sheet.querySelectorAll<HTMLElement>('button,input:not([type="file"])')].filter(x=>!x.hasAttribute('disabled'));if(!controls.length)return;const first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};window.addEventListener('keydown',guard);return()=>{window.removeEventListener('keydown',guard);previous?.focus();};}
  const dialog=document.querySelector<HTMLDialogElement>('dialog');dialog?.showModal();const escape=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setModal(null);}};window.addEventListener('keydown',escape);return()=>{dialog?.close();previous?.focus();window.removeEventListener('keydown',escape);};},[modal]);
  const artworkURL=new URL(base,window.location.origin);if(demoProfile)artworkURL.searchParams.set('demo',demoProfile);
- const share=async()=>{try{await navigator.clipboard.writeText(artworkURL.href);notify('作品链接已复制');}catch{setModal('about');notify('可在作品说明中复制链接');}};
+ const share=async()=>{const id=currentClip.id;try{await navigator.clipboard.writeText(artworkURL.href);setShareTotals(v=>({...v,[id]:(v[id]??0)+1}));notify('作品链接已复制');}catch{setModal('about');notify('可在作品说明中复制链接');}};
  const descriptions:Record<string,string>={qinghai:'手套一戴，谁都能摇。 #青海摇 #是谁在摇', 'blue-run':'跑得再快，也跑不出推荐。 #蓝色妖姬 #金色传说', 'social-dance':'下一条还是熟悉的节奏。 #社会摇 #一起摇', disney:'不是城堡，是小区健骑机。 #我要迪士尼 #diss', caoxian:'这一次，轮到你喊了。 #山东菏泽曹县 #网络热梗', retreat:'有些内容，越退越近。 #退退退 #推荐'};
  const tapVideo=()=>{if(motionBusy.current||performance.now()<suppressTap.current)return;if(gestureNeeded.current||clip.current?.paused)playWithSound();else togglePlayback();};
  const openComments=()=>{setCommentsExpanded(false);setModal('comments');};
  const closeComments=()=>{setModal(null);setCommentsExpanded(false);};
- const commentsCount=275+(commentTotals[currentClip.id]??0);
+ const commentsCount=engagement[currentClip.id].comments+(commentTotals[currentClip.id]??0);
  if(phase==='intro')return <div className="app"><main className="stage-wrap"><section className="stage intro" aria-label="Opening transition" style={{'--intro-duration':`${INTRO_DURATION_MS}ms`} as CSSProperties}><img className={`intro-art ${introReady?'ready':''}`} src={base+'media/splash-douwai.webp'} alt="抖歪" fetchPriority="high" onLoad={()=>setIntroReady(true)} onError={()=>setIntroReady(true)}/></section></main></div>;
  return <div className="app">
 
@@ -136,10 +141,10 @@ export default function App(){
  </div>
  <div className="post-caption" inert={scanVisible}><div className="author-name">@抖歪放映员 <span className="post-kind">{currentClip.group?'专属':'换脸'}</span></div><div className="caption-description"><p className={captionExpanded?'expanded':'collapsed'}>{currentClip.caption??descriptions[currentClip.id]}</p><button className="caption-expand" onClick={()=>setCaptionExpanded(v=>!v)}>{captionExpanded?'收起':'展开'}</button></div><small className="sound-line"><MusicNotes size={13}/>{currentClip.title} · 原声</small><span className="sr-only">{currentClip.title} {state.index%activeClips.length+1}/{activeClips.length}</span></div>
  <div className="action-rail" inert={scanVisible}><button className="avatar" aria-label={followed?'已关注放映员':'关注放映员'} onClick={()=>setFollowed(v=>!v)}><img src={base+'media/avatar-cat.webp'} alt="放映员头像"/><span>{followed?<Check size={13} weight="bold"/>:<Plus size={14} weight="bold"/>}</span></button>
- <button aria-label="点赞视频" aria-pressed={!!liked[currentClip.id]} className={liked[currentClip.id]?'liked':''} onClick={()=>setLiked(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Heart size={33} weight="fill"/><span>{24+(liked[currentClip.id]?1:0)}</span></button>
+ <button aria-label="点赞视频" aria-pressed={!!liked[currentClip.id]} className={liked[currentClip.id]?'liked':''} onClick={()=>setLiked(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Heart size={33} weight="fill"/><span>{engagement[currentClip.id].likes+(liked[currentClip.id]?1:0)}</span></button>
  <button aria-label="打开评论区" onClick={openComments}><ChatCircleDots size={33} weight="fill"/><span>{commentsCount}</span></button>
  <button aria-label="收藏视频" aria-pressed={!!saved[currentClip.id]} className={saved[currentClip.id]?'saved':''} onClick={()=>setSaved(v=>({...v,[currentClip.id]:!v[currentClip.id]}))}><Star size={33} weight="fill"/><span>{1+(saved[currentClip.id]?1:0)}</span></button>
- <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>分享</span></button>
+ <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>{engagement[currentClip.id].shares+(shareTotals[currentClip.id]??0)}</span></button>
  <button className="remix-button" aria-label="拍同款" onClick={()=>setModal('about')}><img src={base+'media/avatar-sunset.webp'} alt=""/><span>拍同款</span></button></div>
  </div>
  {loadingClip&&<div className="clip-loading" role="status">正在加载视频…</div>}

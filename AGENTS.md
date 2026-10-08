@@ -73,3 +73,6 @@ Fix mobile scanner distortion by matching canvas backing dimensions to its actua
 
 ## Approved Hu Ge pool (2026-10-08)
 User supplied seven虎哥originals and asked to integrate them after upload. Keep a third independent pool at ?demo=huge, include it in uniform per-visit root random assignment with existing噜噜/奶龙pools, result label虎哥资深粉. All navigation uses the active catalog only. Preserve original人物/framing/duration/sound; no head overlay or mosaic for this pool. Keep original files archived; playback MP4 is faststart stream-copy, WebM is full VP9/Opus compatibility encoding. Existing scan gating, denial/skip, camera lifecycle, legacy ?feed=memes, privacy and Pages target remain.
+
+## Random simulated engagement (2026-10-08)
+Generate different simulated like/comment/share totals per video across every pool on each page visit. Keep each video's baseline stable through navigation and rerenders; refresh rerolls. Local like toggles, posted comments and successful link copies update only that video's total. Feed and comments-sheet totals stay consistent; these remain local simulated numbers.
