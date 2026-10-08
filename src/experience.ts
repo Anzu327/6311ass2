@@ -1,3 +1,4 @@
+import {feedGroups,type FeedGroup} from './clips';
 
 export const INTRO_DURATION_MS=1500;
 export type Phase='intro'|'feed';
@@ -14,9 +15,9 @@ export function reducer(s:Experience,a:Action):Experience{
 }
 export function stopStream(stream:MediaStream|null){stream?.getTracks().forEach(track=>track.stop());}
 
-export function entryProfile(search:string,randomByte:number):'nailong'|'lulu'|null{
+export function entryProfile(search:string,randomByte:number):FeedGroup|null{
  const params=new URLSearchParams(search),preset=params.get('demo');
- if(preset==='nailong'||preset==='lulu')return preset;
+ if(feedGroups.includes(preset as FeedGroup))return preset as FeedGroup;
  if(params.get('feed')==='memes')return null;
- return randomByte%2===0?'nailong':'lulu';
+ return feedGroups[randomByte%feedGroups.length];
 }

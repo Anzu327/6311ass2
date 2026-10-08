@@ -68,3 +68,6 @@
 .feed-motion{position:absolute;inset:0;will-change:transform}
 .feed-motion[data-motion="drag"]{cursor:grabbing}
 .clip-loading{position:absolute;inset:0;z-index:4;display:grid;place-items:center;color:#bbb;font-size:13px;background:#000;pointer-events:none}
+
+.huge-sticker{display:grid;place-items:center;left:5%;width:90%;height:23%;top:40%;background:#e0f5ff;color:#112b42;clip-path:polygon(0 8%,6% 3%,14% 7%,23% 1%,33% 5%,43% 0,54% 5%,66% 1%,78% 5%,89% 0,100% 7%,97% 23%,100% 42%,97% 59%,100% 78%,97% 96%,88% 100%,77% 95%,66% 100%,54% 96%,43% 100%,31% 95%,19% 100%,9% 96%,0 100%,3% 80%,0 61%,3% 43%,0 26%);transform:rotate(-5deg)}
+.huge-sticker h1{margin:0;font-family:ScanSans,sans-serif;font-weight:900;font-size:clamp(28px,8vw,49px);letter-spacing:-.04em}

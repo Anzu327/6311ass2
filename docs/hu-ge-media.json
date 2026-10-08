@@ -1,7 +1,7 @@
 {
   "character": "虎哥",
   "date": "2026-10-08",
-  "status": "Original source uploads; not yet wired into the app feed.",
+  "status": "Integrated into the huge pool; fixed URL ?demo=huge and random root entry.",
   "clips": [
     {
       "id": "hu-ge-01",
@@ -24,7 +24,19 @@
           "width": 360,
           "height": 468
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-01.mp4",
+          "sizeBytes": 2600965,
+          "sha256": "5dc4d97f09e1138d483eeaef2db250f673985ca6049a4f68a9f5bdef18c3704c"
+        },
+        "webm": {
+          "path": "public/media/huge-01.webm",
+          "sizeBytes": 2340973,
+          "sha256": "4601dfe1f4e00e4194926d6913de0b84d8c7f7b792e0e12ae3e277d4af6ac311"
+        }
+      }
     },
     {
       "id": "hu-ge-02",
@@ -47,7 +59,19 @@
           "sample_rate": "44100",
           "channels": 2
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-02.mp4",
+          "sizeBytes": 2282721,
+          "sha256": "8728bdcd1f345dbe16262e40706d8742bae77b64a3fb42007b40f669deb1ee3c"
+        },
+        "webm": {
+          "path": "public/media/huge-02.webm",
+          "sizeBytes": 2194468,
+          "sha256": "6217e8d273c97d9111bb3cae41fe462c53c4a81b905111ee74f1ea0cb460779f"
+        }
+      }
     },
     {
       "id": "hu-ge-03",
@@ -70,7 +94,19 @@
           "width": 540,
           "height": 1036
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-03.mp4",
+          "sizeBytes": 26851947,
+          "sha256": "b1b2ef8e9c3feab8786bd0eb3273889803fce93bf609c453ee3f599c892cd49c"
+        },
+        "webm": {
+          "path": "public/media/huge-03.webm",
+          "sizeBytes": 26535685,
+          "sha256": "01ab00139fd2c61202a7d9100fcfd2ac2d25b23b20ebefc834cc8ca458edb1ac"
+        }
+      }
     },
     {
       "id": "hu-ge-04",
@@ -93,7 +129,19 @@
           "sample_rate": "44100",
           "channels": 2
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-04.mp4",
+          "sizeBytes": 3411683,
+          "sha256": "94b61522d3fe0f21b91b3f78ca9f8ca4d8eac80e6f3de128d64cfc2516b7f95c"
+        },
+        "webm": {
+          "path": "public/media/huge-04.webm",
+          "sizeBytes": 3094610,
+          "sha256": "2fcc28ca4103af2dfac44e8919c76022afaedc875a61197ca530db2c1ace46f1"
+        }
+      }
     },
     {
       "id": "hu-ge-05",
@@ -116,7 +164,19 @@
           "sample_rate": "44100",
           "channels": 2
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-05.mp4",
+          "sizeBytes": 4220044,
+          "sha256": "f06ebf3c99c3a2f75f2d8afb4a984c2cc4f77f05bc9e652744d6d04f3edaa69f"
+        },
+        "webm": {
+          "path": "public/media/huge-05.webm",
+          "sizeBytes": 4456346,
+          "sha256": "06e5889304940249a2d0d3dcfd117349a054a2372fb3d56f6ad6143a080c27ee"
+        }
+      }
     },
     {
       "id": "hu-ge-06",
@@ -139,7 +199,19 @@
           "sample_rate": "44100",
           "channels": 2
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-06.mp4",
+          "sizeBytes": 1686414,
+          "sha256": "47f18e26020e56f05df313fa0790084fc3962d273535345689d6eefd1ee4c1ce"
+        },
+        "webm": {
+          "path": "public/media/huge-06.webm",
+          "sizeBytes": 2287646,
+          "sha256": "8229a556c676ef19d5d18d0e9542df1f21fd34d6da94229af2305f1c6ea37aec"
+        }
+      }
     },
     {
       "id": "hu-ge-07",
@@ -162,7 +234,19 @@
           "sample_rate": "44100",
           "channels": 2
         }
-      ]
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/huge-07.mp4",
+          "sizeBytes": 1567349,
+          "sha256": "4f8aa41a9d61535f44b81601a7cd1dea33d426541efe39314f376e62c7b97946"
+        },
+        "webm": {
+          "path": "public/media/huge-07.webm",
+          "sizeBytes": 1762474,
+          "sha256": "36d616d24e9efecb9cc20840a8870e5ff69a963f0bcfe3fc61162444c02a16a3"
+        }
+      }
     }
   ]
 }

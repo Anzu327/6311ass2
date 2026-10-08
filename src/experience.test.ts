@@ -15,7 +15,8 @@ describe('1.5-second direct entry',()=>{
 it('selects a specific supplied clip without replaying the intro',()=>{const s=reducer(initialExperience,{type:'entered'});expect(reducer(s,{type:'select',index:4})).toEqual({phase:'feed',index:4});expect(reducer(initialExperience,{type:'select',index:4})).toEqual(initialExperience);});
 
 describe('unified entry is random, never face/gender inferred',()=>{
- it('assigns either group without a preset',()=>{expect(entryProfile('',0)).toBe('nailong');expect(entryProfile('',1)).toBe('lulu');expect(entryProfile('?demo=unknown',3)).toBe('lulu');});
- it('keeps explicit classroom presets fixed',()=>{expect(entryProfile('?demo=lulu',0)).toBe('lulu');expect(entryProfile('?demo=nailong',1)).toBe('nailong');expect(entryProfile('?demo=lulu&feed=memes',0)).toBe('lulu');});
+ it('assigns all three groups without a preset',()=>{expect(entryProfile('',0)).toBe('nailong');expect(entryProfile('',1)).toBe('lulu');expect(entryProfile('',2)).toBe('huge');expect(entryProfile('?demo=unknown',3)).toBe('nailong');expect(entryProfile('',254)).toBe('huge');});
+ it('distributes the accepted random byte range evenly across all pools',()=>{const counts={nailong:0,lulu:0,huge:0};for(let byte=0;byte<255;byte++)counts[entryProfile('',byte)!]++;expect(counts).toEqual({nailong:85,lulu:85,huge:85});});
+ it('keeps explicit classroom presets fixed',()=>{expect(entryProfile('?demo=lulu',0)).toBe('lulu');expect(entryProfile('?demo=nailong',1)).toBe('nailong');expect(entryProfile('?demo=lulu&feed=memes',0)).toBe('lulu');expect(entryProfile('?demo=huge',0)).toBe('huge');});
  it('retains the original human-meme feed only at its explicit URL',()=>{expect(entryProfile('?feed=memes',1)).toBeNull();expect(entryProfile('?feed=other',0)).toBe('nailong');});
 });

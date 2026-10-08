@@ -13,3 +13,10 @@ it('keeps the explicit cartoon pools separate and the legacy catalog unchanged',
  expect(clipAt(8,lulu)).toBe(lulu[0]);expect(clipAt(7,nailong)).toBe(nailong[0]);
  expect(clipAt(-1,lulu)).toBe(lulu[7]);expect(clipAt(-1,nailong)).toBe(nailong[6]);
 });
+
+it('plays all seven Hu Ge originals in their own pool without head overlays',()=>{
+ const clips=feedFor('huge');expect(clips).toHaveLength(7);
+ expect(clips.every(c=>c.group==='huge'&&!c.track&&c.webm&&c.title.startsWith('虎哥'))).toBe(true);
+ expect(new Set(clips.map(c=>c.mp4)).size).toBe(7);
+ expect(clipAt(7,clips)).toBe(clips[0]);expect(clipAt(-1,clips)).toBe(clips[6]);
+});

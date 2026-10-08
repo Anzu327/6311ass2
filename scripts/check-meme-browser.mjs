@@ -187,7 +187,7 @@ try{
  await blocked.close();
 
  // Approved blue scanner: explicit demo URL determines a label, never identity inference.
- for(const profile of ['nailong','lulu']){
+ for(const profile of ['nailong','lulu','huge']){
   const demo=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
   diagnosticPage=demo;await demo.addInitScript(syntheticCamera);
@@ -230,10 +230,10 @@ try{
   console.log('QA_SCAN_ACTIVE_'+profile.toUpperCase()+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
   await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='complete',{},{timeout:6000});
   assert.ok(Date.now()-began>=1700,'Result follows the full two-second scan');
-  const label=profile==='nailong'?'重度奶龙用户':'噜噜资深粉';
+  const label={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉'}[profile];
   await demo.getByRole('heading',{name:label,exact:true}).waitFor();
   await demo.waitForTimeout(450);
-  assert.ok(await demo.locator('.scan-sticker').evaluate(e=>e.complete&&e.naturalWidth>0));
+  if(profile==='huge')assert.equal(await demo.locator('.huge-sticker').innerText(),label);else assert.ok(await demo.locator('.scan-sticker').evaluate(e=>e.complete&&e.naturalWidth>0));
   assert.match(await demo.locator('.scan-disclosure').innerText(),/分组为演示.*非身份识别/);
   for(const viewport of [{width:390,height:844},{width:320,height:568},{width:1366,height:768}]){
    await demo.setViewportSize(viewport);await demo.waitForTimeout(120);await cameraGeometry(demo);
@@ -243,7 +243,7 @@ try{
   const modelLoads=await demo.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/face_landmarker.task|selfie_multiclass.tflite/.test(e.name)).length);
   await demo.getByRole('button',{name:'进入推荐',exact:true}).click();await demo.locator('.scan-demo').waitFor({state:'hidden'});
   await demo.locator('.head-overlay[data-head-source="original"]').waitFor({state:'attached'});
-  const poolIDs={"nailong":["nailong-01","nailong-02","nailong-03","nailong-04","nailong-05","nailong-06","nailong-07"],"lulu":["lulu-01","lulu-02","lulu-03","lulu-04","lulu-05","lulu-06","lulu-07","lulu-08"]}[profile];
+  const poolIDs={"huge":Array.from({length:7},(_,i)=>`huge-${String(i+1).padStart(2,'0')}`),"nailong":["nailong-01","nailong-02","nailong-03","nailong-04","nailong-05","nailong-06","nailong-07"],"lulu":["lulu-01","lulu-02","lulu-03","lulu-04","lulu-05","lulu-06","lulu-07","lulu-08"]}[profile];
   const cartoon=demo.locator('.meme-video');
   for(let i=0;i<poolIDs.length;i++){
    await demo.getByRole('button',{name:'视频合集',exact:true}).click();
@@ -251,7 +251,7 @@ try{
    await demo.locator('.clip-list button').nth(i).click();
    await demo.waitForFunction(()=>{const v=document.querySelector('.meme-video');return v.readyState>=2&&v.videoWidth>0;});
    assert.equal(await cartoon.getAttribute('data-clip-id'),poolIDs[i],'No cross-pool clip');
-   assert.equal(await cartoon.evaluate(v=>v.videoWidth),576);
+   if(profile==='huge')assert.equal(await cartoon.evaluate(v=>v.videoWidth),[360,480,540,360,720,720,360][i]);else assert.equal(await cartoon.evaluate(v=>v.videoWidth),576);
    assert.ok(await cartoon.evaluate(v=>v.duration)>4);
    assert.equal(await cartoon.evaluate(v=>v.muted),false);
    assert.equal(await cartoon.evaluate(v=>getComputedStyle(v).objectFit),'contain','Original complete cartoon framing');
@@ -312,7 +312,7 @@ try{
  await invalid.goto(baseURL+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),1,'Invalid presets use the unified random entry, not a catalog escape');await invalid.close();
 
  // Unified root: stable random assignment for the visit, not appearance or identity matching.
- for(const choice of [0,1]){
+ for(const choice of [0,1,2]){
   const unified=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   unified.on('pageerror',e=>errors.push(e.message));unified.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
   await unified.addInitScript(value=>{
@@ -320,8 +320,8 @@ try{
   },choice);
   await unified.addInitScript(syntheticCamera);diagnosticPage=unified;await unified.goto(baseURL);
   await unified.locator('.scan-demo').waitFor({timeout:7000});
-  const group=choice?'lulu':'nailong',expected=group+'-01';
-  await unified.getByRole('heading',{name:choice?'噜噜资深粉':'重度奶龙用户',exact:true}).waitFor({timeout:60000});
+  const group=['nailong','lulu','huge'][choice],expected=group+'-01';
+  await unified.getByRole('heading',{name:['重度奶龙用户','噜噜资深粉','虎哥资深粉'][choice],exact:true}).waitFor({timeout:60000});
   await unified.getByRole('button',{name:'进入推荐',exact:true}).click();
   await unified.waitForFunction(id=>document.querySelector('.meme-video')?.dataset.clipId===id,expected);
   await unified.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
@@ -365,8 +365,8 @@ try{
   console.log('QA_UNIFIED_'+group.toUpperCase()+'='+(await unified.locator('.stage').screenshot({type:'jpeg',quality:85})).toString('base64'));
   await unified.close();diagnosticPage=null;
  }
- console.log('Unified/swipe QA passed:whole-post UI moves together while nav stays fixed, numeric comment count,root and unknown presets randomly assign7/8pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
- console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, clear mirrored live preview and denied-camera skip without success/sample, reduced motion, invalid URL uses unified entry, no identity or gender inference.');
+ console.log('Unified/swipe QA passed:whole-post UI moves together while nav stays fixed, numeric comment count,root and unknown presets randomly assign three7/8/7pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
+ console.log('Blue scanner QA passed:three explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, clear mirrored live preview and denied-camera skip without success/sample, reduced motion, invalid URL uses unified entry, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');

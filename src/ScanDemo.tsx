@@ -1,16 +1,17 @@
 import {useEffect,useRef,useState,type CSSProperties,type RefObject} from 'react';
 import {CheckCircle,CircleDashed,LockSimple} from '@phosphor-icons/react';
-export type DemoProfile='nailong'|'lulu';
+import {groupLabels,type FeedGroup} from './clips';
+export type DemoProfile=FeedGroup;
 const base=import.meta.env.BASE_URL;
 const SCAN_MS=2000;
 interface Props {profile:DemoProfile;camera:RefObject<HTMLVideoElement|null>;facePresent:boolean;cameraError:string;retry:()=>void;onContinue:()=>void;}
 export default function ScanDemo({profile,camera,facePresent,cameraError,retry,onContinue}:Props){
  const [ready,setReady]=useState(false),[assetError,setAssetError]=useState(false),[help,setHelp]=useState(false),[complete,setComplete]=useState(false),[progress,setProgress]=useState(0),[suspended,setSuspended]=useState(document.visibilityState==='hidden');
  const canvas=useRef<HTMLCanvasElement>(null);
- const label=profile==='nailong'?'重度奶龙用户':'噜噜资深粉';
+ const label=groupLabels[profile];
  const running=ready&&!assetError&&!suspended&&facePresent&&!complete;
  useEffect(()=>{let disposed=false;setReady(false);setAssetError(false);
-  Promise.all(['scan-mesh.webp','scan-beam.webp','scan-corners.webp',profile+'-sticker.webp'].map(name=>{const image=new Image();image.src=base+'media/'+name;return image.decode();})).then(()=>{if(!disposed)setReady(true);}).catch(()=>{if(!disposed)setAssetError(true);});
+  Promise.all(['scan-mesh.webp','scan-beam.webp','scan-corners.webp',...(profile==='huge'?[]:[profile+'-sticker.webp'])].map(name=>{const image=new Image();image.src=base+'media/'+name;return image.decode();})).then(()=>{if(!disposed)setReady(true);}).catch(()=>{if(!disposed)setAssetError(true);});
   return()=>{disposed=true;};
  },[profile]);
  useEffect(()=>{const timer=setTimeout(()=>setHelp(true),8000);return()=>clearTimeout(timer);},[]);
@@ -41,7 +42,7 @@ export default function ScanDemo({profile,camera,facePresent,cameraError,retry,o
   <div className="scan-status" role="status">{complete?<><CheckCircle size={25} className="scan-blue"/><span>扫描完成</span></>:<span>{running?'正在扫描':assetError?'素材加载失败':!ready?'正在加载演示':cameraError?'摄像头不可用':'请将脸对准摄像头'}</span>}</div>
   <div className="scanner-camera"><canvas ref={canvas} width={660} height={900} aria-label="实时摄像头预览"/>{ready&&<img className="scan-corners" src={base+'media/scan-corners.webp'} alt=""/>}{running&&<><img className="scan-mesh" src={base+'media/scan-mesh.webp'} alt=""/><img className="scan-beam" src={base+'media/scan-beam.webp'} alt=""/></>}</div>
   <p className="scan-camera-caption">本地实时摄像头 · 画面不上传</p>
-  {complete?<><h1 className="sr-only">{label}</h1><img className="scan-sticker" src={base+'media/'+profile+'-sticker.webp'} alt="" aria-hidden="true"/><div className="scan-outcome"><LockSimple size={34}/><span>预设标签已锁定</span></div><button className="scan-enter" onClick={onContinue}>进入推荐</button></>:<div className="scan-progress-area">{!assetError&&<CircleDashed className="scan-spinner scan-blue" size={60} aria-label="人脸扫描进度" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress*100)}/>}<span className="scan-help-copy">{running?'请保持面部在画面中':assetError?'请刷新重试':cameraError?'请允许摄像头，或跳过扫描':help?'未检测到人脸，请靠近镜头并保持光线充足':''}</span>{!assetError&&!running&&(help||cameraError)&&<div className="scan-recovery">{cameraError&&<button onClick={retry}>重试摄像头</button>}<button onClick={onContinue}>跳过扫描进入推荐</button></div>}{assetError&&<button onClick={onContinue}>跳过扫描进入推荐</button>}</div>}
+  {complete?<>{profile==='huge'?<div className="scan-sticker huge-sticker"><h1>{label}</h1></div>:<><h1 className="sr-only">{label}</h1><img className="scan-sticker" src={base+'media/'+profile+'-sticker.webp'} alt="" aria-hidden="true"/></>}<div className="scan-outcome"><LockSimple size={34}/><span>预设标签已锁定</span></div><button className="scan-enter" onClick={onContinue}>进入推荐</button></>:<div className="scan-progress-area">{!assetError&&<CircleDashed className="scan-spinner scan-blue" size={60} aria-label="人脸扫描进度" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress*100)}/>}<span className="scan-help-copy">{running?'请保持面部在画面中':assetError?'请刷新重试':cameraError?'请允许摄像头，或跳过扫描':help?'未检测到人脸，请靠近镜头并保持光线充足':''}</span>{!assetError&&!running&&(help||cameraError)&&<div className="scan-recovery">{cameraError&&<button onClick={retry}>重试摄像头</button>}<button onClick={onContinue}>跳过扫描进入推荐</button></div>}{assetError&&<button onClick={onContinue}>跳过扫描进入推荐</button>}</div>}
   <footer className="scan-disclosure">人脸检测 · 分组为演示，非身份识别</footer>
  </section>;
 }

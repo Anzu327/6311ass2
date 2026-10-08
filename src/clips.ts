@@ -1,4 +1,7 @@
-export type FeedGroup='nailong'|'lulu';
+export const feedGroups=['nailong','lulu','huge'] as const;
+export type FeedGroup=typeof feedGroups[number];
+export const groupNames:Record<FeedGroup,string>={nailong:'奶龙／奶蛙',lulu:'噜噜',huge:'虎哥'};
+export const groupLabels:Record<FeedGroup,string>={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉'};
 export interface FeedClip {id:string;title:string;mp4:string;webm:string;track?:string;whiteGloves?:boolean;group?:FeedGroup;caption?:string;}
 export const feedClips:FeedClip[]=[
  {id:'qinghai',title:'青海摇',mp4:'media/qinghai-original.mp4',webm:'media/qinghai-original.webm',track:'media/qinghai-track.json',whiteGloves:true},
@@ -9,6 +12,7 @@ export const feedClips:FeedClip[]=[
  {id:'retreat',title:'退！退！退！',mp4:'media/retreat.mp4',webm:'media/retreat.webm',track:'media/retreat-track.json'}
 ];
 export const groupedClips:Record<FeedGroup,readonly FeedClip[]>={
+ huge:Array.from({length:7},(_,i)=>{const id=`huge-${String(i+1).padStart(2,'0')}`;return {id,title:`虎哥 · ${String(i+1).padStart(2,'0')}`,mp4:`media/${id}.mp4`,webm:`media/${id}.webm`,group:'huge',caption:'虎哥来了。 #虎哥'};}),
  "nailong": [
   {
    "id": "nailong-01",
