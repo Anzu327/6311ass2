@@ -1,7 +1,6 @@
 import {useEffect,useRef,useState,type CSSProperties,type RefObject} from 'react';
 import {CheckCircle,Lightning,Warning,UserFocus} from '@phosphor-icons/react';
 import {groupLabels,type FeedGroup} from './clips';
-import {containBox} from './faceGeometry';
 export type DemoProfile=FeedGroup;
 const base=import.meta.env.BASE_URL;
 const SCAN_MS=2000;
@@ -32,9 +31,9 @@ export default function ScanDemo({profile,camera,facePresent,cameraError,retry,o
    ctx.clearRect(0,0,c.width,c.height);
    const v=camera.current,stream=v?.srcObject as MediaStream|null;
    if(suspended||!v||v.readyState<2||!v.videoWidth||!stream?.getVideoTracks().some(track=>track.readyState==='live'))return;
-   const box=containBox(v.videoWidth,v.videoHeight,c.width,c.height);
+   const scale=Math.max(c.width/v.videoWidth,c.height/v.videoHeight),sourceWidth=c.width/scale,sourceHeight=c.height/scale;
    ctx.save();ctx.translate(c.width,0);ctx.scale(-1,1);ctx.imageSmoothingEnabled=true;
-   ctx.drawImage(v,box.x,box.y,v.videoWidth*box.scale,v.videoHeight*box.scale);ctx.restore();
+   ctx.drawImage(v,(v.videoWidth-sourceWidth)/2,(v.videoHeight-sourceHeight)/2,sourceWidth,sourceHeight,0,0,c.width,c.height);ctx.restore();
   };frame=requestAnimationFrame(paint);return()=>{cancelAnimationFrame(frame);ctx.clearRect(0,0,c.width,c.height);};
  },[camera,suspended]);
  const sweep=progress<=.5?progress*2:(1-progress)*2;
