@@ -12,7 +12,7 @@ export const feedClips:FeedClip[]=[
  {id:'retreat',title:'退！退！退！',mp4:'media/retreat.mp4',webm:'media/retreat.webm',track:'media/retreat-track.json'}
 ];
 export const groupedClips:Record<FeedGroup,readonly FeedClip[]>={
- kobe:Array.from({length:6},(_,i)=>{const id=`kobe-${String(i+1).padStart(2,'0')}`;return {id,title:`科比 · ${String(i+1).padStart(2,'0')}`,mp4:`media/${id}.mp4`,webm:`media/${id}.webm`,group:'kobe',caption:'科比视频合集。 #科比'};}),
+ kobe:Array.from({length:7},(_,i)=>{const id=`kobe-${String(i+1).padStart(2,'0')}`;return {id,title:`科比 · ${String(i+1).padStart(2,'0')}`,mp4:`media/${id}.mp4`,webm:`media/${id}.webm`,group:'kobe',caption:'科比视频合集。 #科比'};}),
  huge:Array.from({length:7},(_,i)=>{const id=`huge-${String(i+1).padStart(2,'0')}`;return {id,title:`虎哥 · ${String(i+1).padStart(2,'0')}`,mp4:`media/${id}.mp4`,webm:`media/${id}.webm`,group:'huge',caption:'虎哥来了。 #虎哥'};}),
  "nailong": [
   {
