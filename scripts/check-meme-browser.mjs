@@ -194,6 +194,13 @@ try{
   await scan.locator('[role="progressbar"]').waitFor();
   await demo.waitForFunction(()=>window.__qaResetObserved&&document.querySelector('.scan-demo')?.dataset.scanState==='waiting',{},{timeout:60000});
   assert.equal(await demo.locator('.scan-sticker').count(),0,'Face loss during scan cannot reveal a result');
+  const preview=demo.locator('.scanner-camera canvas');
+  assert.deepEqual(await preview.evaluate(c=>[c.width,c.height,getComputedStyle(c).filter,getComputedStyle(c).imageRendering]),[660,900,'none','auto'],'Clear full-resolution color camera preview');
+  assert.equal(await demo.getByRole('button',{name:'播放界面样例',exact:true}).count(),0,'No fake source-video scan');
+  await demo.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'));});
+  await demo.waitForTimeout(100);
+  assert.ok(await preview.evaluate(c=>!c.getContext('2d').getImageData(0,0,c.width,c.height).data.some(x=>x)),'Hidden page clears live face preview');
+  await demo.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'visible'});document.dispatchEvent(new Event('visibilitychange'));});
   assert.ok(await demo.evaluate(()=>window.__qaProgressBeforeReset)>0,'The interrupted scan had actually progressed');
   await demo.waitForFunction(()=>document.querySelector('.scan-demo [role="progressbar"]')?.getAttribute('aria-valuenow')==='0');
   assert.equal(await demo.locator('.meme-video').evaluate(v=>v.paused),true,'No source-video sound under the scanner');
@@ -201,6 +208,12 @@ try{
   const began=Date.now();
   const firstTop=await demo.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await demo.waitForTimeout(250);
   const secondTop=await demo.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);assert.ok(Math.abs(secondTop-firstTop)>12,'Blue beam moves, not a static drawing');
+  const detail=await preview.evaluate(c=>{
+   const ctx=c.getContext('2d'),d=ctx.getImageData(0,0,c.width,c.height).data,set=new Set();let colored=0;
+   for(let i=0;i<d.length;i+=16){set.add(d[i]+','+d[i+1]+','+d[i+2]);if(Math.abs(d[i]-d[i+1])>15)colored++;}
+   return {colors:set.size,colored};
+  });
+  assert.ok(detail.colors>200&&detail.colored>100,'Preview retains camera details/color, not96 enlarged mosaic blocks');
   await demo.waitForTimeout(150);
   console.log('QA_SCAN_ACTIVE_'+profile.toUpperCase()+'='+(await demo.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
   await demo.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='complete',{},{timeout:6000});
@@ -209,7 +222,7 @@ try{
   await demo.getByRole('heading',{name:label,exact:true}).waitFor();
   await demo.waitForTimeout(450);
   assert.ok(await demo.locator('.scan-sticker').evaluate(e=>e.complete&&e.naturalWidth>0));
-  assert.match(await demo.locator('.scan-disclosure').innerText(),/界面演示.*非身份识别/);
+  assert.match(await demo.locator('.scan-disclosure').innerText(),/分组为演示.*非身份识别/);
   for(const viewport of [{width:390,height:844},{width:320,height:568},{width:1366,height:768}]){
    await demo.setViewportSize(viewport);await demo.waitForTimeout(120);
    assert.ok(await demo.locator('.scan-enter').evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth;}),'Demo continue button fits viewport');
@@ -255,14 +268,14 @@ try{
   await demo.evaluate(()=>window.dispatchEvent(new Event('pagehide')));assert.ok(await demo.evaluate(()=>window.__qaStopped)>0);await demo.close();
  }
  const sample=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
- await sample.addInitScript(()=>{window.__qaRequests=0;navigator.mediaDevices.getUserMedia=async()=>{window.__qaRequests++;throw new DOMException('Denied','NotAllowedError');};});
- await sample.goto(baseURL+'?demo=lulu');await sample.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});
- assert.equal(await sample.locator('.scan-sticker').count(),0);await sample.getByRole('button',{name:'播放界面样例',exact:true}).click();
- await sample.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning');
+ await sample.addInitScript(syntheticCamera);
+ await sample.goto(baseURL+'?demo=lulu');await sample.locator('.scan-demo').waitFor({timeout:7000});
+ assert.equal(await sample.getByRole('button',{name:'播放界面样例',exact:true}).count(),0);
+ await sample.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning',{},{timeout:60000});
  const beamPosition=await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await sample.waitForTimeout(300);assert.ok(Math.abs(await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top)-beamPosition)<1,'Reduced motion fixes scan beam position');
  await sample.getByRole('heading',{name:'噜噜资深粉',exact:true}).waitFor({timeout:6000});
- assert.equal(await sample.evaluate(()=>window.__qaRequests),1,'Denied input not repeatedly requested');
- assert.match(await sample.locator('.scan-camera-caption').innerText(),/未使用人脸判断/);
+ assert.equal(await sample.evaluate(()=>window.__qaCameraCalls),1,'Same camera request for reduced-motion scanner');
+ assert.match(await sample.locator('.scan-camera-caption').innerText(),/本地实时摄像头/);
  await sample.getByRole('button',{name:'进入推荐',exact:true}).click();await waitForClip(sample,'lulu-01');
  await sample.keyboard.press('ArrowDown');await waitForClip(sample,'lulu-02');
  assert.equal(await sample.locator('.feed-motion').evaluate(e=>e.getAnimations().length),0,'Reduced-motion navigation has no large translation');
@@ -273,6 +286,16 @@ try{
  assert.equal(await sample.locator('.feed-motion').getAttribute('data-motion'),'idle','Reduced-motion rebound resets drag state');
  assert.ok(Math.abs(await sample.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42))<1);
  await sample.close();
+ const noCamera=await browser.newPage({viewport:{width:390,height:844}});
+ await noCamera.addInitScript(()=>{window.__qaRequests=0;navigator.mediaDevices.getUserMedia=async()=>{window.__qaRequests++;throw new DOMException('Denied','NotAllowedError');};});
+ await noCamera.goto(baseURL+'?demo=lulu');await noCamera.getByRole('button',{name:'跳过扫描进入推荐',exact:true}).waitFor({timeout:10000});
+ await noCamera.waitForTimeout(2300);
+ assert.equal(await noCamera.locator('.scan-demo').getAttribute('data-scan-state'),'waiting','Denied camera cannot complete scan');
+ assert.equal(await noCamera.locator('.scan-sticker').count(),0);
+ assert.equal(await noCamera.getByRole('button',{name:'播放界面样例',exact:true}).count(),0);
+ assert.equal(await noCamera.evaluate(()=>window.__qaRequests),1);
+ assert.ok(await noCamera.locator('.scanner-camera canvas').evaluate(c=>!c.getContext('2d').getImageData(0,0,c.width,c.height).data.some(x=>x)),'No substitute or cached face without camera');
+ await noCamera.getByRole('button',{name:'跳过扫描进入推荐',exact:true}).click();await waitForClip(noCamera,'lulu-01');await noCamera.close();
  const invalid=await browser.newPage({viewport:{width:390,height:844}});await invalid.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};});
  await invalid.goto(baseURL+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),1,'Invalid presets use the unified random entry, not a catalog escape');await invalid.close();
 
@@ -282,12 +305,11 @@ try{
   unified.on('pageerror',e=>errors.push(e.message));unified.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
   await unified.addInitScript(value=>{
    crypto.getRandomValues=array=>{array.fill(value);return array;};
-   navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};
   },choice);
-  diagnosticPage=unified;await unified.goto(baseURL);
-  await unified.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});await unified.getByRole('button',{name:'播放界面样例',exact:true}).click();
+  await unified.addInitScript(syntheticCamera);diagnosticPage=unified;await unified.goto(baseURL);
+  await unified.locator('.scan-demo').waitFor({timeout:7000});
   const group=choice?'lulu':'nailong',expected=group+'-01';
-  await unified.getByRole('heading',{name:choice?'噜噜资深粉':'重度奶龙用户',exact:true}).waitFor({timeout:6000});
+  await unified.getByRole('heading',{name:choice?'噜噜资深粉':'重度奶龙用户',exact:true}).waitFor({timeout:60000});
   await unified.getByRole('button',{name:'进入推荐',exact:true}).click();
   await unified.waitForFunction(id=>document.querySelector('.meme-video')?.dataset.clipId===id,expected);
   await unified.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
@@ -327,7 +349,7 @@ try{
   await unified.close();
  }
  console.log('Unified/swipe QA passed:root and unknown presets randomly assign7/8pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
- console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, denied-camera manual example, reduced motion, invalid URL uses unified entry, no identity or gender inference.');
+ console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, clear mirrored live preview and denied-camera skip without success/sample, reduced motion, invalid URL uses unified entry, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');
  console.log('Head-overlay QA passed:1.5-second entry, one automatic video-only camera request after intro, complete source video, six distinct original videos with source-head mosaic, Douyin-style Chinese feed and white comment sheet, local posting/replies/votes/expand/close, three viewports, actual audio tracks, default audible playback with no mute switch, current-clip replay, feed cycling and Explore selection, local live head segmentation on synthetic camera, moving camera face, disappearance replaces face with mosaic, recovery, pagehide camera cleanup, denied permission, no runtime errors/missing assets/frame uploads.');
