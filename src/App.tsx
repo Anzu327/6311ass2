@@ -17,7 +17,7 @@ export default function App(){
  const [scanFinished,setScanFinished]=useState(false);
  const [engagement]=useState(()=>Object.fromEntries([...feedClips,...Object.values(groupedClips).flat()].map(item=>{
   const likes=Math.floor(80+Math.random()**2*24000);
-  return [item.id,{likes,comments:Math.floor(8+likes*(.01+Math.random()*.07)),shares:Math.floor(2+likes*(.005+Math.random()*.04))}];
+  return [item.id,{likes,comments:Math.floor(40+likes*(.01+Math.random()*.07)),shares:Math.floor(2+likes*(.005+Math.random()*.04))}];
  })));
  const [shareTotals,setShareTotals]=useState<Record<string,number>>({});
  const panel=useRef<HTMLDivElement>(null),motion=useRef<Animation|null>(null),motionFrame=useRef(0),motionTimeout=useRef<ReturnType<typeof setTimeout>|null>(null),motionEpoch=useRef(0),motionBusy=useRef(false),motionLoading=useRef(false),suppressTap=useRef(0);

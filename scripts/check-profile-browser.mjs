@@ -19,12 +19,15 @@ try{
   await page.getByRole('button',{name:'点赞视频',exact:true}).click();
   await page.getByRole('button',{name:'收藏视频',exact:true}).click();
   const id=await page.locator('.meme-video').getAttribute('data-clip-id');
+  await page.getByRole('button',{name:'视频合集',exact:true}).click();
+  const expectedCount=await page.locator('.dialog .clip-list button').count();
+  await page.getByRole('button',{name:'关闭弹窗',exact:true}).click();
   await page.getByRole('button',{name:'我',exact:true}).click();
   await page.waitForFunction(()=>document.querySelector('.meme-video').paused);
   assert.equal(await page.getByRole('heading',{name:'抖歪放映员'}).count(),1);
   assert.equal(await page.locator('.bottom-nav .active').innerText(),'我');
   assert.ok(await page.locator('.profile-scroll').evaluate(el=>el.scrollHeight>el.clientHeight),'Profile scrolls vertically');
-  assert.equal(await page.locator('.profile-tile').count(),group==='lulu'?8:group==='nailong'||group==='huge'?7:6);
+  assert.equal(await page.locator('.profile-tile').count(),expectedCount);
   assert.ok(await page.locator('.profile-tile img').evaluateAll(images=>images.slice(0,3).every(i=>i.complete&&i.naturalWidth>0)));
   await page.screenshot({path:`qa-results/profile-${group}.png`});
   for(const tab of ['收藏','喜欢']){await page.getByRole('tab',{name:tab,exact:true}).click();assert.equal(await page.locator('.profile-tile').count(),1);}

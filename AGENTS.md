@@ -97,3 +97,6 @@ Bottom「我」opens a full scrollable TikTok/Douyin-style profile inside the ex
 
 ## Additional Kobe video (2026-10-08)
 User supplied ScreenRecording_10-08-2026 21-03-45_1.mov and asked to append it to the existing Kobe pool as kobe-07. Preserve full frame, duration and source sound; archive original, H.264/AAC MP4 with original AAC stream copy, VP9/Opus WebM and source poster. Pool now has seven clips; label remains man巴out. Preserve terminal scanner, profile/messages and current navigation.
+
+## Varied per-video comments (2026-10-08)
+User wants substantially more comments and different content on different videos. Each supplied clip receives22main demo comments plus multiple reply threads from curated奶龙/噜噜/虎哥/科比/legacy-meme topic pools; legacy lead comments refer to the actual meme. Per-visit selections and metadata vary by clip and remain stable while navigating; local posts/replies update only their own clip. Use only fictional authors and existing public animal/landscape avatars. No copied private friends, scraped contacts, identity claims or server/persistent messaging. Newly added clips automatically receive their own discussion. Preserve randomized total/count consistency and existing comment-sheet interactions.
