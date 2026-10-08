@@ -25,7 +25,7 @@ try{
  browser=await chromium.launch({headless:true});
  page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  const errors=[],broken=[],outgoing=[];
- page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});page.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
+ page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});page.on('requestfinished',r=>{if(!['GET','HEAD'].includes(r.method()))outgoing.push(r.url());});
  await page.addInitScript(()=>{
   window.__qaCameraRequests=0;
   window.__qaCameraPhases=[];
@@ -94,7 +94,8 @@ try{
  // Screenshot-grounded feed and white comments-sheet interactions.
  await page.setViewportSize({width:390,height:758});await page.waitForTimeout(250);
  assert.equal(await page.locator('.bootleg-brand,.scan-meta,.camera-status').count(),0,'No oversized counterfeit/debug chrome');
- assert.equal(await page.getByRole('button',{name:'打开评论区',exact:true}).innerText(),'275','Comment icon shows numeric count, not caption');
+ const baselineComments=Number(await page.getByRole('button',{name:'打开评论区',exact:true}).innerText());
+ assert.ok(Number.isInteger(baselineComments)&&baselineComments>0,'Comment icon shows its per-video numeric count');
  await page.getByRole('button',{name:'点赞视频',exact:true}).click();assert.equal(await page.getByRole('button',{name:'点赞视频',exact:true}).getAttribute('aria-pressed'),'true');
  await page.getByRole('button',{name:'收藏视频',exact:true}).click();assert.equal(await page.getByRole('button',{name:'收藏视频',exact:true}).getAttribute('aria-pressed'),'true');
  console.log('QA_SCREENSHOT_FEED_REFERENCE='+(await page.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
@@ -105,11 +106,11 @@ try{
  console.log('QA_SCREENSHOT_COMMENTS_REFERENCE='+(await page.locator('.stage').screenshot({type:'jpeg',quality:90})).toString('base64'));
  await page.getByRole('button',{name:'展开 3 条回复',exact:true}).click();assert.equal(await page.locator('.comments-scroll > .comment-row').first().locator('.reply-list .nested').count(),3);
  await page.getByRole('button',{name:'AI解析',exact:true}).click();await page.getByRole('heading',{name:'你的脸，平台的动作。',exact:true}).waitFor();
- await page.getByRole('button',{name:/评论 275/}).click();
+ await page.getByRole('button',{name:'评论 '+baselineComments,exact:true}).click();
  await page.getByRole('textbox',{name:'写评论',exact:true}).fill('本地测试评论，不上传');
  await page.getByRole('button',{name:'发送评论',exact:true}).click();await page.getByText('本地测试评论，不上传',{exact:true}).waitFor();
  await page.getByRole('button',{name:'关闭评论区',exact:true}).click();
- assert.equal(await page.getByRole('button',{name:'打开评论区',exact:true}).innerText(),'276','Local comment updates rail total');
+ assert.equal(await page.getByRole('button',{name:'打开评论区',exact:true}).innerText(),String(baselineComments+1),'Local comment updates rail total');
  await page.getByRole('button',{name:'打开评论区',exact:true}).click();await page.getByText('本地测试评论，不上传',{exact:true}).waitFor();
  await page.getByRole('button',{name:'展开评论区',exact:true}).click();assert.ok(await page.locator('.comments-sheet').evaluate(e=>e.getBoundingClientRect().top)<100);
  await page.getByRole('button',{name:'缩小评论区',exact:true}).click();await page.keyboard.press('Escape');assert.equal(await page.locator('.comments-sheet').count(),0);
@@ -120,7 +121,7 @@ try{
  const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});await reduced.goto(url);await reduced.locator('.stage.feed').waitFor({timeout:7000});await reduced.close();
 
  const live=await browser.newPage({viewport:{width:390,height:844}});
- live.on('pageerror',e=>errors.push(e.message));live.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});live.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
+ live.on('pageerror',e=>errors.push(e.message));live.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});live.on('requestfinished',r=>{if(!['GET','HEAD'].includes(r.method()))outgoing.push(r.url());});
  const syntheticCamera=()=>{
   window.__qaStopped=0;window.__qaCameraCalls=0;window.__qaBlank=false;window.__qaShift=0;
   navigator.mediaDevices.getUserMedia=async c=>{
@@ -189,7 +190,7 @@ try{
  // Approved blue scanner: explicit demo URL determines a label, never identity inference.
  for(const profile of ['nailong','lulu','huge']){
   const demo=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
-  demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(r.method()!=='GET')outgoing.push(r.url());});
+  demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(!['GET','HEAD'].includes(r.method()))outgoing.push(r.url());});
   diagnosticPage=demo;await demo.addInitScript(syntheticCamera);
   await demo.addInitScript(()=>{
    window.__qaLossRequested=false;window.__qaResetObserved=false;window.__qaProgressBeforeReset=0;
@@ -335,7 +336,8 @@ try{
   const movedPositions=await unified.evaluate(()=>Object.fromEntries(['.media-stage','.post-caption','.action-rail','.stage-header','.bottom-nav'].map(s=>[s,document.querySelector(s).getBoundingClientRect().top])));
   for(const s of ['.media-stage','.post-caption','.action-rail'])assert.ok(Math.abs(movedPositions[s]-beforePositions[s]+25)<1,s+' follows video drag');
   for(const s of ['.stage-header','.bottom-nav'])assert.ok(Math.abs(movedPositions[s]-beforePositions[s])<1,s+' stays fixed');
-  assert.equal(await unified.getByRole('button',{name:'打开评论区',exact:true}).innerText(),'275');
+  const simulatedComments=Number(await unified.getByRole('button',{name:'打开评论区',exact:true}).innerText());
+  assert.ok(Number.isInteger(simulatedComments)&&simulatedComments>0);
   assert.ok(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42)<-10,'Frame follows the finger');
   console.log('QA_SWIPE_DRAG_'+group.toUpperCase()+'='+(await unified.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
   await pointer('pointerup',y-25);await unified.waitForTimeout(220);

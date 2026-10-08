@@ -5,6 +5,7 @@ import FaceTracking from './FaceTracking';
 import ScanDemo,{type DemoProfile} from './ScanDemo';
 import {feedFor,clipAt,groupNames,feedClips,groupedClips} from './clips';
 import Inbox from './Inbox';
+import useNextClipPreload from './useNextClipPreload';
 import {initialUnread} from './inboxData';
 import CommentsSheet,{initialComments,type Item} from './CommentsSheet';
 import {formatCount} from './formatCount';
@@ -18,7 +19,7 @@ export default function App(){
  })));
  const [shareTotals,setShareTotals]=useState<Record<string,number>>({});
  const panel=useRef<HTMLDivElement>(null),motion=useRef<Animation|null>(null),motionFrame=useRef(0),motionTimeout=useRef<ReturnType<typeof setTimeout>|null>(null),motionEpoch=useRef(0),motionBusy=useRef(false),motionLoading=useRef(false),suppressTap=useRef(0);
- const [moving,setMoving]=useState(false),[loadingClip,setLoadingClip]=useState(false);
+ const [moving,setMoving]=useState(false),[readyClipId,setReadyClipId]=useState('');
  const drag=useRef<{id:number;x:number;y:number;dy:number;vertical:boolean}|null>(null);
  const [state,dispatch]=useReducer(reducer,initialExperience);const [stream,setStream]=useState<MediaStream|null>(null);const streamRef=useRef<MediaStream|null>(null);const video=useRef<HTMLVideoElement>(null);const clip=useRef<HTMLVideoElement>(null);const requestId=useRef(0);const mounted=useRef(true);const cameraStarted=useRef(false),cameraPending=useRef(false),playRequest=useRef(0),gestureNeeded=useRef(false);
  const [busy,setBusy]=useState(false),[cameraError,setCameraError]=useState(''),[tracking,setTracking]=useState('Loading head overlay…'),[toast,setToast]=useState(''),[modal,setModal]=useState<'about'|'profile'|'comments'|'explore'|'inbox'|'menu'|null>(null),[tab,setTab]=useState('推荐');
@@ -27,6 +28,8 @@ export default function App(){
  const [liked,setLiked]=useState<Record<string,boolean>>({}),[saved,setSaved]=useState<Record<string,boolean>>({}),[followed,setFollowed]=useState(false),[captionExpanded,setCaptionExpanded]=useState(false),[commentsExpanded,setCommentsExpanded]=useState(false),[commentTotals,setCommentTotals]=useState<Record<string,number>>({}),[commentStore,setCommentStore]=useState<Record<string,Item[]>>({});
  const imageURLs=useRef<string[]>([]);useEffect(()=>()=>{imageURLs.current.forEach(URL.revokeObjectURL);},[]);
  const [introReady,setIntroReady]=useState(false);const phase=state.phase;const scanVisible=!!demoProfile&&!scanFinished&&phase==='feed';const scanVisibleRef=useRef(scanVisible);scanVisibleRef.current=scanVisible;const activeClips=feedFor(scanFinished?demoProfile:null);const currentClip=clipAt(state.index,activeClips);const notify=useCallback((message:string)=>setToast(message),[]);const onTracking=useCallback((s:string)=>setTracking(s),[]);
+ useNextClipPreload(clip,activeClips,state.index,phase==='feed'&&!scanVisible&&!modal);
+ const markClipReady=()=>{const v=clip.current;if(!v||v.dataset.clipId!==currentClip.id||v.readyState<2||![currentClip.mp4,currentClip.webm].some(path=>new URL(base+path,location.origin).href===v.currentSrc))return;setReadyClipId(currentClip.id);setClipError('');};
  useEffect(()=>{if(phase!=='intro'||!introReady)return;const timer=setTimeout(()=>dispatch({type:'entered'}),INTRO_DURATION_MS);return()=>clearTimeout(timer);},[phase,introReady]);
  const releaseCamera=useCallback(()=>{requestId.current++;stopStream(streamRef.current);streamRef.current=null;setStream(null);cameraPending.current=false;setBusy(false);setTracking('MOSAIC · camera unavailable');},[]);
  useEffect(()=>{mounted.current=true;const release=()=>{releaseCamera();playRequest.current++;clip.current?.pause();};window.addEventListener('pagehide',release);return()=>{mounted.current=false;requestId.current++;stopStream(streamRef.current);window.removeEventListener('pagehide',release);};},[releaseCamera]);
@@ -38,7 +41,7 @@ export default function App(){
    setPaused(true);if(error?.name==='NotAllowedError'){gestureNeeded.current=true;setNeedsGesture(true);}
   });
  },[]);
- useEffect(()=>{const v=clip.current;if(v&&phase==='feed'){v.load();setClipError('');if(!scanVisible)playWithSound();}},[state.index,phase,scanVisible,playWithSound]);
+ useEffect(()=>{const v=clip.current;if(v&&phase==='feed'){setReadyClipId('');v.load();setClipError('');if(!scanVisible)playWithSound();}},[state.index,phase,scanVisible,playWithSound]);
  useEffect(()=>{
   if(phase!=='feed')return;
   const unlock=(event:Event)=>{if(!gestureNeeded.current)return;if((event.target as Element)?.closest?.('button,input,a,dialog,.media-stage'))return;playWithSound();};
@@ -63,7 +66,7 @@ export default function App(){
   if(motionTimeout.current)clearTimeout(motionTimeout.current);motionTimeout.current=null;
   motionBusy.current=false;motionLoading.current=false;drag.current=null;
   if(panel.current){panel.current.style.transform='';panel.current.dataset.motion='idle';}
-  setMoving(false);setLoadingClip(false);
+  setMoving(false);
  },[]);
  useEffect(()=>{if(phase!=='feed'||modal||scanVisible)stopMotion();},[phase,modal,scanVisible,stopMotion]);
  useEffect(()=>{const leave=()=>{stopMotion();clip.current?.pause();};window.addEventListener('pagehide',leave);window.addEventListener('resize',stopMotion);
@@ -89,15 +92,15 @@ export default function App(){
   const exit=p.animate([{transform:from},{transform:'translateY('+(-direction*height)+'px)'}],{duration:160,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});motion.current=exit;
   void exit.finished.then(()=>{
    if(token!==motionEpoch.current)return;
-   p.style.transform='translateY('+(direction*height)+'px)';exit.cancel();motion.current=null;p.dataset.motion='loading';setLoadingClip(true);
+   p.style.transform='translateY('+(direction*height)+'px)';exit.cancel();motion.current=null;p.dataset.motion='loading';
    dispatch({type:'step',delta:direction});
    motionTimeout.current=setTimeout(()=>{if(token!==motionEpoch.current)return;stopMotion();setClipError('视频加载较慢，请稍候或刷新重试');},8000);
    const expected=[new URL(base+target.mp4,location.origin).href,new URL(base+target.webm,location.origin).href];
    const ready=()=>{
     if(token!==motionEpoch.current)return;
-    if(v.dataset.clipId!==target.id||v.readyState<2||!expected.includes(v.currentSrc)||p.closest<HTMLElement>('.stage')?.dataset.headReady!=='true'){motionFrame.current=requestAnimationFrame(ready);return;}
+    if(v.dataset.clipId!==target.id||(target.track&&(v.readyState<2||!expected.includes(v.currentSrc)||p.closest<HTMLElement>('.stage')?.dataset.headReady!=='true'))){motionFrame.current=requestAnimationFrame(ready);return;}
     if(motionTimeout.current)clearTimeout(motionTimeout.current);motionTimeout.current=null;
-    motionLoading.current=false;setLoadingClip(false);p.dataset.motion='enter';playWithSound();
+    motionLoading.current=false;p.dataset.motion='enter';playWithSound();
     const enter=p.animate([{transform:'translateY('+(direction*height)+'px)'},{transform:'translateY(0px)'}],{duration:190,easing:'cubic-bezier(0,0,.2,1)',fill:'forwards'});motion.current=enter;
     void enter.finished.then(()=>{if(token!==motionEpoch.current)return;p.style.transform='';enter.cancel();motion.current=null;motionBusy.current=false;p.dataset.motion='idle';setMoving(false);}).catch(()=>{});
    };motionFrame.current=requestAnimationFrame(ready);
@@ -139,10 +142,10 @@ export default function App(){
  onWheel={e=>{if(Math.abs(e.deltaY)>20)step(e.deltaY>0?1:-1);}} onPointerDown={beginDrag} onPointerMove={moveDrag} onPointerUp={e=>endDrag(e)} onPointerCancel={e=>endDrag(e,true)}>
  <div ref={panel} className="feed-motion" data-motion="idle" inert={scanVisible||moving||modal==='inbox'}>
  <div className="media-stage" inert={scanVisible||moving} role="button" aria-label={paused?'播放视频':'暂停视频'} tabIndex={0} onClick={tapVideo} onKeyDown={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();tapVideo();}}}>
-  <div className="portrait-backdrop"><video ref={clip} className="meme-video" autoPlay={!scanVisible&&!moving} loop muted={false} playsInline preload="auto" aria-label={currentClip.title+' source video'} data-clip-id={currentClip.id}
-  onError={e=>{if(e.target===e.currentTarget)setClipError('视频加载失败，请刷新重试');}} onCanPlay={()=>setClipError('')}><source src={base+currentClip.mp4} type='video/mp4; codecs="avc1.4D4029,mp4a.40.2"'/><source src={base+currentClip.webm} type='video/webm; codecs="vp9,opus"'/></video></div>
+  <div className={`portrait-backdrop ${!currentClip.track&&readyClipId!==currentClip.id?'poster-active':''}`}>{!currentClip.track&&<img className="clip-poster" src={base+'media/posters/'+currentClip.id+'.webp'} alt="" aria-hidden="true" fetchPriority="high"/>}<video ref={clip} className="meme-video" autoPlay={!scanVisible&&!moving} loop muted={false} playsInline preload="auto" aria-label={currentClip.title+' source video'} data-clip-id={currentClip.id}
+  onError={e=>{if(e.target===e.currentTarget)setClipError('视频加载失败，请刷新重试');}} onLoadedData={markClipReady} onCanPlay={markClipReady}><source src={base+currentClip.mp4} type='video/mp4; codecs="avc1.4D4029,mp4a.40.2"'/><source src={base+currentClip.webm} type='video/webm; codecs="vp9,opus"'/></video></div>
   <FaceTracking video={video} clip={clip} source={currentClip} active={!!stream&&(scanVisible||!!currentClip.track)} onStatus={onTracking}/>
-  {paused&&!needsGesture&&!moving&&<Play className="paused-symbol" size={52} weight="fill" aria-hidden="true"/>}
+  {paused&&!needsGesture&&!moving&&readyClipId===currentClip.id&&<Play className="paused-symbol" size={52} weight="fill" aria-hidden="true"/>}
  </div>
  <div className="post-caption" inert={scanVisible}><div className="author-name">@抖歪放映员 <span className="post-kind">{currentClip.group?'专属':'换脸'}</span></div><div className="caption-description"><p className={captionExpanded?'expanded':'collapsed'}>{currentClip.caption??descriptions[currentClip.id]}</p><button className="caption-expand" onClick={()=>setCaptionExpanded(v=>!v)}>{captionExpanded?'收起':'展开'}</button></div><small className="sound-line"><MusicNotes size={13}/>{currentClip.title} · 原声</small><span className="sr-only">{currentClip.title} {state.index%activeClips.length+1}/{activeClips.length}</span></div>
  <div className="action-rail" inert={scanVisible}><button className="avatar" aria-label={followed?'已关注放映员':'关注放映员'} onClick={()=>setFollowed(v=>!v)}><img src={base+'media/avatar-cat.webp'} alt="放映员头像"/><span>{followed?<Check size={13} weight="bold"/>:<Plus size={14} weight="bold"/>}</span></button>
@@ -152,7 +155,6 @@ export default function App(){
  <button aria-label="分享作品" onClick={()=>void share()}><ShareFat size={32} weight="fill"/><span>{formatCount(engagement[currentClip.id].shares+(shareTotals[currentClip.id]??0))}</span></button>
  <button className="remix-button" aria-label="拍同款" onClick={()=>setModal('about')}><img src={base+'media/avatar-sunset.webp'} alt=""/><span>拍同款</span></button></div>
  </div>
- {loadingClip&&<div className="clip-loading" role="status">正在加载视频…</div>}
  <video ref={video} className="camera-source" autoPlay muted playsInline aria-label="Local camera input"/>
  <header className="stage-header" inert={scanVisible||modal==='inbox'}><button aria-label="打开菜单" className="header-menu" onClick={()=>setModal('menu')}><List size={25}/></button>
  <div className="feed-tabs">{['精选','团购','同城','商城','直播','关注','推荐'].map(name=><button key={name} className={tab===name?'active':''} onClick={()=>{setTab(name);if(name!=='推荐')notify('课程作品中的模拟频道');}}>{name}{['商城','关注'].includes(name)&&<Circle className="channel-dot" size={7} weight="fill"/>}</button>)}</div>

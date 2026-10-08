@@ -28,6 +28,7 @@ jobs:
             fi
           done
       - run: npx playwright install --with-deps chromium
+      - run: node scripts/check-feed-transition.mjs
       - run: node scripts/check-meme-browser.mjs
 
       - uses: actions/upload-artifact@v4
