@@ -262,7 +262,17 @@ try{
  const beamPosition=await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await sample.waitForTimeout(300);assert.ok(Math.abs(await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top)-beamPosition)<1,'Reduced motion fixes scan beam position');
  await sample.getByRole('heading',{name:'噜噜资深粉',exact:true}).waitFor({timeout:6000});
  assert.equal(await sample.evaluate(()=>window.__qaRequests),1,'Denied input not repeatedly requested');
- assert.match(await sample.locator('.scan-camera-caption').innerText(),/未使用人脸判断/);await sample.close();
+ assert.match(await sample.locator('.scan-camera-caption').innerText(),/未使用人脸判断/);
+ await sample.getByRole('button',{name:'进入推荐',exact:true}).click();await waitForClip(sample,'lulu-01');
+ await sample.keyboard.press('ArrowDown');await waitForClip(sample,'lulu-02');
+ assert.equal(await sample.locator('.feed-motion').evaluate(e=>e.getAnimations().length),0,'Reduced-motion navigation has no large translation');
+ await sample.locator('.stage').evaluate(el=>{
+  const send=(type,y)=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:11,pointerType:'touch',isPrimary:true,button:0,clientX:100,clientY:y}));
+  send('pointerdown',300);send('pointermove',275);send('pointerup',275);
+ });
+ assert.equal(await sample.locator('.feed-motion').getAttribute('data-motion'),'idle','Reduced-motion rebound resets drag state');
+ assert.ok(Math.abs(await sample.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42))<1);
+ await sample.close();
  const invalid=await browser.newPage({viewport:{width:390,height:844}});await invalid.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};});
  await invalid.goto(baseURL+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),1,'Invalid presets use the unified random entry, not a catalog escape');await invalid.close();
 
@@ -288,6 +298,7 @@ try{
   await pointer('pointerdown',y);await pointer('pointermove',y-25);
   assert.equal(await unified.locator('.feed-motion').getAttribute('data-motion'),'drag');
   assert.ok(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42)<-10,'Frame follows the finger');
+  console.log('QA_SWIPE_DRAG_'+group.toUpperCase()+'='+(await unified.locator('.stage').screenshot({type:'jpeg',quality:80})).toString('base64'));
   await pointer('pointerup',y-25);await unified.waitForTimeout(220);
   assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),before);
   assert.ok(Math.abs(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42))<1,'Short drag rebounds');
@@ -297,6 +308,11 @@ try{
   assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-02');
   assert.equal(await unified.locator('.camera-source').count(),1);
   assert.equal(await unified.locator('.meme-video').count(),1,'Single decoder, no duplicated video/camera layers');
+  // Drag cancellation must restore the same frame, not strand it offscreen.
+  await pointer('pointerdown',y);await pointer('pointermove',y-160);await pointer('pointercancel',y-160);
+  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle');
+  assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-02');
+  assert.ok(Math.abs(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42))<1,'Cancelled drag restores origin');
   // Reverse and wheel use the same animated switch, and never leave the group.
   await unified.waitForTimeout(500);await unified.keyboard.press('ArrowUp');
   await waitForClip(unified,group+'-01');
