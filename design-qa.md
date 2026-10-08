@@ -1,17 +1,44 @@
 # Terminal scanner design QA
 
-Source visual truth: selected third displayed ImageGen result exec-ac229e89-2199-4b09-a50a-00f09bd2143c.png (984x1598). Existing app remains cloud-edited; no framework replacement. Comparator CSS viewport390x634 aligns the actual selected-image aspect, rather than stretching it to a different phone ratio. Also check320x568,390x844and1366x768 responsive scanner/completion/recovery.
+## Evidence and normalization
+- Source visual truth: selected third displayed ImageGen result exec-ac229e89-2199-4b09-a50a-00f09bd2143c.png,984x1598.
+- Reference normalized to390x634 without semantic editing (rounding under1px); the actual generated mock is not390x844, so the matched comparison viewport is390x634.
+- Browser implementation: qa-results/terminal-design-390x634.png from workflow37774677055, commit1465cc5cf9666dd06eec28fc507059404c0e4d08. Saved local inspected JPEG: outputs/scanner-terminal/implementation-final.jpg.
+- CSS390x634, deviceScaleFactor1; active face-presence scan. Isolated QA camera input is fictional test fixture, centered for this capture. Only the test freezes RAF and normalizes displayed62%/blue-beam45% to compare same state; production2s scan, camera and reset behavior are unchanged.
+- Combined evidence inspected: outputs/scanner-terminal/comparison-full.png, comparison-header.png, comparison-controls.png, comparison-camera.png and comparison-footer.png. No separate-image-only comparison.
+- Additional completed/recovery/responsive states tested320x568,390x844,1366x768 for ALL FOUR current pools, including newest man巴out label. No physical-phone camera substitution for user testing.
 
-Implementation screenshot: pending browser-run qa-results/terminal-design-390x634.png, active scan test-only62%state. Production uses real camera, no supplied mock face. Camera/photo content is dynamic; compare layout/type/tokens/assets not identity.
+## Comparison history
+Iteration1 blocked, workflow37754936579:
+- P1: display capitals and progress too tall, heading/warning too far right. Corrected with official OFL OswaldBold subset, source-matching title/percent sizes and18px warning bleed.
+- P2: compact-height rule changed the primary390x634spacing. Compact rules now apply only to width350px/height580px; primary camera/frame proportions match.
+- P2: generated outer frame too thick/doubled. Regenerated corner-only assetv2;1pxstandardcameraUIborder now replaces outer artwork rectangle.
+- Functional check found shortened camera caption; restored explicit 本地实时摄像头.
+- QA-only freeze had used RAF polling, causing timeout after it deliberately stopped RAF; timer polling now resolves. No production bypass/flag added.
 
-Required fidelity surfaces: fonts (officialOFLOswaldBold + existingScanSans), spacing/layout, charcoal/bone/blue/orange palette, generated texture/corners/ruler + supplied brand mark/blue beam, scan/status/result/recovery copy.
+Iteration2 passed:
+- Compared actual browser image against exact selected visual in one combined full-view input, then focused header/controls/camera/footer inputs.
+- Earlier type-size, alignment, compact-layout and doubled-border findings are resolved. No remaining P0/P1/P2.
 
-Findings: browser capture and combined reference comparison pending. No completion claim.
+## Required fidelity surfaces
+- Fonts/typography: condensed display heading/progress and heavy Chinese status hierarchy retained; officialOFL OswaldBold and existingScanSans. Loaded font checked in actual browser. No clipping or unwanted wrapping.
+- Spacing/layout: header, title, square-edged camera, status/progress and restrained footer retain selected hierarchy. Responsive taller view uses additional camera space rather than stretching pixels; camera buffer geometry checks pass.
+- Colors/tokens: matte charcoal actual generated film texture, bone-white text/corners, orange warning accent, blue sweep/progress. No red-blue facial ghosting/green scan.
+- Image quality/assets: actual ImageGen texture/corners/ruler; existing approved branded mark/blue beam. Real native camera canvas in production, no baked/mock face, no invented image/SVG/logo substitute. Four-result completion uses matching editable typography, not face-covering old stickers.
+- Copy/content: real scan status/instruction, LOCAL indicator, explicit local-processing/nonidentity disclosure; latest groupLabels retained. No identity/gender/interest inference claims.
 
-Implementation checklist: pass runtime checks, capture/inspectsame-state reference comparison and focused type/progress/camera regions; fixP0/P1/P2; verifyall4group endings, nofaceloss resets,denial/skip, reduced motion, continuousswipes/messages remain; inspectconsole/missingassets.
+## Runtime verification
+Typecheck, unit tests, build, Sites packaging tests and cloud browser QA pass. Four-pool delayed-media poster transitions pass; same player/camera, original sound, randomized engagement and Messages preserved.
+Browser tests cover no premature result,2sface gate/loss reset, hidden-tab clear, denied-camera no false success/explicit skip, reduced motion, camera cleanup, source/pool wrap/replay/search, no runtime errors/missing assets or completed frame uploads.
+Source privacy CSP and protected hosting files remain unchanged. No new framework/template, decoder or camera pipeline.
 
-final result: blocked
+## Follow-up polish (P3 only)
+Exact mock typeface/print grain is an illustration; selected free font is slightly lighter. Camera corner marks and approved small mascot variant differ subtly. Camera subject/crop depends on actual user/phone and is not judged as identity fidelity to a fictional mock. These are acceptable nonblocking variation, not fake production imagery.
 
+## Implementation checklist
+- Completed combined/focused comparison and required five-surface review.
+- Completed core interaction and responsive verification.
+- Preserve existing4pools, latest label, privacy and cloud-only project architecture.
+- Ready for existing GitHub Pages publish; final production deployment status must be checked separately.
 
-Comparison history — iteration1 blocked:
-Combined full/header/controls images saved under outputs/scanner-terminal/comparison-*.png from actual QA_CURRENT_IMAGE in workflow37754936579. Active implementation74% versus reference62%; progress timing and test-face placement not a production classification claim. [P1]displayglyphcaps too tall versus source andSCANstarts about12–18pxtoo far right. Fix: source-matching OswaldBold instead ofAnton, measuredSCANfont76pxbbox167x64vsoldAnton92bbox177x81, keep title-rowheightandbleedwarning18pxleft. [P2]percentage/controlsizes too large/compactheightbreakpoint changes390x634layout. Fix: percent17cqw, compactrulesonlywidth350/height580. [P2]generatedgrayouterframe doubled/thick. Fix: regeneratedonlycornersv2 plusstandard1pxcameraUIborder. QA-onlycenteredfixtureandtimer-pollingfreeze normalize62%/beamphase for same-state capture; production2sgate/camera remains untouched. Re-capture pending; final result remains blocked.
+final result: passed
