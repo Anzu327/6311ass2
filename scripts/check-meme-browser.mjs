@@ -129,7 +129,7 @@ try{
    const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
    const image=new Image();image.src=location.origin+'/6311ass2/docs/test-fixtures/qa-head.webp';await image.decode();
    const ctx=canvas.getContext('2d');
-   const draw=()=>{ctx.fillStyle='#282d34';ctx.fillRect(0,0,720,1280);if(!window.__qaBlank)ctx.drawImage(image,80+window.__qaShift,100,560,560);};draw();
+   const draw=()=>{ctx.fillStyle='#282d34';ctx.fillRect(0,0,720,1280);if(!window.__qaBlank)ctx.drawImage(image,80+window.__qaShift,window.__qaPortraitCentered?360:100,560,560);};draw();
    const timer=setInterval(draw,75),stream=canvas.captureStream(12);
    for(const track of stream.getTracks()){const stop=track.stop.bind(track);track.stop=()=>{clearInterval(timer);window.__qaStopped++;stop();};}
    return stream;
@@ -375,7 +375,7 @@ try{
  const terminalDesign=await browser.newPage({viewport:{width:390,height:634},deviceScaleFactor:1});
  diagnosticPage=terminalDesign;await terminalDesign.addInitScript(syntheticCamera);
  await terminalDesign.addInitScript(()=>{
-  window.__qaFreeze=false;const originalRAF=window.requestAnimationFrame;
+  window.__qaPortraitCentered=true;window.__qaFreeze=false;const originalRAF=window.requestAnimationFrame;
   window.requestAnimationFrame=callback=>originalRAF.call(window,time=>{if(!window.__qaFreeze)callback(time);});
   new MutationObserver(()=>{
    const el=document.querySelector('.scan-demo');
@@ -386,9 +386,14 @@ try{
  terminalDesign.on('pageerror',e=>errors.push(e.message));
  terminalDesign.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
  await terminalDesign.goto(baseURL+'?demo=lulu');
- await terminalDesign.waitForFunction(()=>window.__qaFreeze,{},{timeout:60000});
+ await terminalDesign.waitForFunction(()=>window.__qaFreeze,{},{timeout:60000,polling:50});
  await terminalDesign.evaluate(()=>document.fonts.ready);
- await terminalDesign.locator('.scan-demo').evaluate(el=>el.style.setProperty('--scan-sweep','45%'));
+ await terminalDesign.locator('.scan-demo').evaluate(el=>{
+  el.style.setProperty('--scan-sweep','45%');
+  el.querySelector('.scan-percent').innerHTML='62<small>%</small>';
+  el.querySelector('[role="progressbar"]').setAttribute('aria-valuenow','62');
+  el.querySelectorAll('.scan-progress-area span').forEach((span,i)=>span.classList.toggle('filled',i<5));
+ });
  assert.ok(await terminalDesign.locator('.scan-title-word').evaluate(el=>getComputedStyle(el).fontFamily.includes('TerminalDisplay')));
  assert.equal(await terminalDesign.locator('.scan-progress-area span').count(),8);
  assert.ok(await terminalDesign.locator('.scan-corners,.scan-ruler,.scan-brand img').evaluateAll(imgs=>imgs.every(img=>img.complete&&img.naturalWidth>0)));
