@@ -9,7 +9,7 @@ console.log=(...args)=>{qaLog.push(args.map(String).join(' '));originalLog(...ar
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1'],{stdio:'ignore'});
 let browser,page,diagnosticPage;
 try{
- const url='http://127.0.0.1:5173/6311ass2/';
+ const baseURL='http://127.0.0.1:5173/6311ass2/';const url=baseURL+'?feed=memes';
  for(let i=0;i<80;i++){try{if((await fetch(url)).ok)break;}catch{}await new Promise(r=>setTimeout(r,250));if(i===79)throw new Error('Vite failed to start');}
  browser=await chromium.launch({headless:true});
  page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
@@ -187,7 +187,7 @@ try{
     if(window.__qaLossRequested&&!window.__qaResetObserved){window.__qaProgressBeforeReset=Math.max(window.__qaProgressBeforeReset,progress);if(state==='waiting')window.__qaResetObserved=true;}
    }).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-scan-state','aria-valuenow']});
   });
-  await demo.goto(url+'?demo='+profile);
+  await demo.goto(baseURL+'?demo='+profile);
   const scan=demo.locator('.scan-demo');await scan.waitFor({timeout:7000});
   assert.equal(await demo.locator('.scan-sticker').count(),0,'No result before animation');
   await scan.locator('[role="progressbar"]').waitFor();
@@ -255,7 +255,7 @@ try{
  }
  const sample=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
  await sample.addInitScript(()=>{window.__qaRequests=0;navigator.mediaDevices.getUserMedia=async()=>{window.__qaRequests++;throw new DOMException('Denied','NotAllowedError');};});
- await sample.goto(url+'?demo=lulu');await sample.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});
+ await sample.goto(baseURL+'?demo=lulu');await sample.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});
  assert.equal(await sample.locator('.scan-sticker').count(),0);await sample.getByRole('button',{name:'播放界面样例',exact:true}).click();
  await sample.waitForFunction(()=>document.querySelector('.scan-demo')?.dataset.scanState==='scanning');
  const beamPosition=await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top);await sample.waitForTimeout(300);assert.ok(Math.abs(await sample.locator('.scan-beam').evaluate(e=>e.getBoundingClientRect().top)-beamPosition)<1,'Reduced motion fixes scan beam position');
@@ -263,7 +263,53 @@ try{
  assert.equal(await sample.evaluate(()=>window.__qaRequests),1,'Denied input not repeatedly requested');
  assert.match(await sample.locator('.scan-camera-caption').innerText(),/未使用人脸判断/);await sample.close();
  const invalid=await browser.newPage({viewport:{width:390,height:844}});await invalid.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};});
- await invalid.goto(url+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),0);await invalid.close();
+ await invalid.goto(baseURL+'?demo=unknown');await invalid.locator('.stage.feed').waitFor({timeout:7000});assert.equal(await invalid.locator('.scan-demo').count(),1,'Invalid presets use the unified random entry, not a catalog escape');await invalid.close();
+
+ // Unified root: stable random assignment for the visit, not appearance or identity matching.
+ for(const choice of [0,1]){
+  const unified=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+  unified.on('pageerror',e=>errors.push(e.message));unified.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});
+  await unified.addInitScript(value=>{
+   crypto.getRandomValues=array=>{array.fill(value);return array;};
+   navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('Denied','NotAllowedError');};
+  },choice);
+  await unified.goto(baseURL);
+  await unified.getByRole('button',{name:'播放界面样例',exact:true}).waitFor({timeout:10000});await unified.getByRole('button',{name:'播放界面样例',exact:true}).click();
+  const group=choice?'lulu':'nailong',expected=group+'-01';
+  await unified.getByRole('heading',{name:choice?'噜噜资深粉':'重度奶龙用户',exact:true}).waitFor({timeout:6000});
+  await unified.getByRole('button',{name:'进入推荐',exact:true}).click();
+  await unified.waitForFunction(id=>document.querySelector('.meme-video')?.dataset.clipId===id,expected);
+  await unified.waitForFunction(()=>document.querySelector('.meme-video').readyState>=2);
+  const before=await unified.locator('.meme-video').getAttribute('data-clip-id');
+  // Short drag returns without changing index, pointer cancel also resets.
+  const p=await unified.locator('.media-stage').boundingBox(),x=p.x+p.width*.5,y=p.y+p.height*.6;
+  const pointer=async(type,py)=>unified.locator('.stage').evaluate((el,{type,x,y})=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:9,pointerType:'touch',isPrimary:true,button:0,clientX:x,clientY:y})),{type,x,y:py});
+  await pointer('pointerdown',y);await pointer('pointermove',y-25);
+  assert.equal(await unified.locator('.feed-motion').getAttribute('data-motion'),'drag');
+  assert.ok(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42)<-10,'Frame follows the finger');
+  await pointer('pointerup',y-25);await unified.waitForTimeout(220);
+  assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),before);
+  assert.ok(Math.abs(await unified.locator('.feed-motion').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).m42))<1,'Short drag rebounds');
+  await pointer('pointerdown',y);await pointer('pointermove',y-160);await pointer('pointerup',y-160);
+  assert.equal(await unified.locator('.feed-motion').getAttribute('data-motion'),'exit');
+  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle',{},{timeout:10000});
+  assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-02');
+  assert.equal(await unified.locator('.camera-source').count(),1);
+  assert.equal(await unified.locator('.meme-video').count(),1,'Single decoder, no duplicated video/camera layers');
+  // Reverse and wheel use the same animated switch, and never leave the group.
+  await unified.waitForTimeout(500);await unified.keyboard.press('ArrowUp');
+  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle',{},{timeout:10000});
+  assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-01');
+  await unified.waitForTimeout(500);await unified.locator('.stage').dispatchEvent('wheel',{deltaY:160});
+  await unified.waitForFunction(()=>document.querySelector('.feed-motion')?.dataset.motion==='idle',{},{timeout:10000});
+  assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),group+'-02');
+  await unified.getByRole('button',{name:'打开评论区',exact:true}).click();const idBeforeComment=await unified.locator('.meme-video').getAttribute('data-clip-id');
+  await unified.locator('.comments-sheet').dispatchEvent('wheel',{deltaY:180});assert.equal(await unified.locator('.meme-video').getAttribute('data-clip-id'),idBeforeComment);
+  await unified.getByRole('button',{name:'关闭评论区',exact:true}).click();
+  console.log('QA_UNIFIED_'+group.toUpperCase()+'='+(await unified.locator('.stage').screenshot({type:'jpeg',quality:85})).toString('base64'));
+  await unified.close();
+ }
+ console.log('Unified/swipe QA passed:root and unknown presets randomly assign7/8pools, fixed presets/legacy preserved, finger-follow and rebound, forward/reverse/wheel transitions, one player/camera, no comment-scroll navigation, no facial identity/gender inference.');
  console.log('Blue scanner QA passed:two explicit demo profiles, no premature result, moving blue beam, loss reset, two-second animation, three viewports, no audio behind scan, same camera without model restart after continue, restricted8/7clip catalogs and wrap/replay/search/friends, original cartoons with no overlay and sound, denied-camera manual example, reduced motion, invalid URL preserves original feed, no identity or gender inference.');
  assert.deepEqual(errors,[]);assert.deepEqual(broken,[]);assert.deepEqual(outgoing,[],'No completed camera/telemetry upload requests');
  assert.equal(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),"connect-src 'self';",'External fetches/telemetry must be blocked by browser policy');

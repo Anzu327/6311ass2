@@ -64,3 +64,7 @@
 @keyframes tag-pop{0%{opacity:0;transform:scale(.62) rotate(-7deg)}60%{opacity:1;transform:scale(1.05) rotate(1deg)}100%{opacity:1;transform:none}}
 @media(max-height:650px){.scan-brand{font-size:23px}.scan-status{font-size:14px}.scan-outcome{top:72.5%;font-size:14px;gap:3px}.scan-outcome svg{width:25px;height:25px}.scan-enter{height:43px;font-size:18px}.scan-disclosure{font-size:10px;bottom:3.7%}.scan-progress-area{top:73%;gap:3px}.scan-progress-area>.scan-spinner{width:40px;height:40px}.scan-help-copy{font-size:10px}.scan-recovery{gap:4px}.scan-recovery button{font-size:10px;min-height:29px}.scan-camera-caption{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.scan-beam{top:50%!important}.scan-mesh{opacity:.55}}
+
+.feed-motion{position:absolute;inset:0;will-change:transform}
+.feed-motion[data-motion="drag"]{cursor:grabbing}
+.clip-loading{position:absolute;inset:0;display:grid;place-items:center;color:#bbb;font-size:13px;background:#000;pointer-events:none}

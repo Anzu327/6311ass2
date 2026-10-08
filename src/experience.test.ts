@@ -1,6 +1,6 @@
 
 import {describe,it,expect,vi} from 'vitest';
-import {reducer,initialExperience,INTRO_DURATION_MS,stopStream} from './experience';
+import {reducer,initialExperience,INTRO_DURATION_MS,stopStream,entryProfile} from './experience';
 const enter=()=>reducer(initialExperience,{type:'entered'});
 describe('1.5-second direct entry',()=>{
  it('starts in a 1.5-second intro with no scan or identity state',()=>{expect(INTRO_DURATION_MS).toBe(1500);expect(initialExperience).toEqual({phase:'intro',index:0});});
@@ -13,3 +13,9 @@ describe('1.5-second direct entry',()=>{
 });
 
 it('selects a specific supplied clip without replaying the intro',()=>{const s=reducer(initialExperience,{type:'entered'});expect(reducer(s,{type:'select',index:4})).toEqual({phase:'feed',index:4});expect(reducer(initialExperience,{type:'select',index:4})).toEqual(initialExperience);});
+
+describe('unified entry is random, never face/gender inferred',()=>{
+ it('assigns either group without a preset',()=>{expect(entryProfile('',0)).toBe('nailong');expect(entryProfile('',1)).toBe('lulu');expect(entryProfile('?demo=unknown',3)).toBe('lulu');});
+ it('keeps explicit classroom presets fixed',()=>{expect(entryProfile('?demo=lulu',0)).toBe('lulu');expect(entryProfile('?demo=nailong',1)).toBe('nailong');expect(entryProfile('?demo=lulu&feed=memes',0)).toBe('lulu');});
+ it('retains the original human-meme feed only at its explicit URL',()=>{expect(entryProfile('?feed=memes',1)).toBeNull();expect(entryProfile('?feed=other',0)).toBe('nailong');});
+});
