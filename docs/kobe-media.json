@@ -213,6 +213,41 @@
           "sha256": "f33e339982b7b11383f869caa839c8c712b64bb46c45aa80e31550bcb21dc2df"
         }
       }
+    },
+    {
+      "id": "kobe-07",
+      "character": "科比",
+      "originalFilename": "ScreenRecording_10-08-2026 21-03-45_1.mov",
+      "path": "public/media/kobe-originals/ScreenRecording_10-08-2026 21-03-45_1.mov",
+      "sizeBytes": 12919333,
+      "sha256": "16427d43d837e3ba57f88e0f4a724b6c8f1ed58de8e90e23f48ed81d6d635a11",
+      "durationSeconds": 8.268345,
+      "streams": [
+        {
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 1274,
+          "height": 2116
+        },
+        {
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2
+        }
+      ],
+      "playback": {
+        "mp4": {
+          "path": "public/media/kobe-07.mp4",
+          "sizeBytes": 4243830,
+          "sha256": "093de3365709ea2e571206e671d06c090b3c4a99d688ab5a9fd053befb3a7c1c"
+        },
+        "webm": {
+          "path": "public/media/kobe-07.webm",
+          "sizeBytes": 2885585,
+          "sha256": "296cbe62a6cd9fd77db4fc2d61d7a8994e7b19f8df855d6db572999530bdedcc"
+        }
+      }
     }
   ]
 }
