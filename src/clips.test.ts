@@ -27,3 +27,10 @@ it('keeps all seven Kobe clips in an independent original-video pool',()=>{
  expect(new Set(clips.map(c=>c.mp4)).size).toBe(7);
  expect(clipAt(7,clips)).toBe(clips[0]);expect(clipAt(-1,clips)).toBe(clips[6]);
 });
+
+it('keeps all seven Joke Bear originals in their own pool without camera overlays',()=>{
+ const clips=feedFor('jokebear');expect(clips).toHaveLength(7);
+ expect(clips.every(c=>c.group==='jokebear'&&!c.track&&!c.whiteGloves&&c.webm&&c.title.startsWith('Joke Bear'))).toBe(true);
+ expect(new Set(clips.map(c=>c.mp4)).size).toBe(7);
+ expect(clipAt(7,clips)).toBe(clips[0]);expect(clipAt(-1,clips)).toBe(clips[6]);
+});
