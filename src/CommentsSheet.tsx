@@ -4,20 +4,8 @@ import {X,CornersOut,CornersIn,Heart,HeartBreak,CaretDown,CaretUp,ImageSquare,At
 export interface Item {id:string;name:string;avatar:string;text:string;meta:string;likes:number;replies?:Item[];image?:string;}
 interface Props {title:string;count:number;items:Item[];onItemsChange:(items:Item[])=>void;onImageURL:(url:string)=>void;onClose:()=>void;onExpand:(expanded:boolean)=>void;onPost:()=>void;}
 const base=import.meta.env.BASE_URL;
-export const initialComments:Item[]=[
- {id:'panda',name:'今天也在摇',avatar:'avatar-panda.webp',text:'怎么刷着刷着，每个人都长成我了？动作还是那个动作，已经分不清谁是谁了。',meta:'4小时前 · 湖北',likes:1961,replies:[
-  {id:'panda-r1',name:'路过的晚霞',avatar:'avatar-sunset.webp',text:'动作还是那个动作，脸已经换了。',meta:'2小时前 · 广东',likes:59},
-  {id:'panda-r2',name:'隔壁老猫',avatar:'avatar-cat.webp',text:'下一条也是你，平台很懂。',meta:'1小时前 · 浙江',likes:27},
-  {id:'panda-r3',name:'今天也在摇',avatar:'avatar-panda.webp',text:'所以到底是我喜欢，还是它替我喜欢？',meta:'35分钟前 · 湖北',likes:12}
- ]},
- {id:'sunset',name:'路过的晚霞',avatar:'avatar-sunset.webp',text:'换了一个梗，还是同一张脸。',meta:'13分钟前 · 宁夏',likes:3,replies:[
-  {id:'sunset-r1',name:'隔壁老猫',avatar:'avatar-cat.webp',text:'我已经刷回第一条了。',meta:'8分钟前 · 广西',likes:2}
- ]},
- {id:'cat',name:'隔壁老猫',avatar:'avatar-cat.webp',text:'你在刷视频，还是视频在刷你？',meta:'2小时前 · 广西',likes:59,replies:[{id:'cat-r1',name:'只看一眼',avatar:'avatar-cat.webp',text:'下一条还是我，根本停不下来。',meta:'2小时前 · 江苏',likes:107}]},
- {id:'meow',name:'只看一眼',avatar:'avatar-cat.webp',text:'说好最后一条，结果又划了一次。',meta:'30分钟前 · 江苏',likes:107}
-];
 export default function CommentsSheet({title,count,items,onItemsChange,onImageURL,onClose,onExpand,onPost}:Props){
- const [tab,setTab]=useState<'comments'|'analysis'>('comments'),[expanded,setExpanded]=useState(false),[opened,setOpened]=useState<Record<string,boolean>>({cat:true}),[liked,setLiked]=useState<Record<string,boolean>>({}),[disliked,setDisliked]=useState<Record<string,boolean>>({});
+ const [tab,setTab]=useState<'comments'|'analysis'>('comments'),[expanded,setExpanded]=useState(false),[opened,setOpened]=useState<Record<string,boolean>>({}),[liked,setLiked]=useState<Record<string,boolean>>({}),[disliked,setDisliked]=useState<Record<string,boolean>>({});
  const [draft,setDraft]=useState(''),[reply,setReply]=useState<string|null>(null),[attachment,setAttachment]=useState('');
  const input=useRef<HTMLInputElement>(null),file=useRef<HTMLInputElement>(null),dragStart=useRef<number|null>(null);
  const send=()=>{if(!draft.trim()&&!attachment)return;
