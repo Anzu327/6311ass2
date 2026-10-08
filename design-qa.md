@@ -49,3 +49,7 @@ Source: user-provided personal Douyin profile screenshot in this conversation, u
 Browser fallback: desktop IAB/browser connector unavailable; ran isolated Playwright with system Chromium. Four pools passed scroll/image readiness, editing name/bio/avatar, like/save synchronization, daily preview, source search/select, profile↔messages↔feed navigation, one camera request and one source decoder.320×640 and1440×900 captures verify no horizontal overflow and centered portrait desktop presentation. Typecheck/build,26 unit tests and Sites hosting checks pass. Existing delayed-media transition regression is also rerun. Camera permission was denied in these local tests; actual tracking regression remains covered by the existing synthetic-camera GitHub workflow.
 
 Profile design QA result: passed. No outstanding P0–P2 visual or interaction failures.
+
+
+## User-requested camera framing adjustment (2026-10-08)
+Scanner preview intentionally changes from cover/cropped framing to full-framecontain using existinggeometryhelper, to reduce apparent digital magnification. Dark letterboxing is now intentional; do not treat it as drift from the earlier filled mock. Terminal layout/type/beam/result UI remains unchanged. Wider camera coverage checks and runtime revalidation pending for this follow-up; the earlier selected-visual review above remains historical evidence.
