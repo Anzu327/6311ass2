@@ -4,7 +4,7 @@ Source visual truth: selected third displayed ImageGen result exec-ac229e89-2199
 
 Implementation screenshot: pending browser-run qa-results/terminal-design-390x634.png, active scan test-only62%state. Production uses real camera, no supplied mock face. Camera/photo content is dynamic; compare layout/type/tokens/assets not identity.
 
-Required fidelity surfaces: fonts (officialOFLAnton + existingScanSans), spacing/layout, charcoal/bone/blue/orange palette, generated texture/corners/ruler + supplied brand mark/blue beam, scan/status/result/recovery copy.
+Required fidelity surfaces: fonts (officialOFLOswaldBold + existingScanSans), spacing/layout, charcoal/bone/blue/orange palette, generated texture/corners/ruler + supplied brand mark/blue beam, scan/status/result/recovery copy.
 
 Findings: browser capture and combined reference comparison pending. No completion claim.
 

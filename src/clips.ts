@@ -1,7 +1,7 @@
 export const feedGroups=['nailong','lulu','huge','kobe'] as const;
 export type FeedGroup=typeof feedGroups[number];
 export const groupNames:Record<FeedGroup,string>={nailong:'奶龙／奶蛙',lulu:'噜噜',huge:'虎哥',kobe:'科比'};
-export const groupLabels:Record<FeedGroup,string>={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉',kobe:'科比资深粉'};
+export const groupLabels:Record<FeedGroup,string>={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉',kobe:'man巴out'};
 export interface FeedClip {id:string;title:string;mp4:string;webm:string;track?:string;whiteGloves?:boolean;group?:FeedGroup;caption?:string;}
 export const feedClips:FeedClip[]=[
  {id:'qinghai',title:'青海摇',mp4:'media/qinghai-original.mp4',webm:'media/qinghai-original.webm',track:'media/qinghai-track.json',whiteGloves:true},
