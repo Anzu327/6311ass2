@@ -64,3 +64,10 @@ Build/typecheck/unit tests/test:sites successful at37665465768. Protected hostin
 - [x] Primary demo flow and original feed/camera/audio/privacy regression verified.
 - [x] No unrequested classifiers or storage added.
 - [ ] Merge and confirm actual Pages deployment before user handoff.
+
+## Personal profile validation (2026-10-08)
+Source: user-provided personal Douyin profile screenshot in this conversation, used as layout reference only. No source screenshot or private image/text is saved in the repository. Compared the reference anatomy with rendered mobile capture `qa-results/profile-nailong.png` at390×844: cover/overlapping round identity, white rounded statistics panel, bio/tags, five utility icons, content tabs, management cards and3-column portrait grid. Existing system Chinese font, ink text, pink accents and white navigation match the current app. Intentional substitutions: public sunset cover/cat avatar, fictional nickname/ID/stats/bio, public authorized source thumbnails and local demo disclosures; omit iOS status bar/system chrome and private draft/game content. Real likes/saves and session watch history replace invented account data. The grid remains limited to the active pool.
+
+Browser fallback: desktop IAB/browser connector unavailable; ran isolated Playwright with system Chromium. Four pools passed scroll/image readiness, editing name/bio/avatar, like/save synchronization, daily preview, source search/select, profile↔messages↔feed navigation, one camera request and one source decoder.320×640 and1440×900 captures verify no horizontal overflow and centered portrait desktop presentation. Typecheck/build,26 unit tests and Sites hosting checks pass. Existing delayed-media transition regression is also rerun. Camera permission was denied in these local tests; actual tracking regression remains covered by the existing synthetic-camera GitHub workflow.
+
+Profile design QA result: passed. No outstanding P0–P2 visual or interaction failures.
