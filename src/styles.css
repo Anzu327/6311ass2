@@ -53,6 +53,13 @@
 .scan-video-window{position:absolute;inset:0;overflow:hidden}
 .scanner-camera canvas{display:block;width:100%;height:100%;position:absolute;inset:0;image-rendering:auto}
 .scan-corners{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:2}
+.scan-face-guide{position:absolute;left:22%;top:14%;width:56%;height:70%;border:1px solid #9bdcff66;border-radius:22px;z-index:3;pointer-events:none;box-shadow:0 0 0 999px #06131d26}
+.scan-face-guide i{position:absolute;width:24px;height:24px;border:2px solid #a3e3ff;filter:drop-shadow(0 0 3px #07191f)}
+.scan-face-guide i:nth-child(1){left:-1px;top:-1px;border-right:0;border-bottom:0;border-top-left-radius:22px}
+.scan-face-guide i:nth-child(2){right:-1px;top:-1px;border-left:0;border-bottom:0;border-top-right-radius:22px}
+.scan-face-guide i:nth-child(3){left:-1px;bottom:-1px;border-right:0;border-top:0;border-bottom-left-radius:22px}
+.scan-face-guide i:nth-child(4){right:-1px;bottom:-1px;border-left:0;border-top:0;border-bottom-right-radius:22px}
+.running .scan-face-guide{border-color:#9bdcffb3}.running .scan-face-guide i{border-color:#d0f1ff}
 .scan-beam{position:absolute;left:0;top:var(--scan-sweep);width:100%;height:88px;transform:translateY(-50%);opacity:.9;pointer-events:none;z-index:1}
 .scan-camera-caption{position:absolute;left:10%;bottom:4%;margin:0;color:#babdbd;font-size:10px;line-height:1.3;z-index:3}
 .scan-ruler{position:absolute;left:0;top:0;width:calc(100% + 17px);height:100%;object-fit:fill;pointer-events:none;z-index:-1}

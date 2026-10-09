@@ -112,3 +112,7 @@ User rejected the full-framecontain gray top/bottom bars in their real phone scr
 
 ## Approved Joke Bear pool (2026-10-09)
 User supplied sevenMP4s and requested another independent Joke Bear pool. Integrate ?demo=jokebear, group nameJoke Bear, result labelJoke Bear资深粉, and include it in uniform root random assignment with奶龙／奶蛙、噜噜、虎哥、科比. Preserve full original framing/duration/source audio; no webcam-head overlay or mosaic. Archive originals, full-frame H.264/AAC MP4 with exact AAC stream copy, VP9/Opus WebM fallback and authorized source posters. Reuse existing scanner/swipe/preload/comments/profile/messages and privacy; face detection is not identity or interest recognition. Existing fixed links, camera rules, original-video pools and GitHub Pages publication remain.
+
+
+## Scanner face-position guide (2026-10-09)
+User requests a small positioning frame to help align their face during scanning. Add a centered ice-blue rounded rectangular guide within the existing near-square camera preview, with visible corner brackets and explicit alignment/hold-still copy. This is a visual aid only; preserve the actual face-presence gate,2s scan/loss reset, completion, camera/privacy and current feed behavior. Hide the guide after completion.
