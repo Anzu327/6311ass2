@@ -194,6 +194,8 @@ try{
  // Approved blue scanner: explicit demo URL determines a label, never identity inference.
  for(const profile of ['nailong','lulu','huge','kobe','jokebear']){
   const demo=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+  const scannerHeadRequests=[];
+  await demo.route('**/vision/selfie_multiclass.tflite',route=>{scannerHeadRequests.push(route.request().url());return route.abort();});
   demo.on('pageerror',e=>errors.push(e.message));demo.on('response',r=>{if(r.url().includes('127.0.0.1')&&r.status()>=400)broken.push(r.url());});demo.on('requestfinished',r=>{if(!['GET','HEAD'].includes(r.method()))outgoing.push(r.url());});
   diagnosticPage=demo;await demo.addInitScript(syntheticCamera);
   await demo.addInitScript(()=>{
@@ -237,6 +239,7 @@ try{
   assert.ok(Date.now()-began>=1700,'Result follows the full two-second scan');
   const label={nailong:'重度奶龙用户',lulu:'噜噜资深粉',huge:'虎哥资深粉',kobe:'man巴out',jokebear:'Joke Bear资深粉'}[profile];
   await demo.getByRole('heading',{name:label,exact:true}).waitFor();
+  assert.deepEqual(scannerHeadRequests,[],'Real face scanning must complete without requesting the legacy head segmentation model');
   await demo.waitForTimeout(450);
   assert.equal(await demo.locator('.scan-sticker').innerText(),label,'Result uses matching terminal typography for every group');
   assert.match(await demo.locator('.scan-disclosure').innerText(),/分组为演示.*非身份识别/);

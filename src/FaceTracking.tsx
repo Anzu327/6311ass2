@@ -2,10 +2,11 @@ import {useEffect,useRef,type RefObject} from 'react';
 import {containBox,sampleHead,fittedHeadScale,mosaicCrop,headCrop,isHeadCategory,validHeadTrack,type HeadTrack} from './faceGeometry';
 import type {FeedClip} from './clips';
 import type {FaceLandmarker,ImageSegmenter} from '@mediapipe/tasks-vision';
-interface Props {video:RefObject<HTMLVideoElement|null>;clip:RefObject<HTMLVideoElement|null>;active:boolean;source:FeedClip;onStatus:(s:string)=>void;}
+export type FaceDetectionState='loading'|'present'|'absent'|'error';
+interface Props {video:RefObject<HTMLVideoElement|null>;clip:RefObject<HTMLVideoElement|null>;active:boolean;source:FeedClip;onStatus:(s:string)=>void;cutout?:boolean;onDetection?:(state:FaceDetectionState)=>void;}
 interface Cutout {image:HTMLCanvasElement;chinX:number;chinY:number;top:number;angle:number;}
 const base=import.meta.env.BASE_URL;
-export default function FaceTracking({video,clip,active,source,onStatus}:Props){
+export default function FaceTracking({video,clip,active,source,onStatus,cutout=true,onDetection}:Props){
  const status=useRef('');const canvas=useRef<HTMLCanvasElement>(null),liveHead=useRef<Cutout|null>(null),useCamera=useRef(active);useCamera.current=active;
  // One renderer for live cutouts and source-video mosaic; no fictional face fallback.
  useEffect(()=>{
@@ -71,22 +72,32 @@ export default function FaceTracking({video,clip,active,source,onStatus}:Props){
   return()=>{disposed=true;controller.abort();cancelAnimationFrame(frame);if(stage)delete stage.dataset.headReady;};
  },[clip,source,onStatus]);
  useEffect(()=>{
-  liveHead.current=null;if(!active)return;
+  liveHead.current=null;onDetection?.(active?'loading':'absent');if(!active)return;
   let disposed=false,frame=0,last=-1,lastRun=0,interval=180,tracker:FaceLandmarker|null=null,segmenter:ImageSegmenter|null=null;
   const input=document.createElement('canvas'),ictx=input.getContext('2d')!;
   const cut=document.createElement('canvas'),cctx=cut.getContext('2d')!;
   const mask=document.createElement('canvas'),mctx=mask.getContext('2d')!;
   const say=(s:string)=>{if(!disposed&&s!==status.current){status.current=s;onStatus(s);}};
+  let detection:FaceDetectionState='loading';
+  const detect=(state:FaceDetectionState)=>{if(!disposed&&state!==detection){detection=state;onDetection?.(state);}};
+  const visibility=()=>{if(document.visibilityState==='hidden'){liveHead.current=null;detect('absent');}};
+  document.addEventListener('visibilitychange',visibility);
   const tick=(time:number)=>{
    if(disposed)return;frame=requestAnimationFrame(tick);
-   const v=video.current;if(!v||v.readyState<2||!tracker||!segmenter||time-lastRun<interval||v.currentTime===last)return;
+   const v=video.current;
+   if(document.visibilityState==='hidden'||!v||v.readyState<2||!v.videoWidth||!v.videoHeight||v.paused||v.ended){liveHead.current=null;if(tracker)detect('absent');return;}
+   if(!tracker||(cutout&&!segmenter)||time-lastRun<interval)return;
+   if(v.currentTime===last){if(time-lastRun>1000){liveHead.current=null;detect('absent');}return;}
    last=v.currentTime;lastRun=time;const started=performance.now();
    try{
     input.width=288;input.height=Math.round(288*v.videoHeight/v.videoWidth);ictx.drawImage(v,0,0,input.width,input.height);
     const face=tracker.detectForVideo(input,time).faceLandmarks[0];
+    detect(face?'present':'absent');
     if(!face){liveHead.current=null;say('No face · showing mosaic');return;}
+    // Scanning needs face presence only. Hair/matte extraction is for legacy overlays.
+    if(!cutout){say('Face detected');return;}
     const crop=headCrop(face,input.width,input.height);if(!crop){liveHead.current=null;say('Move closer · showing mosaic');return;}
-    segmenter.segmentForVideo(input,time,result=>{
+    segmenter!.segmentForVideo(input,time,result=>{
      if(disposed)return;if(!result.categoryMask){liveHead.current=null;say('Head cutout unavailable · showing mosaic');return;}
      const category=result.categoryMask,data=category.getAsUint8Array();
      mask.width=category.width;mask.height=category.height;
@@ -110,7 +121,7 @@ export default function FaceTracking({video,clip,active,source,onStatus}:Props){
      liveHead.current={image:cut,chinX:cut.width-(crop.chin.x-crop.x)*ratio,chinY,top:first,angle:-crop.angle};
      say('LIVE · your face');
     });
-   }catch{liveHead.current=null;say('Tracking paused · showing mosaic');}
+   }catch{liveHead.current=null;detect('error');say('Tracking paused · showing mosaic');}
    interval=Math.min(500,Math.max(180,(performance.now()-started)*1.5));
   };
   frame=requestAnimationFrame(tick);say('Loading local face cutout…');
@@ -118,11 +129,12 @@ export default function FaceTracking({video,clip,active,source,onStatus}:Props){
    const {FaceLandmarker,ImageSegmenter,FilesetResolver}=await import('@mediapipe/tasks-vision');
    const files=await FilesetResolver.forVisionTasks(base+'vision/wasm');if(disposed)return;
    const face=await FaceLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:base+'vision/face_landmarker.task',delegate:'CPU'},runningMode:'VIDEO',numFaces:1});
-   if(disposed){face.close();return;}tracker=face;
+   if(disposed){face.close();return;}tracker=face;detect('absent');
+   if(!cutout){say('Look at the camera');return;}
    const head=await ImageSegmenter.createFromOptions(files,{baseOptions:{modelAssetPath:base+'vision/selfie_multiclass.tflite',delegate:'CPU'},runningMode:'VIDEO',outputCategoryMask:true,outputConfidenceMasks:false});
    if(disposed){head.close();return;}segmenter=head;say('Look at the camera');
-  }catch{say('Head tracking unavailable · showing mosaic');}})();
-  return()=>{disposed=true;cancelAnimationFrame(frame);tracker?.close();segmenter?.close();liveHead.current=null;};
- },[active,video,onStatus]);
+  }catch{detect('error');say('Head tracking unavailable · showing mosaic');}})();
+  return()=>{disposed=true;document.removeEventListener('visibilitychange',visibility);cancelAnimationFrame(frame);tracker?.close();segmenter?.close();liveHead.current=null;};
+ },[active,video,onStatus,cutout,onDetection]);
  return <canvas ref={canvas} hidden={!source.track} className="face-tracking head-overlay" aria-label="Local head overlay"/>;
 }

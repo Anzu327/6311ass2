@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useReducer,useRef,useState,type CSSProperties,type PointerEvent as ReactPointerEvent} from 'react';
 import {Plus,ChatCircleDots,User,Heart,ShareFat,Star,MagnifyingGlass,List,X,CameraSlash,Check,Play,MusicNotes,CaretDown,Circle} from '@phosphor-icons/react';
 import {INTRO_DURATION_MS,initialExperience,reducer,stopStream,entryProfile} from './experience';
-import FaceTracking from './FaceTracking';
+import FaceTracking,{type FaceDetectionState} from './FaceTracking';
 import ScanDemo,{type DemoProfile} from './ScanDemo';
 import {feedFor,clipAt,groupNames,feedClips,groupedClips,feedGroups} from './clips';
 import Inbox from './Inbox';
@@ -15,6 +15,7 @@ const base=import.meta.env.BASE_URL;
 export default function App(){
  const [demoProfile]=useState<DemoProfile|null>(()=>{const limit=256-256%feedGroups.length;let choice;do{choice=crypto.getRandomValues(new Uint8Array(1))[0];}while(choice>=limit);return entryProfile(location.search,choice);});
  const [scanFinished,setScanFinished]=useState(false);
+ const [faceDetection,setFaceDetection]=useState<FaceDetectionState>('absent');
  const [engagement]=useState(()=>Object.fromEntries([...feedClips,...Object.values(groupedClips).flat()].map(item=>{
   const likes=Math.floor(80+Math.random()**2*24000);
   return [item.id,{likes,comments:Math.floor(40+likes*(.01+Math.random()*.07)),shares:Math.floor(2+likes*(.005+Math.random()*.04))}];
@@ -148,7 +149,7 @@ export default function App(){
  <div className="media-stage" inert={scanVisible||moving} role="button" aria-label={paused?'播放视频':'暂停视频'} tabIndex={0} onClick={tapVideo} onKeyDown={e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();tapVideo();}}}>
   <div className={`portrait-backdrop ${!currentClip.track&&readyClipId!==currentClip.id?'poster-active':''}`}>{!currentClip.track&&<img className="clip-poster" src={base+'media/posters/'+currentClip.id+'.webp'} alt="" aria-hidden="true" fetchPriority="high"/>}<video ref={clip} className="meme-video" autoPlay={!scanVisible&&!moving&&!inboxOpen.current} loop muted={false} playsInline preload="auto" aria-label={currentClip.title+' source video'} data-clip-id={currentClip.id}
   onError={e=>{if(e.target===e.currentTarget)setClipError('视频加载失败，请刷新重试');}} onLoadedData={markClipReady} onCanPlay={markClipReady}><source src={base+currentClip.mp4} type='video/mp4; codecs="avc1.4D4029,mp4a.40.2"'/><source src={base+currentClip.webm} type='video/webm; codecs="vp9,opus"'/></video></div>
-  <FaceTracking video={video} clip={clip} source={currentClip} active={!!stream&&(scanVisible||!!currentClip.track)} onStatus={onTracking}/>
+  <FaceTracking video={video} clip={clip} source={currentClip} active={!!stream&&(scanVisible||!!currentClip.track)} cutout={!scanVisible} onDetection={setFaceDetection} onStatus={onTracking}/>
   {paused&&!needsGesture&&!moving&&readyClipId===currentClip.id&&<Play className="paused-symbol" size={52} weight="fill" aria-hidden="true"/>}
  </div>
  <div className="post-caption" inert={scanVisible}><div className="author-name">@抖歪放映员 <span className="post-kind">{currentClip.group?'专属':'换脸'}</span></div><div className="caption-description"><p className={captionExpanded?'expanded':'collapsed'}>{currentClip.caption??descriptions[currentClip.id]}</p><button className="caption-expand" onClick={()=>setCaptionExpanded(v=>!v)}>{captionExpanded?'收起':'展开'}</button></div><small className="sound-line"><MusicNotes size={13}/>{currentClip.title} · 原声</small><span className="sr-only">{currentClip.title} {state.index%activeClips.length+1}/{activeClips.length}</span></div>
@@ -171,7 +172,7 @@ export default function App(){
  <Profile visible={modal==='profile'} clips={activeClips} liked={liked} saved={saved} watched={watched} onSelect={index=>{resumeAfterInbox.current=true;setModal(null);dispatch({type:'select',index});}}/>
  {modal==='comments'&&<CommentsSheet title={currentClip.title} count={commentsCount} key={currentClip.id} items={commentStore[currentClip.id]} onItemsChange={items=>setCommentStore(v=>({...v,[currentClip.id]:items}))} onImageURL={url=>imageURLs.current.push(url)} onClose={closeComments} onExpand={setCommentsExpanded} onPost={()=>setCommentTotals(v=>({...v,[currentClip.id]:(v[currentClip.id]??0)+1}))}/>}
  {toast&&<div className="toast" role="status"><Check size={15}/>{toast}</div>}
- {scanVisible&&demoProfile&&<ScanDemo profile={demoProfile} camera={video} facePresent={!!stream&&tracking==='LIVE · your face'} cameraError={cameraError} retry={()=>void enableCamera()} onContinue={()=>{setScanFinished(true);setCameraError('');scanVisibleRef.current=false;playWithSound();}}/>}
+ {scanVisible&&demoProfile&&<ScanDemo profile={demoProfile} camera={video} facePresent={!!stream&&faceDetection==='present'} detectionState={faceDetection} cameraError={cameraError} retry={()=>void enableCamera()} onContinue={()=>{setScanFinished(true);setCameraError('');scanVisibleRef.current=false;playWithSound();}}/>}
  </section></main>
  {cameraError&&!scanVisible&&modal!=='inbox'&&modal!=='profile'&&<div className="camera-error" role="alert"><CameraSlash size={20}/><p>{cameraError}</p><button onClick={()=>{setCameraError('');}}>继续观看</button><button onClick={()=>void enableCamera()} disabled={busy}>重试摄像头</button><button aria-label="关闭摄像头提示" onClick={()=>setCameraError('')}><X/></button></div>}
  {modal&&modal!=='comments'&&modal!=='inbox'&&modal!=='profile'&&<dialog className="dialog" onCancel={()=>setModal(null)} onClick={e=>{if(e.target===e.currentTarget)setModal(null);}}><button className="dialog-close" onClick={()=>setModal(null)} aria-label="关闭弹窗"><X size={23}/></button>

@@ -1,11 +1,12 @@
 import {useEffect,useRef,useState,type CSSProperties,type RefObject} from 'react';
 import {CheckCircle,Lightning,Warning,UserFocus} from '@phosphor-icons/react';
 import {groupLabels,type FeedGroup} from './clips';
+import type {FaceDetectionState} from './FaceTracking';
 export type DemoProfile=FeedGroup;
 const base=import.meta.env.BASE_URL;
 const SCAN_MS=2000;
-interface Props {profile:DemoProfile;camera:RefObject<HTMLVideoElement|null>;facePresent:boolean;cameraError:string;retry:()=>void;onContinue:()=>void;}
-export default function ScanDemo({profile,camera,facePresent,cameraError,retry,onContinue}:Props){
+interface Props {profile:DemoProfile;camera:RefObject<HTMLVideoElement|null>;facePresent:boolean;detectionState:FaceDetectionState;cameraError:string;retry:()=>void;onContinue:()=>void;}
+export default function ScanDemo({profile,camera,facePresent,detectionState,cameraError,retry,onContinue}:Props){
  const [ready,setReady]=useState(false),[assetError,setAssetError]=useState(false),[help,setHelp]=useState(false),[complete,setComplete]=useState(false),[progress,setProgress]=useState(0),[suspended,setSuspended]=useState(document.visibilityState==='hidden');
  const canvas=useRef<HTMLCanvasElement>(null);
  const label=groupLabels[profile];
@@ -37,16 +38,17 @@ export default function ScanDemo({profile,camera,facePresent,cameraError,retry,o
   };frame=requestAnimationFrame(paint);return()=>{cancelAnimationFrame(frame);ctx.clearRect(0,0,c.width,c.height);};
  },[camera,suspended]);
  const sweep=progress<=.5?progress*2:(1-progress)*2;
- const status=complete?'扫描完成':running?'正在扫描':assetError?'素材加载失败':!ready?'加载中':cameraError?'摄像头不可用':'请对准摄像头';
+ const detectionError=detectionState==='error';
+ const status=complete?'扫描完成':running?'正在扫描':assetError?'素材加载失败':!ready?'加载中':cameraError?'摄像头不可用':detectionError?'人脸检测不可用':detectionState==='loading'?'人脸检测加载中':'请对准摄像头';
  return <section className={'scan-demo terminal-scan '+(running?'running ':'')+(complete?'scan-complete':'')} aria-label="摄像头人脸扫描" data-demo-profile={profile} data-scan-state={complete?'complete':running?'scanning':'waiting'} style={{'--scan-sweep':(5+sweep*90)+'%','--terminal-texture':'url('+base+'media/terminal-texture.webp)'} as CSSProperties}>
   <header className="scan-brand"><img src={base+'media/terminal-mark.webp'} alt=""/><span>抖歪</span><small>LOCAL</small></header>
   <div className="scan-title" aria-hidden="true"><span className="scan-warning"><Warning weight="bold"/><Lightning weight="fill"/></span><span className="scan-title-word">SCAN</span><UserFocus className="scan-focus" weight="thin"/></div>
   <div className="scanner-camera"><div className="scan-video-window"><canvas ref={canvas} width={660} height={900} aria-label="实时摄像头预览"/>{ready&&<img className="scan-corners" src={base+'media/terminal-corners.webp'} alt=""/>}{!complete&&<div className="scan-face-guide" aria-hidden="true"><i/><i/><i/><i/></div>}{running&&<img className="scan-beam" src={base+'media/scan-beam.webp'} alt=""/>}<span className="scan-camera-caption">本地实时摄像头</span></div><img className="scan-ruler" src={base+'media/terminal-ruler.webp'} alt=""/>{running&&<span className="scan-ruler-light" aria-hidden="true"/>}</div>
   <div className="scan-controls">
    {complete?<><div className="scan-outcome"><h1 className="scan-sticker">{label}</h1><span><CheckCircle size={17}/>分区已锁定</span></div><button className="scan-enter" onClick={onContinue}>进入推荐</button></>:<>
-    <div className="scan-progress-row"><span className="scan-percent" aria-hidden="true">{Math.round(progress*100)}<small>%</small></span><div className="scan-status-copy"><div className="scan-status" role="status">{status}</div><span className="scan-help-copy">{running?'保持面部在定位框内':assetError?'请刷新重试':cameraError?'允许摄像头，或跳过扫描':help?'面部对准框内，保持光线充足':'请将面部对准定位框'}</span></div></div>
+    <div className="scan-progress-row"><span className="scan-percent" aria-hidden="true">{Math.round(progress*100)}<small>%</small></span><div className="scan-status-copy"><div className="scan-status" role="status">{status}</div><span className="scan-help-copy">{running?'保持面部在定位框内':assetError?'请刷新重试':cameraError?'允许摄像头，或跳过扫描':detectionError?'请刷新重试，或跳过扫描':detectionState==='loading'?'正在准备本地检测':help?'面部对准框内，保持光线充足':'请将面部对准定位框'}</span></div></div>
     <div className="scan-progress-area" aria-label="人脸扫描进度" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress*100)}>{Array.from({length:8},(_,i)=><span key={i} className={progress>i/8?'filled':''}/>)}</div>
-    {!running&&(help||cameraError||assetError)&&<div className="scan-recovery">{cameraError&&<button onClick={retry}>重试摄像头</button>}<button onClick={onContinue}>跳过扫描进入推荐</button></div>}
+    {!running&&(help||cameraError||assetError||detectionError)&&<div className="scan-recovery">{cameraError&&<button onClick={retry}>重试摄像头</button>}<button onClick={onContinue}>跳过扫描进入推荐</button></div>}
    </>}
   </div>
   <footer className="scan-disclosure">本地人脸检测 · 分组为演示，非身份识别</footer>
